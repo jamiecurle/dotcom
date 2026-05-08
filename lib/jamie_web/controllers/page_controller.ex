@@ -14,4 +14,8 @@ defmodule JamieWeb.PageController do
   def privacy(conn, _params) do
     render(conn, :privacy)
   end
+
+  def projects(conn, _params) do
+    render(conn, :projects)
+  end
 end

@@ -28,6 +28,7 @@ defmodule JamieWeb.Router do
     get "/health", PageController, :health
     get "/about", PageController, :about
     get "/privacy", PageController, :privacy
+    get "/projects", PageController, :projects
     get "/feed.xml", FeedController, :index
     get "/sitemap.xml", SitemapController, :index
     get "/posts/:slug/markdown", PostMarkdownController, :show
