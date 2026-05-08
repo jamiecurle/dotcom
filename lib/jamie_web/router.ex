@@ -4,6 +4,7 @@ defmodule JamieWeb.Router do
   import JamieWeb.UserAuth
 
   pipeline :browser do
+    plug JamieWeb.Plugs.MarkdownNegotiation
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash

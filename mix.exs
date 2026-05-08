@@ -89,8 +89,14 @@ defmodule Jamie.MixProject do
         "esbuild css --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warning-as-errors", "deps.unlock --unused", "format", "test"],
-      check: ["format --check-formatted", "credo --strict", "dialyzer", "test"]
+      check: [
+        "compile --warning-as-errors",
+        "deps.unlock --unused",
+        "format --check-formatted",
+        "credo --strict",
+        "dialyzer",
+        "test"
+      ]
     ]
   end
 end

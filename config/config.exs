@@ -37,6 +37,10 @@ config :jamie, JamieWeb.Endpoint,
 
 config :jamie, :images, transform: "cdn-cgi/image/width=1200,format=auto,quality=85"
 
+# Register text/markdown so Plug.Conn.put_resp_content_type/3 and any
+# format-aware code recognise the .md extension.
+config :mime, :types, %{"text/markdown" => ["md"]}
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
