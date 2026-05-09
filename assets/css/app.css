@@ -23,6 +23,9 @@ stuff to make it "look nice" */
 /* images */
 @import "./app/images.css";
 
+/* video / iframe embeds */
+@import "./app/video.css";
+
 /* any non-hover animations */
 @import "./app/dynamics.css";
 
