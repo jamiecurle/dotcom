@@ -18,7 +18,8 @@ defmodule JamieWeb do
   """
 
   def static_paths,
-    do: ~w(assets fonts images favicon.ico llms.txt robots.txt humans.txt .well-known)
+    do:
+      ~w(assets fonts images favicon.ico favicon-16x16.png favicon-32x32.png apple-touch-icon.png android-chrome-192x192.png android-chrome-512x512.png site.webmanifest llms.txt robots.txt humans.txt .well-known)
 
   def router do
     quote do

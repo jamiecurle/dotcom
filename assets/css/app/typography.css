@@ -28,7 +28,7 @@
 
     blockquote {
         margin-left: 0;
-        border-left: var(--unit-3) solid black;
+        border-left: var(--unit-3) solid;
         padding: var(--unit-2-2) 0 var(--unit-1) var(--unit-3);
     }
 

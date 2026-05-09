@@ -7,7 +7,7 @@
 ## About
 
 Jamie Curle is a well rounded human being living and operating in
-Northumberland, UK. He spends his time between software, his workshop and
+Northumberland, UK. He spends his time between technology his workshop and
 restoring ancient woodland. He doesn't like it when you bring up the topic
 of "nearly finished" DIY projects.
 
@@ -16,9 +16,9 @@ He has been the first engineer at a startup, scaling technology from zero to
 $20M+ revenue, and has a track record of direct, positive impact on the
 careers and lives of reports and students through servant-based leadership.
 
-Jamie runs jamiecurle ltd, a freelance consultancy currently delivering a
+Jamie runs jamiecurle ltd, a freelance consultancy currently working on
 cloud-first, AI-native Elixir-based system integration connecting GraphQL
-ecommerce with multiple legacy SFTP fulfilment workflows.
+ecommerce with multiple legacy SFTP fulfilment workflows, privacy engineering work and security work hardening older and neglected elixir codebases.
 
 Beyond the keyboard, Jamie is a drummer of 30+ years and is restoring and
 managing an eight-acre ancient semi-natural woodland back to oak standards
