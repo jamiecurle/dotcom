@@ -107,6 +107,49 @@ defmodule JamieWeb.Layouts do
   end
 
   @doc """
+  Renders OpenGraph and Twitter Card meta tags. Pages opt in by assigning
+  `:page_title`, `:page_description`, `:og_image`, and/or `:og_type`.
+  """
+  attr :page_title, :string, default: nil
+  attr :page_description, :string, default: nil
+  attr :og_image, :string, default: nil
+  attr :og_type, :string, default: "website"
+  attr :url, :string, required: true
+
+  def meta_tags(assigns) do
+    title =
+      [assigns.page_title, "Jamie Curle"]
+      |> Enum.reject(&is_nil/1)
+      |> Enum.join(" - ")
+
+    description =
+      assigns.page_description ||
+        "Jamie Curle - software, woodland, workshop. Notes from Northumberland, UK."
+
+    image = assigns.og_image || JamieWeb.Endpoint.url() <> "/images/og-default.jpg"
+
+    assigns =
+      assigns
+      |> assign(:title, title)
+      |> assign(:description, description)
+      |> assign(:image, image)
+
+    ~H"""
+    <meta name="description" content={@description} />
+    <meta property="og:title" content={@title} />
+    <meta property="og:description" content={@description} />
+    <meta property="og:type" content={@og_type} />
+    <meta property="og:url" content={@url} />
+    <meta property="og:image" content={@image} />
+    <meta property="og:site_name" content="Jamie Curle" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={@title} />
+    <meta name="twitter:description" content={@description} />
+    <meta name="twitter:image" content={@image} />
+    """
+  end
+
+  @doc """
   Provides dark vs light theme toggle based on themes defined in app.css.
 
   See <head> in root.html.heex which applies the theme before page load.

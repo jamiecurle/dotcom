@@ -14,7 +14,19 @@
     <.live_title default="" suffix="  - Jamie Curle">
       {assigns[:page_title]}
     </.live_title>
+    <Layouts.meta_tags
+      page_title={assigns[:page_title]}
+      page_description={assigns[:page_description]}
+      og_image={assigns[:og_image]}
+      og_type={assigns[:og_type] || "website"}
+      url={Phoenix.Controller.current_url(@conn)}
+    />
     <link rel="alternate" type="application/atom+xml" title="Jamie Curle" href={~p"/feed.xml"} />
+    <link rel="icon" type="image/x-icon" href={~p"/favicon.ico"} />
+    <link rel="icon" type="image/png" sizes="32x32" href={~p"/favicon-32x32.png"} />
+    <link rel="icon" type="image/png" sizes="16x16" href={~p"/favicon-16x16.png"} />
+    <link rel="apple-touch-icon" sizes="180x180" href={~p"/apple-touch-icon.png"} />
+    <link rel="manifest" href={~p"/site.webmanifest"} />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
@@ -53,7 +65,7 @@
           <p>
             Jamie Curle is a well rounded human being living and
             operating in Northumberland, UK. He spends his time between
-            software, his workshop and restoring ancient woodland. He doesn't
+            technology, his workshop and restoring ancient woodland. He doesn't
             like it when you bring up the topic of "nearly finished" DIY projects.
           </p>
         </div>

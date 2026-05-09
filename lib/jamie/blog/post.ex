@@ -69,15 +69,37 @@ defmodule Jamie.Blog.Post do
           MDEx.to_html!(markdown,
             extension: [
               strikethrough: true,
-              tagfilter: true,
+              tagfilter: false,
               table: true,
               footnotes: true,
               autolink: true,
               tasklist: true,
               header_ids: ""
             ],
+            sanitize: [
+              add_tags: ["iframe"],
+              add_tag_attributes: %{
+                "iframe" => [
+                  "src",
+                  "width",
+                  "height",
+                  "frameborder",
+                  "allow",
+                  "allowfullscreen",
+                  "loading",
+                  "title",
+                  "referrerpolicy"
+                ]
+              },
+              add_generic_attributes: ["id", "class"],
+              add_generic_attribute_prefixes: ["aria-", "data-"],
+              add_url_schemes: ["https"],
+              set_tag_attribute_values: %{
+                "iframe" => %{"allow" => "picture-in-picture"}
+              }
+            ],
             parse: [smart: true],
-            render: [unsafe_: true]
+            render: [unsafe: true]
           )
           |> rewrite_image_urls()
 

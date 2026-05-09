@@ -9,13 +9,20 @@ defmodule JamieWeb.PageController do
     |> render(:health)
   end
 
-  def about(conn, _params), do: render_static(conn, :about)
-  def privacy(conn, _params), do: render_static(conn, :privacy)
-  def projects(conn, _params), do: render_static(conn, :projects)
+  def about(conn, _params),
+    do: render_static(conn, :about, "About", "About Jamie Curle.")
 
-  defp render_static(conn, page) do
+  def privacy(conn, _params),
+    do: render_static(conn, :privacy, "Privacy", "Privacy policy for jamiecurle.com.")
+
+  def projects(conn, _params),
+    do: render_static(conn, :projects, "Projects", "Projects Jamie Curle is working on.")
+
+  defp render_static(conn, page, title, description) do
     conn
     |> assign(:content, MarkdownRenderer.static_page_html(page))
+    |> assign(:page_title, title)
+    |> assign(:page_description, description)
     |> render(:static)
   end
 end

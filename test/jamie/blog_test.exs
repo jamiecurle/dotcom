@@ -120,6 +120,23 @@ defmodule Jamie.Blog.Test do
     end
   end
 
+  describe "update_post/1" do
+    test "iframe is allowed when updating a post" do
+      # make a post
+      {:ok, post} =
+        BlogFixtures.blog_attrs()
+        |> Blog.create_post()
+
+      refute post.html =~ "<iframe"
+
+      # now update the post to have an iframe
+      attrs = %{markdown: "<iframe src=https://foo.com></iframe>"}
+      {:ok, post} = Blog.update_post(post, attrs)
+
+      assert post.html =~ "<iframe"
+    end
+  end
+
   describe "change_post/1" do
     test "returns an empty changeset for a new post when no struct is given" do
       %Ecto.Changeset{} = cs = Blog.change_post(%Post{})
@@ -137,7 +154,49 @@ defmodule Jamie.Blog.Test do
   end
 
   describe "create_post/1" do
+    test "iframe tag is allowed to render in create" do
+      # make a post
+      {:ok, post} =
+        BlogFixtures.blog_attrs(markdown: "<iframe src=https://foo.com></iframe>")
+        |> Blog.create_post()
+
+      assert post.html =~ "<iframe"
+    end
+
+    test "iframe allow attribute is forced to picture-in-picture only" do
+      {:ok, post} =
+        BlogFixtures.blog_attrs(
+          markdown:
+            ~s|<iframe src="https://youtube.com/embed/x" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>|
+        )
+        |> Blog.create_post()
+
+      assert post.html =~ ~s|allow="picture-in-picture"|
+      refute post.html =~ "accelerometer"
+      refute post.html =~ "clipboard-write"
+      refute post.html =~ "web-share"
+    end
+
+    test "iframe survives an update on an existing post" do
+      {:ok, post} =
+        BlogFixtures.blog_attrs(markdown: "no embed yet")
+        |> Blog.create_post()
+
+      {:ok, updated} =
+        Jamie.Blog.update_post(post, %{
+          markdown: ~s|<iframe src="https://foo.com"></iframe>|
+        })
+
+      assert updated.html =~ "<iframe"
+    end
+
     test "post gets a slug" do
+      # make a post
+      {:ok, post} =
+        BlogFixtures.blog_attrs(title: "Two Cats Need  Food")
+        |> Blog.create_post()
+
+      assert post.slug == "two-cats-need-food"
     end
 
     test "posts create with required fields" do

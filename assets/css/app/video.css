@@ -1,0 +1,14 @@
+/*start video.css*/
+
+@layer layout {
+    iframe {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        height: auto;
+        border: 0;
+        border-radius: 5px;
+        margin: var(--unit-4) 0;
+    }
+}
+
+/*end video.css*/

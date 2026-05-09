@@ -24,6 +24,9 @@ defmodule JamieWeb.BlogLive.Post do
         socket
         |> assign(:post, post)
         |> assign(:toc, toc(post.markdown))
+        |> assign(:page_title, post.title)
+        |> assign(:page_description, post.description)
+        |> assign(:og_type, "article")
       end
 
     {:noreply, socket}
