@@ -15,6 +15,8 @@ defmodule JamieWeb.BlogLive.Index do
     socket =
       socket
       |> assign(:archive, archive)
+      |> assign(:page_title, "Archive")
+      |> assign(:page_description, "Writing on software, woodland, and the workshop.")
 
     {:noreply, socket}
   end

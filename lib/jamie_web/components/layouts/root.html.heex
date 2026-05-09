@@ -14,6 +14,13 @@
     <.live_title default="" suffix="  - Jamie Curle">
       {assigns[:page_title]}
     </.live_title>
+    <Layouts.meta_tags
+      page_title={assigns[:page_title]}
+      page_description={assigns[:page_description]}
+      og_image={assigns[:og_image]}
+      og_type={assigns[:og_type] || "website"}
+      url={Phoenix.Controller.current_url(@conn)}
+    />
     <link rel="alternate" type="application/atom+xml" title="Jamie Curle" href={~p"/feed.xml"} />
     <link rel="icon" type="image/x-icon" href={~p"/favicon.ico"} />
     <link rel="icon" type="image/png" sizes="32x32" href={~p"/favicon-32x32.png"} />
