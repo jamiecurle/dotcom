@@ -37,6 +37,9 @@ stuff to make it "look nice" */
 /* post specific rules */
 @import "./app/posts.css";
 
+/* flash / toast notifications */
+@import "./app/toasts.css";
+
 /* dark and light mode note: dark is todo
 important: this file contains ONLY colours and no other files
 contain any colour.
