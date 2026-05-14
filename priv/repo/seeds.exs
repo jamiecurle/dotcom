@@ -33,59 +33,48 @@ words = ~w(
 post_content = File.read!("priv/repo/post.md")
 post2_content = File.read!("priv/repo/post2.md")
 
-Enum.each(1..288, fn x ->
-  # simulate six posts a month from now backwards
+# Six posts per month going back `months_back` months from today.
+# Evenly distributed by construction — we iterate per (month_offset, slot)
+# rather than mapping a flat 1..N onto year/month arithmetic.
+today = Date.utc_today()
+months_back = 48
+posts_per_month = 6
 
-  # 6 a months 6 * 12 == 72
-  year = NaiveDateTime.utc_now().year - div(x, 72)
+for month_offset <- 0..(months_back - 1),
+    _slot <- 1..posts_per_month do
+  # step back month_offset whole months from today (preserving day=1)
+  month_anchor =
+    Date.beginning_of_month(today)
+    |> Date.shift(month: -month_offset)
 
-  # this gives us a month
-  month = rem(x, 12) + 1
+  # for the current month, cap the day at today; otherwise span the whole month
+  max_day =
+    if month_offset == 0,
+      do: today.day,
+      else: Date.days_in_month(month_anchor)
 
-  # now make the published day as a random
-  # staggered dates is fine as I could start a post and finish it after I'd
-  # started and finisehed another one.
-  day = 1..Date.days_in_month(Date.new!(year, month, 1)) |> Enum.random()
+  published_on = Date.new!(month_anchor.year, month_anchor.month, Enum.random(1..max_day))
 
-  published_on = Date.new!(year, month, day)
-  today = Date.utc_today()
-
-  # some posts will be edited - 25% chance
-
+  # 25% chance the post was edited a few days later
   edited_on =
-    (Enum.map(1..4, fn _ -> nil end) ++
-       [Date.add(published_on, 3)])
-    |> Enum.random()
+    Enum.random([nil, nil, nil, Date.add(published_on, 3)])
 
-  # don't generate posts in the future
-  if Date.compare(published_on, today) != :gt do
-    # attrs
-    attrs =
-      %{
-        title:
-          Enum.take_random(words, Enum.random(4..15)) |> Enum.join(" ") |> String.capitalize(),
-        status: Enum.random([:published, :published, :draft, :hidden, :published]),
-        description:
-          Enum.take_random(words, Enum.random(20..45)) |> Enum.join(" ") |> String.capitalize(),
-        markdown: Enum.random([post_content, post2_content]),
-        published_on: published_on,
-        edited_on: edited_on
-      }
+  attrs = %{
+    title: Enum.take_random(words, Enum.random(4..15)) |> Enum.join(" ") |> String.capitalize(),
+    status: Enum.random([:published, :published, :published, :draft, :hidden]),
+    description:
+      Enum.take_random(words, Enum.random(20..45)) |> Enum.join(" ") |> String.capitalize(),
+    markdown: Enum.random([post_content, post2_content]),
+    published_on: published_on,
+    edited_on: edited_on
+  }
 
-    # Here is to your health
-    # I'm not Homeboy Sandman, I am someone else
-    # Who turned the corner cuz the New World Order needed help
-    # Who’s known to make it so that frozen water doesn't melt
-    # Born again, fostering the knowledge of the self
-    # Like everyone in Boston has the knowledge of the Celts
-    # Kicking in your door, but on the low like I'm an elf
-    # Now I’m in your house, reading every book that's on your shelf
-    # HIT IT!
-    Post.changeset(%Post{}, attrs)
-    |> Ecto.Changeset.put_change(:published_on, published_on)
-    |> Jamie.Repo.insert(on_conflict: :nothing, conflict_target: :slug)
-  end
-end)
+  # NOTE: Post.changeset/2 overwrites published_on with Date.utc_today() whenever
+  # status is :published — we put_change AFTER to restore the seeded date.
+  Post.changeset(%Post{}, attrs)
+  |> Ecto.Changeset.put_change(:published_on, published_on)
+  |> Jamie.Repo.insert(on_conflict: :nothing, conflict_target: :slug)
+end
 
 #
 # now do users

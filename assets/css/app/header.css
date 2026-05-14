@@ -1,5 +1,32 @@
 @layer layout {
     body > header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        height: var(--unit-6);
+        padding: 0 var(--unit-3);
+        display: flex;
+        align-items: center;
+        z-index: 100;
+        backdrop-filter: blur(12px) saturate(1.4);
+        -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    }
+
+    @media (min-width: 750px) {
+        body > header {
+            margin-right: 0;
+        }
+    }
+
+    div.header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--unit-3);
         width: 100%;
     }
 
@@ -11,6 +38,19 @@
         width: fit-content;
         text-decoration: none;
         /*transform: skewX(1deg) rotate(-2deg) translateY(1px);*/
+    }
+
+    nav.primary-nav {
+        display: flex;
+        gap: var(--unit-3);
+        margin-left: auto;
+    }
+
+    nav.primary-nav a {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: var(--unit-3);
+        letter-spacing: 0.05em;
     }
 
     /*div.header-content a > * {

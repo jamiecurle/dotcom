@@ -50,12 +50,16 @@
       })();
     </script>
   </head>
-  <body>
-    <%!-- <header>
+  <Layouts.body_tag body_id={assigns[:body_id]} body_classes={assigns[:body_classes] || []}>
+    <header>
       <div class="header-content">
         <.home current_path={@conn.request_path} />
+        <nav class="primary-nav">
+          <a href={~p"/posts"}>Blog</a>
+          <a href={~p"/about"}>About</a>
+        </nav>
       </div>
-    </header> --%>
+    </header>
     <main>
       {@inner_content}
     </main>
@@ -65,21 +69,20 @@
           <p>
             Jamie Curle is a well rounded human being living and
             operating in Northumberland, UK. He spends his time between
-            technology, his workshop and restoring ancient woodland. He
-            waiting for AI's killer feature - to be able to finish DIY
-            projects.
+            technology, his workshop and restoring ancient woodland. He is
+            waiting for AI's killer feature  &mdash; finishing DIY projects.
           </p>
         </div>
 
         <nav class="urgh-words">
           <h6>Treeworld</h6>
           <div>
-            <a href="https://www.youtube.com/@treejamie/videos">YouTube</a>
+            <a href="https://www.youtube.com/@lifeoftreedom/videos">YouTube</a>
             <a href="https://lifeoftreedom.com/">Life Of Treedom</a>
           </div>
           <h6>Techworld</h6>
           <div>
-            <a href="https://exercism.org/profiles/treejamie">Exercism</a>
+            <a href="https://exercism.org/profiles/jamiecurle">Exercism</a>
             <a href="https://app.codecrafters.io/users/jamiecurle">CodeCrafters</a>
             <a href="https://github.com/jamiecurle" title="Jamie Curle on Github">Github</a>
             <a href="https://www.linkedin.com/in/jamie-curle/" title="Jamie Curle LinkedIn">
@@ -125,11 +128,11 @@
             a Cloudflare tunnel. Yes, I can do the things. <a href="https://github.com/jamiecurle/dotcom">Source on GitHub</a>.
           </p>
           <p>
-            Design &amp; content &copy; Jamie Curle 2026 all rights reserved. Source Code MIT. No reuse or reproduction
-            of content permitted for any non-personal usage, including for AI training purposes, except where allowed in <a href="/robots.txt">robots.txt</a>.
+            Design &amp; content &copy; Jamie Curle 2026 all rights reserved. No reuse or reproduction
+            of content permitted for any non-personal use, including for AI training purposes, except where allowed in <a href="/robots.txt">robots.txt</a>.
           </p>
         </div>
       </div>
     </footer>
-  </body>
+  </Layouts.body_tag>
 </html>

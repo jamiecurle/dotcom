@@ -1,3 +1,7 @@
+## 0.6.0
+- light mode and dark mode
+- toasts now styled properly
+
 ## 0.5.0
 - added in favicons.
 - now has opengraph functionality.

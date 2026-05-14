@@ -9,6 +9,13 @@ defmodule JamieWeb.PageController do
     |> render(:health)
   end
 
+  def home(conn, _params) do
+    conn
+    |> assign(:body_id, "home")
+    |> assign(:page_title, "Alreet / Hello. I'm ")
+    |> render(:home)
+  end
+
   def about(conn, _params),
     do: render_static(conn, :about, "About", "About Jamie Curle.")
 

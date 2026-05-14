@@ -10,7 +10,7 @@
     }
 
     body > main {
-        padding-top: 0;
+        padding-top: var(--unit-6);
     }
     body > header,
     body > main,

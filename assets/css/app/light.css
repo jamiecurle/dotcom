@@ -95,11 +95,25 @@ All colours MUST be in this file and only this file.
     }
 
     /* header */
+    body > header {
+        background-color: rgba(245, 244, 244, 0.55);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow:
+            0 1px 0 rgba(0, 0, 0, 0.04),
+            0 8px 24px -12px rgba(0, 0, 0, 0.12);
+    }
     body > header .header-content svg path {
         fill: var(--c-accent-dark-6);
     }
     body > header .header-content span {
         color: var(--c-accent-dark-6);
+    }
+    body > header nav.primary-nav a {
+        color: var(--colour-dark-2);
+    }
+
+    body > main {
+        background-color: var(--colour-light-1);
     }
 
     /*typography*/
@@ -160,6 +174,10 @@ All colours MUST be in this file and only this file.
             fill: var(--colour-light-1);
         }
         body > header div.header-content a:hover span {
+            color: var(--colour-light-1);
+        }
+        body > header nav.primary-nav a:hover {
+            background-color: var(--c-accent-dark-6);
             color: var(--colour-light-1);
         }
 

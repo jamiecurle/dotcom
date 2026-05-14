@@ -107,6 +107,25 @@ defmodule JamieWeb.Layouts do
   end
 
   @doc """
+  Renders the `<body>` tag with optional id and classes pulled from assigns.
+
+      <Layouts.body_tag body_id={@body_id} body_classes={@body_classes}>
+        ...
+      </Layouts.body_tag>
+  """
+  attr :body_id, :string, default: nil
+  attr :body_classes, :list, default: []
+  slot :inner_block, required: true
+
+  def body_tag(assigns) do
+    ~H"""
+    <body id={@body_id} class={Enum.join(@body_classes, " ")}>
+      {render_slot(@inner_block)}
+    </body>
+    """
+  end
+
+  @doc """
   Renders OpenGraph and Twitter Card meta tags. Pages opt in by assigning
   `:page_title`, `:page_description`, `:og_image`, and/or `:og_type`.
   """
@@ -124,7 +143,7 @@ defmodule JamieWeb.Layouts do
 
     description =
       assigns.page_description ||
-        "Jamie Curle - Writing about technology, software, woodland, trees and stuff from the workshop."
+        "Jamie Curle - Writing about tech, software, trees, woodland and stuff from the workshop."
 
     image = assigns.og_image || JamieWeb.Endpoint.url() <> "/images/og-default.jpg"
 

@@ -22,6 +22,7 @@ defmodule JamieWeb.BlogLive.Post do
         end
 
         socket
+        |> assign(:body_id, "post")
         |> assign(:post, post)
         |> assign(:toc, toc(post.markdown))
         |> assign(:page_title, post.title)

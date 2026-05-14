@@ -37,6 +37,9 @@ stuff to make it "look nice" */
 /* post specific rules */
 @import "./app/posts.css";
 
+/* home specific rules */
+@import "./app/home.css";
+
 /* flash / toast notifications */
 @import "./app/toasts.css";
 
