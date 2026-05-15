@@ -87,6 +87,8 @@
         position: sticky;
         top: 0;
         margin: 0;
+        padding-bottom: var(--unit-3);
+        margin-bottom: var(--unit-3);
     }
     .archive-month-label {
         top: var(--unit-3-2);
