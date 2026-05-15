@@ -14,10 +14,147 @@
         text-align: center;
         border-radius: var(--unit-1);
     }
-    body#error-404 h1 {
+    body#error-404 a {
+        padding: var(--unit-3);
+        font-weight: 900;
+        text-decoration: none;
+        border-radius: var(--unit-2);
+    }
+    body#error-404 h1,
+    body#error-404 p.emoji {
         margin: 0;
         padding: var(--unit-1);
-        font-size: calc(3 * var(--unit-6));
-        line-height: calc(3 * var(--unit-6));
+        font-size: calc(2 * var(--unit-6));
+        line-height: calc(2 * var(--unit-6));
+    }
+    @media (max-width: 768px) {
+        body#error-404 h1,
+        body#error-404 p.emoji {
+            font-size: calc(1 * var(--unit-6));
+            line-height: calc(1 * var(--unit-6));
+        }
+    }
+
+    /* CRT effect — body wears .crt; ::before paints scanlines; body itself jolts */
+    body#error-404.crt {
+        position: relative;
+        overflow: hidden;
+        animation: crt-distort 17s infinite steps(1, end);
+    }
+
+    body#error-404.crt::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+        transform: translateZ(0);
+        background: repeating-linear-gradient(
+            var(--crt-red) 0px,
+            var(--crt-green) 2px,
+            var(--crt-blue) 4px
+        );
+        animation: crt-flicker 7s infinite;
+    }
+
+    /* Typewriter on the "404" digits — no cursor */
+    body#error-404 h1 .code {
+        display: inline-block;
+        overflow: hidden;
+        white-space: nowrap;
+        vertical-align: bottom;
+        width: 5ch;
+        animation: crt-typewriter 0.9s steps(5) 0.3s 1 normal both;
+    }
+
+    @keyframes crt-typewriter {
+        from {
+            width: 0;
+        }
+        to {
+            width: 5ch;
+        }
+    }
+
+    /* Sparse jolts on the body — mostly identity, brief glitches at three moments */
+    @keyframes crt-distort {
+        0%,
+        18% {
+            transform: none;
+            filter: none;
+        }
+        18.3% {
+            transform: translate3d(-6px, 0, 0) skewX(2deg);
+            filter: hue-rotate(8deg);
+        }
+        18.6% {
+            transform: translate3d(4px, 1px, 0) skewX(-1.5deg);
+        }
+        19% {
+            transform: none;
+            filter: none;
+        }
+        45%,
+        46.4% {
+            transform: none;
+        }
+        46.6% {
+            transform: translate3d(0, -3px, 0) scaleY(1.02);
+            filter: contrast(1.3) brightness(1.1);
+        }
+        46.9% {
+            transform: translate3d(0, 2px, 0);
+        }
+        47.2% {
+            transform: none;
+            filter: none;
+        }
+        73%,
+        74.1% {
+            transform: none;
+        }
+        74.3% {
+            transform: translate3d(-2px, 0, 0) skewY(0.6deg);
+            filter: saturate(1.6);
+        }
+        74.7% {
+            transform: translate3d(3px, -1px, 0);
+        }
+        75% {
+            transform: none;
+            filter: none;
+        }
+        100% {
+            transform: none;
+        }
+    }
+
+    @keyframes crt-flicker {
+        0%,
+        92%,
+        100% {
+            opacity: 1;
+        }
+        93% {
+            opacity: 0.55;
+        }
+        93.4% {
+            opacity: 1;
+        }
+        94% {
+            opacity: 0.7;
+        }
+        94.3% {
+            opacity: 1;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        body#error-404.crt,
+        body#error-404.crt::before,
+        body#error-404 h1 .code {
+            animation: none;
+        }
     }
 }

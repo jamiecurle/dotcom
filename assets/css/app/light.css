@@ -47,6 +47,11 @@ All colours MUST be in this file and only this file.
     --c-accent-light-8: oklch(0.6567 0.2934 21.77 / 93.43%);
 
     /* theme aliases — dark.css will override these */
+    /* CRT scanline channels (used by 404 page) */
+    --crt-red: rgb(218, 49, 49);
+    --crt-green: rgb(112, 159, 115);
+    --crt-blue: rgb(40, 129, 206);
+
     --c-accent: var(--c-accent-light);
     --c-accent-2: var(--c-accent-light-2);
     --c-accent-3: var(--c-accent-light-3);
@@ -252,15 +257,20 @@ img {
 
 /* 404 page */
 body#error-404 {
-    background-color: var(--c-accent-light-5);
+    background-color: var(--c-accent-dark-5);
 }
-body#error-404 h1 {
-    color: var(--c-accent-light-5);
+body#error-404 h1,
+body#error-404 p {
+    color: var(--c-accent-dark-5);
 }
 
 body#error-404 .not-found {
-    background-color: var(--colour-light-1);
+    background-color: var(--colour-dark-2);
     color: var(--colour-dark-1);
+}
+body#error-404 a {
+    background-color: var(--colour-light-1);
+    color: var(--colour-dark-5);
 }
 
 /* end colours css */
