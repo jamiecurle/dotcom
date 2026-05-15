@@ -14,7 +14,7 @@ defmodule JamieWeb.BlogLive.Index do
 
     socket =
       socket
-      |> assign(:body_id, "post")
+      |> assign(:body_id, "blog")
       |> assign(:archive, archive)
       |> assign(:page_title, "Archive")
       |> assign(:page_description, "Writing on software, woodland, and the workshop.")

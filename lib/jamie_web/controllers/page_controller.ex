@@ -12,12 +12,15 @@ defmodule JamieWeb.PageController do
   def home(conn, _params) do
     conn
     |> assign(:body_id, "home")
-    |> assign(:page_title, "Alreet / Hello. I'm ")
+    |> assign(:page_title, "Hello")
     |> render(:home)
   end
 
-  def about(conn, _params),
-    do: render_static(conn, :about, "About", "About Jamie Curle.")
+  def about(conn, _params) do
+    conn
+    |> assign(:body_id, "about")
+    |> render_static(:about, "About", "About Jamie Curle.")
+  end
 
   def privacy(conn, _params),
     do: render_static(conn, :privacy, "Privacy", "Privacy policy for jamiecurle.com.")

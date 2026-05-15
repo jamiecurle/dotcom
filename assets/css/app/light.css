@@ -28,7 +28,8 @@ All colours MUST be in this file and only this file.
     --colour-light-6: #969696;
     --colour-light-7: #828282;
 
-    --c-accent-dark: oklch(0.8441 0.1875 202.24 / 83.57%);
+    /*--c-accent-dark: oklch(0.8441 0.1875 202.24 / 83.57%);*/
+    --c-accent-dark: oklch(0.825 0.1751 205.46);
     --c-accent-dark-2: oklch(0.9353 0.071 202.24 / 93.43%);
     --c-accent-dark-3: oklch(0.9029 0.1066 202.24 / 90.14%);
     --c-accent-dark-4: oklch(0.8706 0.1421 202.24 / 86.86%);
@@ -101,11 +102,11 @@ All colours MUST be in this file and only this file.
 
     /* header */
     body > header {
-        background-color: rgba(245, 244, 244, 0.55);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow:
-            0 1px 0 rgba(0, 0, 0, 0.04),
-            0 8px 24px -12px rgba(0, 0, 0, 0.12);
+        background-color: color-mix(
+            in oklch,
+            var(--c-accent-dark-6) 55%,
+            transparent
+        );
     }
     body > header .header-content svg path {
         fill: var(--c-accent-dark-6);
@@ -114,7 +115,12 @@ All colours MUST be in this file and only this file.
         color: var(--c-accent-dark-6);
     }
     body > header nav.primary-nav a {
-        color: var(--colour-dark-2);
+        color: var(--colour-light-2);
+        background-color: color-mix(
+            in oklch,
+            var(--colour-dark-2) 15%,
+            transparent
+        );
     }
 
     body > main {
@@ -169,6 +175,18 @@ All colours MUST be in this file and only this file.
     footer div.colophon {
         color: var(--colour-light-6);
     }
+    /*
+    nav states
+    */
+    body#home a[data-nav="home"] {
+        background-color: var(--colour-dark-1);
+    }
+    body#about a[data-nav="about"] {
+        background-color: var(--colour-dark-1);
+    }
+    body#blog a[data-nav="blog"] {
+        background-color: var(--colour-dark-1);
+    }
 
     /* hover states */
     @media (hover: hover) {
@@ -182,8 +200,12 @@ All colours MUST be in this file and only this file.
             color: var(--colour-light-1);
         }
         body > header nav.primary-nav a:hover {
-            background-color: var(--c-accent-dark-6);
-            color: var(--colour-light-1);
+            color: var(--colour-dark-2);
+            background-color: color-mix(
+                in oklch,
+                var(--colour-light-2) 15%,
+                transparent
+            );
         }
 
         footer nav.urgh-words a:hover,
