@@ -24,7 +24,7 @@
     /*start claude*/
 
     div#alreet div.latest-published-posts {
-        margin-top: calc(var(--unit-6) + var(--unit-6));
+        margin-top: calc(2.2 * var(--unit-6));
         margin-left: auto;
         margin-right: var(--unit-3);
         width: min(360px, 40vw);
