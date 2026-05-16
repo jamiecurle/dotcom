@@ -35,7 +35,7 @@ Understanding design as a process is a super skill.
 
 ### ENGINEER
 
-As as designer I wrote code. I began teaching myself HTML in the late 1990's using [HTML Goodies][e1] and by right clicking and using view source. I moved onto CSS, ActionScript & JavaScript. Then I learned some [perl, then PHP][e2]. It was magical. 
+As as designer I wrote code. I began teaching myself HTML in the late 1990's using [HTML Goodies][e1] and by right clicking and using view source. I moved onto CSS, ActionScript & JavaScript. Then I learned some [Perl, then PHP][e2]. It was magical. 
 
 At [d.construct 2006][e3] I was introduced to Django and Python. That's when I'd say I moved from a designer to an engineer. Since then I've built things in Clojure, Node and some Go. In 2018~ I was introduced to Elixir and whilst I didn't write much code as CTO / CIO I never let Elixir go. When I started up in business [for myself in 2022][e7], it was my default language of choice for projects.
 

@@ -89,4 +89,23 @@ defmodule JamieWeb.MarkdownRenderer do
   end
 
   def render(_path_info), do: :passthrough
+
+  @doc """
+  Whether the given `path_info` has a markdown rendering available. Used by
+  the root layout to decide whether to advertise an `<link rel="alternate"
+  type="text/markdown">` for agents.
+  """
+  def has_markdown?([]), do: true
+  def has_markdown?(["about"]), do: true
+  def has_markdown?(["privacy"]), do: true
+  def has_markdown?(["projects"]), do: true
+
+  def has_markdown?(["posts", slug]) do
+    Blog.get_post_by_slug!(slug)
+    true
+  rescue
+    Ecto.NoResultsError -> false
+  end
+
+  def has_markdown?(_), do: false
 end
