@@ -1,6 +1,7 @@
 ## 0.6.0
-- light mode and dark mode
-- toasts now styled properly
+- about mode
+- toasts now styled "a bit"
+- dedicated content for / and /about for llms
 
 ## 0.5.0
 - added in favicons.

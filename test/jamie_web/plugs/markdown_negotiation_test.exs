@@ -14,8 +14,9 @@ defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
   end
 
   describe "Accept: text/markdown" do
-    test "GET / returns 200 markdown archive index", %{conn: conn} do
-      post = create_post(title: "Hello Markdown", status: :published)
+    test "GET / returns 200 markdown about-for-agents body", %{conn: conn} do
+      llm_path = Path.join([:code.priv_dir(:jamie), "static_markdown", "about.llm.md"])
+      llm_body = File.read!(llm_path)
 
       conn = md_get(conn, ~p"/")
 
@@ -28,10 +29,8 @@ defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
       assert {n, ""} = Integer.parse(tokens)
       assert n > 0
 
-      body = conn.resp_body
-      assert String.starts_with?(body, "# Archive")
-      assert body =~ post.title
-      assert body =~ "/posts/#{post.slug}"
+      assert conn.resp_body == llm_body
+      assert conn.resp_body =~ "note for AI agents"
     end
 
     test "GET /posts/:slug for a published post returns markdown with front-matter", %{conn: conn} do
@@ -73,6 +72,33 @@ defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
     test "GET /users/log-in falls through to HTML (unsupported path)", %{conn: conn} do
       conn = md_get(conn, ~p"/users/log-in")
       assert html_response(conn, 200)
+    end
+
+    test "GET /about serves the .llm.md variant when present", %{conn: conn} do
+      llm_path = Path.join([:code.priv_dir(:jamie), "static_markdown", "about.llm.md"])
+      md_path = Path.join([:code.priv_dir(:jamie), "static_markdown", "about.md"])
+      llm_body = File.read!(llm_path)
+      html_body = File.read!(md_path)
+
+      conn = md_get(conn, ~p"/about")
+
+      assert conn.status == 200
+      assert response_content_type(conn, :md) =~ "text/markdown"
+      assert conn.resp_body == llm_body
+      refute conn.resp_body == html_body
+      assert conn.resp_body =~ "note for AI agents"
+    end
+
+    test "GET /privacy with no .llm.md falls back to privacy.md", %{conn: conn} do
+      md_path = Path.join([:code.priv_dir(:jamie), "static_markdown", "privacy.md"])
+      llm_path = Path.join([:code.priv_dir(:jamie), "static_markdown", "privacy.llm.md"])
+      refute File.exists?(llm_path), "test assumes no privacy.llm.md is present"
+
+      conn = md_get(conn, ~p"/privacy")
+
+      assert conn.status == 200
+      assert response_content_type(conn, :md) =~ "text/markdown"
+      assert conn.resp_body == File.read!(md_path)
     end
   end
 
