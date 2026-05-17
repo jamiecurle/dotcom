@@ -32,12 +32,19 @@
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        mask-image: radial-gradient(ellipse 28% 60% at 22% 58%, #000 35%, transparent 85%);
-        -webkit-mask-image: radial-gradient(ellipse 28% 60% at 22% 58%, #000 35%, transparent 85%);
+        mask-image: radial-gradient(
+            ellipse 53% 160% at 22% 63%,
+            #000 25%,
+            transparent 55%
+        );
+        -webkit-mask-image: radial-gradient(
+            ellipse 53% 160% at 22% 63%,
+            #000 25%,
+            transparent 55%
+        );
         pointer-events: none;
         z-index: 0;
     }
-
     div#alreet > * {
         position: relative;
         z-index: 1;
