@@ -4,11 +4,13 @@
     header p {
         font-size: var(--unit-3-2);
         line-height: var(--unit-4-3);
-        font-weight: 500;
+        font-weight: 400;
         letter-spacing: -0.5px;
         margin-top: var(--unit-4);
         margin-bottom: var(--unit-4);
-        padding: var(--unit-2);
+        padding: var(--unit-4) 0;
+        border-top: 1px solid;
+        border-bottom: 1px solid;
     }
     @media (min-width: 750px) {
         h1.page-title {
@@ -17,13 +19,15 @@
             line-height: var(--unit-6);
             margin-bottom: 0;
         }
-    }
-    @media (min-width: 750px) {
+
         header p {
-            padding-left: var(--unit-4);
+            margin-left: var(--unit-4);
         }
-        h1.page-title {
+        body#post h1.page-title {
             padding-left: var(--unit-3-2);
+        }
+        div.post-body {
+            padding: 0 var(--unit-4);
         }
     }
     .post-body h1,
@@ -33,7 +37,6 @@
     .post-body h5,
     .post-body h6 {
         text-decoration: underline;
-
         text-decoration-thickness: var(--unit-1);
         text-underline-offset: 0.2em;
         border-bottom: none;
@@ -82,16 +85,27 @@
     }
 
     /* archive index */
+    section.archive-year h2,
+    section.archive-year h3 {
+        font-size: var(--unit-4);
+        text-transform: uppercase;
+        z-index: 10000;
+    }
+    .archive-year,
+    .archive-month {
+        display: grid;
+        grid-template-columns: 6rem 1fr;
+        gap: var(--unit-1);
+        align-items: start;
+    }
+    .archive-month-label {
+        top: 0;
+    }
     .archive-year-label,
     .archive-month-label {
         position: sticky;
         top: 0;
         margin: 0;
-        padding-bottom: var(--unit-3);
-        margin-bottom: var(--unit-3);
-    }
-    .archive-month-label {
-        top: var(--unit-3-2);
         padding-bottom: var(--unit-3);
         margin-bottom: var(--unit-3);
     }
@@ -102,33 +116,14 @@
         margin: 0;
     }
 
-    section.archive-year h2,
-    section.archive-year h3 {
-        font-size: var(--unit-3-2);
-        text-transform: uppercase;
-    }
-    section.archive-year h2 {
-        z-index: 10000;
-    }
-    section.archive-year h3 {
-        z-index: 1000;
-    }
-    @media (min-width: 770px) {
+    @media (max-width: 754px) {
         .archive-year,
         .archive-month {
-            display: grid;
-            grid-template-columns: 6rem 1fr;
-            gap: var(--unit-1);
-            align-items: start;
+            grid-template-columns: 1fr;
         }
+        .archive-year-label,
         .archive-month-label {
-            top: 0;
-        }
-
-        section.archive-year h2,
-        section.archive-year h3 {
-            font-size: var(--unit-4);
-            text-transform: uppercase;
+            display: none;
         }
     }
 }

@@ -26,17 +26,22 @@ defmodule JamieWeb.BlogLive.Index do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <h1 class="page-title">Archive</h1>
+      <h1 class="page-title">
+        Archive
+      </h1>
+
       <div class="archive">
         <section :for={{year, months} <- @archive} class="archive-year">
-          <h2 class="archive-year-label">{year}</h2>
+          <h2 class="archive-year-label">
+            {year}
+          </h2>
           <div class="archive-year-months">
             <section :for={{month, posts} <- months} class="archive-month">
               <h3 class="archive-month-label">{month_name(month)}</h3>
               <ul class="archive-posts">
                 <li :for={post <- posts} class="post-card">
                   <.link href={~p"/posts/#{post.slug}"}>{post.title}</.link>
-                  <time datetime="{post.published_on}">{human_date(post.published_on)}</time>
+                  <.pretty_date date={post.published_on} />
                 </li>
               </ul>
             </section>
@@ -45,10 +50,6 @@ defmodule JamieWeb.BlogLive.Index do
       </div>
     </Layouts.app>
     """
-  end
-
-  defp human_date(date) do
-    Calendar.strftime(date, "%a %-d") <> format(date.day)
   end
 
   def format(number) when rem(number, 100) in [11, 12, 13], do: "th"

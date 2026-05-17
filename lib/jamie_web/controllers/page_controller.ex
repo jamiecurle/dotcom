@@ -12,7 +12,7 @@ defmodule JamieWeb.PageController do
 
   def home(conn, _params) do
     posts =
-      Blog.latest_published_posts(conn.assigns.current_scope, 3)
+      Blog.latest_published_posts(10)
 
     conn
     |> assign(:posts, posts)

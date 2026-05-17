@@ -182,7 +182,7 @@ defmodule Jamie.Blog.Test do
     end
   end
 
-  describe "latest_published_posts/2" do
+  describe "latest_published_posts/1" do
     # Post.changeset always overwrites :published_on with today when status is
     # :published, so to test ordering we have to backdate via a raw update.
     defp create_with_published_on(opts, date) do
@@ -190,27 +190,25 @@ defmodule Jamie.Blog.Test do
       post |> Ecto.Changeset.change(published_on: date) |> Repo.update!()
     end
 
-    test "returns at most n published posts, newest first, for a nil scope" do
+    test "returns at most n published posts, newest first, excluding drafts" do
       _oldest = create_with_published_on([title: "oldest", status: :published], ~D[2025-01-01])
       middle = create_with_published_on([title: "middle", status: :published], ~D[2025-06-01])
       newest = create_with_published_on([title: "newest", status: :published], ~D[2025-12-01])
       _draft = create_with_published_on([title: "draft", status: :draft], ~D[2026-01-01])
 
-      posts = Blog.latest_published_posts(nil, 2)
+      posts = Blog.latest_published_posts(2)
 
       assert [newest.id, middle.id] == Enum.map(posts, & &1.id)
+      assert Enum.all?(posts, &(&1.status == :published))
     end
 
-    test "an authed scope sees the latest n posts regardless of status" do
-      user = AccountsFixtures.user_fixture()
-      scope = Scope.for_user(user)
+    test "drafts are never returned, even when they would otherwise fill the limit" do
+      _draft_newer = create_with_published_on([title: "draft", status: :draft], ~D[2026-01-01])
 
-      _published =
+      published =
         create_with_published_on([title: "published", status: :published], ~D[2025-01-01])
 
-      draft = create_with_published_on([title: "draft", status: :draft], ~D[2026-01-01])
-
-      assert [draft.id] == Blog.latest_published_posts(scope, 1) |> Enum.map(& &1.id)
+      assert [published.id] == Blog.latest_published_posts(5) |> Enum.map(& &1.id)
     end
 
     test "returns fewer rows when n exceeds the number of published posts" do
@@ -218,7 +216,7 @@ defmodule Jamie.Blog.Test do
         BlogFixtures.blog_attrs(status: :published, published_on: ~D[2025-01-01])
         |> Blog.create_post()
 
-      assert 1 == Blog.latest_published_posts(nil, 10) |> length()
+      assert 1 == Blog.latest_published_posts(10) |> length()
     end
 
     test "n = 0 returns an empty list" do
@@ -226,12 +224,12 @@ defmodule Jamie.Blog.Test do
         BlogFixtures.blog_attrs(status: :published, published_on: ~D[2025-01-01])
         |> Blog.create_post()
 
-      assert [] == Blog.latest_published_posts(nil, 0)
+      assert [] == Blog.latest_published_posts(0)
     end
 
     test "a negative n raises" do
       assert_raise FunctionClauseError, fn ->
-        Blog.latest_published_posts(nil, -1)
+        Blog.latest_published_posts(-1)
       end
     end
   end

@@ -77,7 +77,7 @@ defmodule Jamie.Blog.Post do
               header_ids: ""
             ],
             sanitize: [
-              add_tags: ["iframe"],
+              add_tags: ["iframe", "section"],
               add_tag_attributes: %{
                 "iframe" => [
                   "src",

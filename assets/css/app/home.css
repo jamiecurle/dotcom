@@ -10,20 +10,86 @@
     }
     div#alreet {
         width: 100%;
-        position: absoloute;
+        position: relative;
         display: flex;
         top: 0;
         left: 0;
-        aspect-ratio: 2848 / 1504;
+        min-height: calc(100vw * 1504 / 2848);
+        background-color: var(--c-accent-dark);
         background-image: url("/images/jc_widescreen.jpeg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
+        background-blend-mode: hue;
     }
 
-    /*start claude*/
+    /* un-blended photo on top, masked to a soft ellipse around the face */
+    div#alreet::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("/images/jc_widescreen.jpeg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        mask-image: radial-gradient(
+            ellipse 53% 160% at 22% 63%,
+            #000 25%,
+            transparent 55%
+        );
+        -webkit-mask-image: radial-gradient(
+            ellipse 53% 160% at 22% 63%,
+            #000 25%,
+            transparent 55%
+        );
+        pointer-events: none;
+        z-index: 0;
+    }
+    div#alreet > * {
+        position: relative;
+        z-index: 1;
+    }
 
-    div#alreet div.latest-published-posts {
+    /*posts */
+
+    div.latest-published-posts {
+        margin: calc(1 * var(--unit-6)) var(--unit-2) var(--unit-2);
+        padding: var(--unit-2);
+        width: 100%;
+    }
+    div.latest-published-posts a {
+        border-radius: var(--unit-2);
+        display: block;
+        margin-bottom: var(--unit-3);
+        padding: var(--unit-3);
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 0.2s ease-in-out;
+
+        &:hover {
+            transform: scale(1.2);
+        }
+
+        p {
+            margin: 0;
+            line-height: var(--unit-2-3);
+            padding: 0;
+        }
+        p time {
+            display: block;
+            font-size: var(--unit-2-1);
+        }
+    }
+
+    @media (min-width: 755px) {
+        div.latest-published-posts {
+            width: 50%;
+            margin-left: 50%;
+        }
+    }
+    /*start claude generate posts */
+
+    /*div#alreet div.latest-published-posts {
         margin-top: calc(2.2 * var(--unit-6));
         margin-left: auto;
         margin-right: var(--unit-3);
@@ -110,15 +176,18 @@
             margin: auto var(--unit-2) var(--unit-2);
             width: auto;
         }
-    }
+    }*/
 
     /*end claude*/
 
     @media (max-width: 768px) {
         div#alreet {
-            min-height: 80svh;
-            aspect-ratio: 4 / 5;
-            background-position: 6% center;
+            min-height: auto;
+            aspect-ratio: auto;
+            background-image: none;
+        }
+        div#alreet::before {
+            display: none;
         }
     }
 }

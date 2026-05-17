@@ -1,16 +1,21 @@
 @layer layout {
     body > header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
         width: 100%;
         max-width: none;
         margin: 0;
         height: var(--unit-6);
-        padding: 0 var(--unit-3);
+        padding: 0;
         display: flex;
         align-items: center;
+    }
+
+    /* Pages that want a sticky header opt in by body id.
+       Add more selectors here (e.g. body#blog > header) as needed. */
+    body#home > header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
         z-index: 100;
         backdrop-filter: blur(12px) saturate(1.4);
         -webkit-backdrop-filter: blur(12px) saturate(1.4);
@@ -22,7 +27,6 @@
         justify-content: center;
         gap: var(--unit-3);
         width: 100%;
-        padding-right: var(--unit-3);
     }
 
     nav.primary-nav {
@@ -51,6 +55,7 @@
 
         div.header-content {
             justify-content: space-between;
+            padding-right: var(--unit-3);
         }
         nav.primary-nav {
             margin-left: auto;
