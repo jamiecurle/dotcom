@@ -93,20 +93,14 @@ defmodule Jamie.Blog do
   end
 
   @doc """
-  Returns the N most recently published posts, respecting scope.
+  Returns the N most recently published posts.
   """
-  def latest_published_posts(scope, n) when is_integer(n) and n >= 0 do
-    base =
-      case scope do
-        %Scope{user: user} when not is_nil(user) ->
-          from(p in Post, order_by: [desc: p.published_on])
-
-        nil ->
-          from(p in Post, where: p.status == :published, order_by: [desc: p.published_on])
-      end
-
-    base
-    |> limit(^n)
+  def latest_published_posts(n) when is_integer(n) and n >= 0 do
+    from(p in Post,
+      where: p.status == :published,
+      order_by: [desc: p.published_on],
+      limit: ^n
+    )
     |> Repo.all()
   end
 

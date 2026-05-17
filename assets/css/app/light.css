@@ -318,38 +318,101 @@ pre.lumis,
 pre.lumis code {
     color: var(--code-fg);
 }
-pre.lumis .comment { color: var(--code-comment); font-style: italic; }
+pre.lumis .comment {
+    color: var(--code-comment);
+    font-style: italic;
+}
 pre.lumis .keyword,
 pre.lumis .keyword-special,
 pre.lumis .keyword-control,
-pre.lumis .keyword-operator { color: var(--code-keyword); }
+pre.lumis .keyword-operator {
+    color: var(--code-keyword);
+}
 pre.lumis .string,
 pre.lumis .string-special,
-pre.lumis .string-escape { color: var(--code-string); }
-pre.lumis .string-special-symbol { color: var(--code-constant); }
+pre.lumis .string-escape {
+    color: var(--code-string);
+}
+pre.lumis .string-special-symbol {
+    color: var(--code-constant);
+}
 pre.lumis .number,
 pre.lumis .float,
-pre.lumis .boolean { color: var(--code-number); }
+pre.lumis .boolean {
+    color: var(--code-number);
+}
 pre.lumis .function,
 pre.lumis .function-call,
 pre.lumis .function-method,
-pre.lumis .function-macro { color: var(--code-function); }
+pre.lumis .function-macro {
+    color: var(--code-function);
+}
 pre.lumis .module,
-pre.lumis .namespace { color: var(--code-module); }
+pre.lumis .namespace {
+    color: var(--code-module);
+}
 pre.lumis .variable,
 pre.lumis .variable-parameter,
-pre.lumis .parameter { color: var(--code-variable); }
+pre.lumis .parameter {
+    color: var(--code-variable);
+}
 pre.lumis .constant,
-pre.lumis .constant-builtin { color: var(--code-constant); }
-pre.lumis .operator { color: var(--code-operator); }
+pre.lumis .constant-builtin {
+    color: var(--code-constant);
+}
+pre.lumis .operator {
+    color: var(--code-operator);
+}
 pre.lumis .punctuation,
 pre.lumis .punctuation-bracket,
 pre.lumis .punctuation-delimiter,
-pre.lumis .punctuation-special { color: var(--code-punctuation); }
+pre.lumis .punctuation-special {
+    color: var(--code-punctuation);
+}
 pre.lumis .type,
-pre.lumis .type-builtin { color: var(--code-type); }
-pre.lumis .property { color: var(--code-property); }
-pre.lumis .tag { color: var(--code-tag); }
-pre.lumis .attribute { color: var(--code-attribute); }
+pre.lumis .type-builtin {
+    color: var(--code-type);
+}
+pre.lumis .property {
+    color: var(--code-property);
+}
+pre.lumis .tag {
+    color: var(--code-tag);
+}
+pre.lumis .attribute {
+    color: var(--code-attribute);
+}
 
 /* end colours css */
+/* 404 page */
+body#error-404 {
+    background-color: var(--c-accent-dark-5);
+}
+body#error-404 h1,
+body#error-404 p {
+    color: var(--c-accent-dark-5);
+}
+
+body#error-404 .not-found {
+    background-color: var(--colour-dark-2);
+    color: var(--colour-dark-1);
+}
+body#error-404 a {
+    background-color: var(--colour-light-1);
+    color: var(--colour-dark-5);
+}
+/*homepage*/
+div.latest-published-posts {
+    nav a {
+        background-color: var(--colour-dark-2);
+        color: var(--c-accent-dark-5);
+
+        time {
+            color: var(--colour-dark-6);
+        }
+    }
+    h2 {
+        text-transform: uppercase;
+        color: var(--colour-light-1);
+    }
+}
