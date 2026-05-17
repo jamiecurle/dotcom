@@ -295,4 +295,61 @@ body#error-404 a {
     color: var(--colour-dark-5);
 }
 
+/* syntax highlighting (lumis html_linked) — dark code block, classes only */
+:root {
+    --code-fg: oklch(0.92 0.01 240);
+    --code-comment: oklch(0.62 0.02 240);
+    --code-keyword: oklch(0.78 0.16 320);
+    --code-string: oklch(0.82 0.14 140);
+    --code-number: oklch(0.82 0.14 60);
+    --code-function: oklch(0.78 0.14 230);
+    --code-module: oklch(0.85 0.13 85);
+    --code-variable: oklch(0.82 0.09 25);
+    --code-constant: oklch(0.82 0.14 60);
+    --code-operator: oklch(0.78 0.08 200);
+    --code-punctuation: oklch(0.78 0.08 200);
+    --code-type: oklch(0.85 0.13 85);
+    --code-property: oklch(0.82 0.09 25);
+    --code-tag: oklch(0.78 0.16 320);
+    --code-attribute: oklch(0.85 0.13 85);
+}
+
+pre.lumis,
+pre.lumis code {
+    color: var(--code-fg);
+}
+pre.lumis .comment { color: var(--code-comment); font-style: italic; }
+pre.lumis .keyword,
+pre.lumis .keyword-special,
+pre.lumis .keyword-control,
+pre.lumis .keyword-operator { color: var(--code-keyword); }
+pre.lumis .string,
+pre.lumis .string-special,
+pre.lumis .string-escape { color: var(--code-string); }
+pre.lumis .string-special-symbol { color: var(--code-constant); }
+pre.lumis .number,
+pre.lumis .float,
+pre.lumis .boolean { color: var(--code-number); }
+pre.lumis .function,
+pre.lumis .function-call,
+pre.lumis .function-method,
+pre.lumis .function-macro { color: var(--code-function); }
+pre.lumis .module,
+pre.lumis .namespace { color: var(--code-module); }
+pre.lumis .variable,
+pre.lumis .variable-parameter,
+pre.lumis .parameter { color: var(--code-variable); }
+pre.lumis .constant,
+pre.lumis .constant-builtin { color: var(--code-constant); }
+pre.lumis .operator { color: var(--code-operator); }
+pre.lumis .punctuation,
+pre.lumis .punctuation-bracket,
+pre.lumis .punctuation-delimiter,
+pre.lumis .punctuation-special { color: var(--code-punctuation); }
+pre.lumis .type,
+pre.lumis .type-builtin { color: var(--code-type); }
+pre.lumis .property { color: var(--code-property); }
+pre.lumis .tag { color: var(--code-tag); }
+pre.lumis .attribute { color: var(--code-attribute); }
+
 /* end colours css */

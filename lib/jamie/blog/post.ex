@@ -99,7 +99,8 @@ defmodule Jamie.Blog.Post do
               }
             ],
             parse: [smart: true],
-            render: [unsafe: true]
+            render: [unsafe: true],
+            syntax_highlight: [formatter: :html_linked]
           )
           |> rewrite_image_urls()
 
