@@ -17,7 +17,7 @@ defmodule Jamie.Blog.Post do
     field :published_on, :date
     field :edited_on, :date
 
-    timestamps()
+    timestamps(type: :utc_datetime_usec)
   end
 
   def statuses, do: @statuses
