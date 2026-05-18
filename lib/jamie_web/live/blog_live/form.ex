@@ -128,13 +128,23 @@ defmodule JamieWeb.BlogLive.Form do
   end
 
   defp save_post(socket, :edit, post_params) do
-    case Blog.update_post(socket.assigns.post, post_params) do
-      {:ok, post} ->
+    post = socket.assigns.post
+
+    case Blog.update_post(post, post_params, post.updated_at) do
+      {:ok, updated} ->
         {:noreply,
          socket
-         |> assign(:post, post)
-         |> assign(:form, to_form(Blog.change_post(post)))
+         |> assign(:post, updated)
+         |> assign(:form, to_form(Blog.change_post(updated)))
          |> put_flash(:info, "Post updated successfully.")}
+
+      {:error, :conflict} ->
+        {:noreply,
+         socket
+         |> put_flash(
+           :error,
+           "This post was changed in another tab. Reload to see the latest version before saving again."
+         )}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}

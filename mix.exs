@@ -66,6 +66,7 @@ defmodule Jamie.MixProject do
       {:ex_aws_s3, "~> 2.0"},
       {:sweet_xml, "~> 0.6"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:diffy, "~> 1.1"},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end

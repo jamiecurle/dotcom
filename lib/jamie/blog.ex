@@ -4,9 +4,12 @@ defmodule Jamie.Blog do
   """
 
   alias Jamie.Blog.Post
+  alias Jamie.Blog.PostRevision
   alias Jamie.Repo
   import Ecto.Query
   alias Jamie.Accounts.Scope
+
+  @snapshot_every 50
 
   @doc """
   returns a changeset for a post
@@ -52,13 +55,59 @@ defmodule Jamie.Blog do
   end
 
   @doc """
-  Updates a post
+  Updates a post without optimistic locking — the current row's
+  `updated_at` is read fresh from the database. Use `update_post/3` from
+  user-facing edit flows where stale-write detection matters.
   """
   def update_post(%Post{} = post, attrs) do
-    post
-    |> Post.changeset(attrs)
-    |> Repo.update()
-    |> case do
+    current_updated_at = Repo.one!(from p in Post, where: p.id == ^post.id, select: p.updated_at)
+    update_post(post, attrs, current_updated_at)
+  end
+
+  @doc """
+  Updates a post, rejecting the write with `{:error, :conflict}` when the
+  row's `updated_at` no longer matches `last_known_updated_at`. The post
+  update and the revision insert run in the same transaction.
+  """
+  def update_post(%Post{} = post, attrs, last_known_updated_at) do
+    changeset = Post.changeset(post, attrs)
+
+    with %{valid?: true} <- changeset,
+         {:ok, applied} <- Ecto.Changeset.apply_action(changeset, :update) do
+      do_update_with_revision(post, applied, last_known_updated_at)
+    else
+      %Ecto.Changeset{} = invalid ->
+        {:error, %{invalid | action: :update}}
+
+      {:error, %Ecto.Changeset{} = cs} ->
+        {:error, cs}
+    end
+  end
+
+  defp do_update_with_revision(%Post{} = post, %Post{} = applied, last_known_updated_at) do
+    now = DateTime.utc_now()
+
+    updates =
+      applied
+      |> Map.take([
+        :status,
+        :title,
+        :description,
+        :markdown,
+        :html,
+        :slug,
+        :published_on,
+        :edited_on
+      ])
+      |> Map.to_list()
+      |> Keyword.put(:updated_at, now)
+
+    result =
+      Repo.transaction(fn ->
+        commit_post_update(post.id, last_known_updated_at, updates, applied)
+      end)
+
+    case result do
       {:ok, updated_post} ->
         Phoenix.PubSub.broadcast(
           Jamie.PubSub,
@@ -68,8 +117,28 @@ defmodule Jamie.Blog do
 
         {:ok, updated_post}
 
-      error ->
-        error
+      {:error, _} = err ->
+        err
+    end
+  end
+
+  defp commit_post_update(post_id, last_known_updated_at, updates, applied) do
+    {count, _} =
+      from(p in Post,
+        where: p.id == ^post_id and p.updated_at == ^last_known_updated_at
+      )
+      |> Repo.update_all(set: updates)
+
+    if count == 0, do: Repo.rollback(:conflict), else: finalise_post_update(post_id, applied)
+  end
+
+  defp finalise_post_update(post_id, applied) do
+    updated = Repo.get!(Post, post_id)
+
+    case do_save_revision(post_id, applied.markdown) do
+      {:ok, _} -> updated
+      :ok -> updated
+      {:error, reason} -> Repo.rollback(reason)
     end
   end
 
@@ -111,5 +180,208 @@ defmodule Jamie.Blog do
     from(p in Post)
     |> order_by(desc: :id)
     |> Repo.all()
+  end
+
+  # ----------------------------------------------------------------------
+  # Revisions
+  # ----------------------------------------------------------------------
+
+  @doc """
+  Records a revision for `post_id` containing `new_content`.
+
+  Stores a `diffy` diff against the previous revision, except when there
+  is no previous revision, the new revision number is a multiple of
+  #{@snapshot_every}, or the serialised diff would be larger than the
+  content itself — in which case a full snapshot is stored instead.
+
+  Returns `:ok` if the content is unchanged from the latest revision.
+  """
+  def save_revision(_current_scope, post_id, new_content) when is_binary(new_content) do
+    Repo.transaction(fn ->
+      case do_save_revision(post_id, new_content) do
+        :ok -> :noop
+        {:ok, rev} -> rev
+        {:error, reason} -> Repo.rollback(reason)
+      end
+    end)
+    |> case do
+      {:ok, :noop} -> :ok
+      {:ok, %PostRevision{} = rev} -> {:ok, rev}
+      {:error, _} = err -> err
+    end
+  end
+
+  defp do_save_revision(post_id, new_content) do
+    last = latest_revision(post_id)
+
+    if last && reconstruct_from(last) == new_content do
+      :ok
+    else
+      insert_revision(post_id, last, new_content)
+    end
+  end
+
+  defp latest_revision(post_id) do
+    from(r in PostRevision,
+      where: r.post_id == ^post_id,
+      order_by: [desc: r.saved_at],
+      limit: 1
+    )
+    |> Repo.one()
+  end
+
+  defp insert_revision(post_id, last, new_content) do
+    next_number = (last && last.revision_number + 1) || 1
+    diff = if last, do: :diffy.diff(reconstruct_from(last), new_content), else: nil
+    serialised_diff = if diff, do: encode_diff(diff), else: nil
+
+    snapshot? =
+      is_nil(last) or
+        rem(next_number, @snapshot_every) == 0 or
+        diff_payload_size(diff) > byte_size(new_content)
+
+    attrs =
+      if snapshot? do
+        %{
+          post_id: post_id,
+          is_snapshot: true,
+          snapshot: new_content,
+          diff: nil,
+          saved_at: DateTime.utc_now()
+        }
+      else
+        %{
+          post_id: post_id,
+          is_snapshot: false,
+          diff: serialised_diff,
+          snapshot: nil,
+          saved_at: DateTime.utc_now()
+        }
+      end
+
+    %PostRevision{}
+    |> PostRevision.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Reconstructs the content as it stood at the given revision id.
+  """
+  def reconstruct_content(_current_scope, post_revision_id) do
+    target = Repo.get!(PostRevision, post_revision_id)
+    reconstruct_target(target)
+  end
+
+  defp reconstruct_target(%PostRevision{is_snapshot: true, snapshot: snapshot}) do
+    snapshot
+  end
+
+  defp reconstruct_target(%PostRevision{} = target) do
+    snapshot =
+      from(r in PostRevision,
+        where:
+          r.post_id == ^target.post_id and
+            r.is_snapshot == true and
+            r.saved_at <= ^target.saved_at,
+        order_by: [desc: r.saved_at],
+        limit: 1
+      )
+      |> Repo.one!()
+
+    diffs =
+      from(r in PostRevision,
+        where:
+          r.post_id == ^target.post_id and
+            r.saved_at > ^snapshot.saved_at and
+            r.saved_at <= ^target.saved_at,
+        order_by: [asc: r.saved_at]
+      )
+      |> Repo.all()
+
+    Enum.reduce(diffs, snapshot.snapshot, fn rev, _acc ->
+      apply_diff(decode_diff(rev.diff))
+    end)
+  end
+
+  # When reconstructing from the latest known revision (used by save_revision
+  # to detect no-op saves), we already have the row in hand — avoid a roundtrip.
+  defp reconstruct_from(%PostRevision{is_snapshot: true, snapshot: snapshot}), do: snapshot
+  defp reconstruct_from(%PostRevision{} = rev), do: reconstruct_target(rev)
+
+  @doc """
+  Lists all revisions for a post, ordered by `saved_at` descending. A
+  consuming LiveView should render this collection via `stream/3`.
+  """
+  def list_revisions(_current_scope, post_id) do
+    from(r in PostRevision,
+      where: r.post_id == ^post_id,
+      order_by: [desc: r.saved_at]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Assigns `name` to a revision. If the revision is a diff, it is promoted
+  to a snapshot in the same transaction: the content is reconstructed and
+  stored, `is_snapshot` is set to true, and the diff is cleared.
+  """
+  def name_revision(_current_scope, post_revision_id, name) do
+    Repo.transaction(fn ->
+      rev = Repo.get!(PostRevision, post_revision_id)
+
+      attrs =
+        if rev.is_snapshot do
+          %{name: name}
+        else
+          %{
+            name: name,
+            is_snapshot: true,
+            snapshot: reconstruct_target(rev),
+            diff: nil
+          }
+        end
+
+      rev
+      |> PostRevision.changeset(attrs)
+      |> Repo.update()
+      |> case do
+        {:ok, updated} -> updated
+        {:error, cs} -> Repo.rollback(cs)
+      end
+    end)
+  end
+
+  # ----------------------------------------------------------------------
+  # diffy interop
+  # ----------------------------------------------------------------------
+
+  defp encode_diff(diff) when is_list(diff) do
+    diff
+    |> :erlang.term_to_binary()
+    |> Base.encode64()
+  end
+
+  defp decode_diff(encoded) when is_binary(encoded) do
+    encoded
+    |> Base.decode64!()
+    |> :erlang.binary_to_term([:safe])
+  end
+
+  defp apply_diff(diff) when is_list(diff) do
+    :diffy.destination_text(diff)
+  end
+
+  # Size of the "change" portion of a diff: bytes inserted + bytes deleted,
+  # ignoring `equal` segments. This is what we compare against the new
+  # content when deciding to snapshot — the encoded diff itself carries the
+  # equal segments verbatim plus serialisation overhead, so it would
+  # otherwise be larger than the content on almost every save.
+  defp diff_payload_size(nil), do: 0
+
+  defp diff_payload_size(diff) when is_list(diff) do
+    Enum.reduce(diff, 0, fn
+      {:equal, _}, acc -> acc
+      {_op, data}, acc -> acc + byte_size(data)
+    end)
   end
 end
