@@ -50,7 +50,6 @@ In todays' AI driven world, two of the main concepts from [Accelerate][d1] remai
 [e2]: /posts/code-magic
 [e3]: https://2006.dconstruct.org/
 [e4]: https://exercism.org/profiles/jamiecurle
-[e5]: https://app.codecrafters.io/users/jamiecurle
 [e6]: https://github.com/jamiecurle
 [e7]: https://jamiecurle.ltd
 [e8]: https://exercism.org/tracks/elixir
@@ -204,7 +203,11 @@ I have no time for ticks.
 
 ### PROFESSIONAL ME
 
-To most people, I don't fit into a nice neat box. I've developed my engineering practice over a twenty year period and I'm a very competent engineer over the full stack. I can teach, I can lead and I'm fully up on infosec, privacy and AI governance. I'm also demonstrably capable in executive roles. I can do strategy and I can lead. 
+To most people, I don't fit into a nice neat box. I've developed my engineering practice over a twenty year period and I'm a very competent engineer over the full stack. I can teach, I can lead and I'm fully up on infosec, privacy and AI governance.
+
+I'm also demonstrably capable in EM / Senior IC roles. I can do strategy and translate board level strategy into actionable tactical work with impactful KPIs & OKRs for in-flight steering.
+
+I'm confident enough in my abilites in the above to lead conversations with customers GC in sales processes to ensure a deal closes on time and smoothly.
 
 I've been working alone for nearly five years now and I do miss the leadership. I am open to roles if they are the right fit. Just like Mr Gommersaul taught me "don't judge a book by its cover". Talk to me. 
 
