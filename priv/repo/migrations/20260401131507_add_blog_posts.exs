@@ -3,7 +3,7 @@ defmodule Jamie.Repo.Migrations.AddBlogPosts do
 
   def change do
     create table(:blog_posts) do
-      add :status, :string, null: false, default: "ready"
+      add :status, :string, null: false, default: "draft"
       add :title, :string
       add :description, :string
       add :markdown, :text
