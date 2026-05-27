@@ -8,6 +8,16 @@ defmodule Jamie.Blog.Test do
   alias Jamie.Repo
   alias Jamie.Support.BlogFixtures
 
+  describe "create_note/1" do
+    test "saves when valid" do
+      {:ok, note} =
+        BlogFixtures.note_attrs()
+        |> Blog.create_note()
+
+      assert note.html =~ "<h1>"
+    end
+  end
+
   describe "get_post_by_slug!" do
     test "if scope has no user then only published posts work" do
       # make a scope for a nil user
@@ -15,7 +25,7 @@ defmodule Jamie.Blog.Test do
 
       # make a post
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "now now, there's no need for that", status: :draft)
+        BlogFixtures.post_attrs(title: "now now, there's no need for that", status: :draft)
         |> Blog.create_post()
 
       # it's draft so it raises as there's no scope
@@ -41,7 +51,7 @@ defmodule Jamie.Blog.Test do
 
       # make a post
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "now now, there's no need for that", status: :draft)
+        BlogFixtures.post_attrs(title: "now now, there's no need for that", status: :draft)
         |> Blog.create_post()
 
       assert post.id == Blog.get_post_by_slug!(post.slug, scope).id
@@ -57,7 +67,7 @@ defmodule Jamie.Blog.Test do
 
     test "but doesn't have to accept a scope" do
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "now now, there's no need for that", status: :published)
+        BlogFixtures.post_attrs(title: "now now, there's no need for that", status: :published)
         |> Blog.create_post()
 
       assert post.id == Blog.get_post_by_slug!(post.slug).id
@@ -66,7 +76,7 @@ defmodule Jamie.Blog.Test do
     test "no scope means the post has to be published" do
       # make a post
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "now now, there's no need for that", status: :draft)
+        BlogFixtures.post_attrs(title: "now now, there's no need for that", status: :draft)
         |> Blog.create_post()
 
       # it's draft so it raises as there's no scope
@@ -84,7 +94,7 @@ defmodule Jamie.Blog.Test do
     test "when a post is published, the published date is is filled in" do
       # new post, draft status
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "now now, there's no need for that", status: :draft)
+        BlogFixtures.post_attrs(title: "now now, there's no need for that", status: :draft)
         |> Blog.create_post()
 
       # there is no published on
@@ -99,11 +109,11 @@ defmodule Jamie.Blog.Test do
   describe "published_posts/0" do
     test "only published posts are returned" do
       {:ok, post1} =
-        BlogFixtures.blog_attrs(status: :published)
+        BlogFixtures.post_attrs(status: :published)
         |> Blog.create_post()
 
       {:ok, post2} =
-        BlogFixtures.blog_attrs(title: "now now, there's no need for that", status: :draft)
+        BlogFixtures.post_attrs(title: "now now, there's no need for that", status: :draft)
         |> Blog.create_post()
 
       # we have two posts
@@ -126,15 +136,15 @@ defmodule Jamie.Blog.Test do
       scope = Scope.for_user(user)
 
       {:ok, _published} =
-        BlogFixtures.blog_attrs(title: "published one", status: :published)
+        BlogFixtures.post_attrs(title: "published one", status: :published)
         |> Blog.create_post()
 
       {:ok, _draft} =
-        BlogFixtures.blog_attrs(title: "draft one", status: :draft)
+        BlogFixtures.post_attrs(title: "draft one", status: :draft)
         |> Blog.create_post()
 
       {:ok, _hidden} =
-        BlogFixtures.blog_attrs(title: "hidden one", status: :hidden)
+        BlogFixtures.post_attrs(title: "hidden one", status: :hidden)
         |> Blog.create_post()
 
       posts = Blog.published_posts(scope)
@@ -146,15 +156,15 @@ defmodule Jamie.Blog.Test do
 
     test "a nil scope returns only published posts" do
       {:ok, _published} =
-        BlogFixtures.blog_attrs(title: "published one", status: :published)
+        BlogFixtures.post_attrs(title: "published one", status: :published)
         |> Blog.create_post()
 
       {:ok, _draft} =
-        BlogFixtures.blog_attrs(title: "draft one", status: :draft)
+        BlogFixtures.post_attrs(title: "draft one", status: :draft)
         |> Blog.create_post()
 
       {:ok, _hidden} =
-        BlogFixtures.blog_attrs(title: "hidden one", status: :hidden)
+        BlogFixtures.post_attrs(title: "hidden one", status: :hidden)
         |> Blog.create_post()
 
       posts = Blog.published_posts(nil)
@@ -168,11 +178,11 @@ defmodule Jamie.Blog.Test do
       assert is_nil(scope)
 
       {:ok, _published} =
-        BlogFixtures.blog_attrs(title: "published one", status: :published)
+        BlogFixtures.post_attrs(title: "published one", status: :published)
         |> Blog.create_post()
 
       {:ok, _draft} =
-        BlogFixtures.blog_attrs(title: "draft one", status: :draft)
+        BlogFixtures.post_attrs(title: "draft one", status: :draft)
         |> Blog.create_post()
 
       posts = Blog.published_posts(scope)
@@ -186,7 +196,7 @@ defmodule Jamie.Blog.Test do
     # Post.changeset always overwrites :published_on with today when status is
     # :published, so to test ordering we have to backdate via a raw update.
     defp create_with_published_on(opts, date) do
-      {:ok, post} = opts |> BlogFixtures.blog_attrs() |> Blog.create_post()
+      {:ok, post} = opts |> BlogFixtures.post_attrs() |> Blog.create_post()
       post |> Ecto.Changeset.change(published_on: date) |> Repo.update!()
     end
 
@@ -213,7 +223,7 @@ defmodule Jamie.Blog.Test do
 
     test "returns fewer rows when n exceeds the number of published posts" do
       {:ok, _post} =
-        BlogFixtures.blog_attrs(status: :published, published_on: ~D[2025-01-01])
+        BlogFixtures.post_attrs(status: :published, published_on: ~D[2025-01-01])
         |> Blog.create_post()
 
       assert 1 == Blog.latest_published_posts(10) |> length()
@@ -221,7 +231,7 @@ defmodule Jamie.Blog.Test do
 
     test "n = 0 returns an empty list" do
       {:ok, _post} =
-        BlogFixtures.blog_attrs(status: :published, published_on: ~D[2025-01-01])
+        BlogFixtures.post_attrs(status: :published, published_on: ~D[2025-01-01])
         |> Blog.create_post()
 
       assert [] == Blog.latest_published_posts(0)
@@ -238,7 +248,7 @@ defmodule Jamie.Blog.Test do
     test "iframe is allowed when updating a post" do
       # make a post
       {:ok, post} =
-        BlogFixtures.blog_attrs()
+        BlogFixtures.post_attrs()
         |> Blog.create_post()
 
       refute post.html =~ "<iframe"
@@ -259,7 +269,7 @@ defmodule Jamie.Blog.Test do
 
     test "returns a loaded changeset for when an existing post is given" do
       {:ok, post} =
-        BlogFixtures.blog_attrs()
+        BlogFixtures.post_attrs()
         |> Blog.create_post()
 
       cs = Blog.change_post(post)
@@ -271,7 +281,7 @@ defmodule Jamie.Blog.Test do
     test "iframe tag is allowed to render in create" do
       # make a post
       {:ok, post} =
-        BlogFixtures.blog_attrs(markdown: "<iframe src=https://foo.com></iframe>")
+        BlogFixtures.post_attrs(markdown: "<iframe src=https://foo.com></iframe>")
         |> Blog.create_post()
 
       assert post.html =~ "<iframe"
@@ -279,7 +289,7 @@ defmodule Jamie.Blog.Test do
 
     test "iframe allow attribute is forced to picture-in-picture only" do
       {:ok, post} =
-        BlogFixtures.blog_attrs(
+        BlogFixtures.post_attrs(
           markdown:
             ~s|<iframe src="https://youtube.com/embed/x" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>|
         )
@@ -293,7 +303,7 @@ defmodule Jamie.Blog.Test do
 
     test "iframe survives an update on an existing post" do
       {:ok, post} =
-        BlogFixtures.blog_attrs(markdown: "no embed yet")
+        BlogFixtures.post_attrs(markdown: "no embed yet")
         |> Blog.create_post()
 
       {:ok, updated} =
@@ -307,7 +317,7 @@ defmodule Jamie.Blog.Test do
     test "post gets a slug" do
       # make a post
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "Two Cats Need  Food")
+        BlogFixtures.post_attrs(title: "Two Cats Need  Food")
         |> Blog.create_post()
 
       assert post.slug == "two-cats-need-food"
@@ -318,7 +328,7 @@ defmodule Jamie.Blog.Test do
       assert 0 == Repo.aggregate(Jamie.Blog.Post, :count)
 
       # now make one
-      BlogFixtures.blog_attrs()
+      BlogFixtures.post_attrs()
       |> Blog.create_post()
 
       # now there is one
@@ -357,7 +367,7 @@ defmodule Jamie.Blog.Test do
 
     test "html is generated when the post saves" do
       # now make one
-      attrs = BlogFixtures.blog_attrs(markdown: "# Hello")
+      attrs = BlogFixtures.post_attrs(markdown: "# Hello")
       {:ok, post} = Blog.create_post(attrs)
 
       # it's present when returned

@@ -3,7 +3,25 @@ defmodule Jamie.Support.BlogFixtures do
   Fixtures for the blog context.
   """
 
-  @default_attrs [
+  @default_note_attrs [
+    title: "Basic note",
+    markdown: """
+    # Hello, World!
+    Here's a list of some great ideas
+    * test the thing
+    * deploy the thing
+    * use the thing
+    """,
+    status: :draft
+  ]
+
+  def note_attrs(opts \\ []) do
+    @default_note_attrs
+    |> Keyword.merge(opts)
+    |> Map.new()
+  end
+
+  @default_post_attrs [
     title: "Basic blog post",
     description: "A lovely description",
     markdown: """
@@ -16,8 +34,8 @@ defmodule Jamie.Support.BlogFixtures do
     status: :draft
   ]
 
-  def blog_attrs(opts \\ []) do
-    @default_attrs
+  def post_attrs(opts \\ []) do
+    @default_post_attrs
     |> Keyword.merge(opts)
     |> Map.new()
   end

@@ -5,7 +5,7 @@ defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
   alias Jamie.Support.BlogFixtures
 
   defp create_post(attrs) do
-    {:ok, post} = attrs |> BlogFixtures.blog_attrs() |> Blog.create_post()
+    {:ok, post} = attrs |> BlogFixtures.post_attrs() |> Blog.create_post()
     post
   end
 
