@@ -1,0 +1,42 @@
+defmodule Jamie.Blog.Note do
+  use Ecto.Schema
+  import Ecto.Changeset
+
+  @statuses [:draft, :published, :hidden]
+
+  @required_fields [:markdown, :title]
+  @optional_fields []
+
+  schema "blog_notes" do
+    field :status, Ecto.Enum, values: @statuses, default: :draft
+    field :title, :string
+    field :markdown, :string
+    field :html, :string
+
+    field :published_on, :date
+    field :edited_on, :date
+
+    timestamps(type: :utc_datetime_usec)
+  end
+
+  def statuses, do: @statuses
+
+  @doc false
+  def changeset(note, attrs) do
+    note
+    |> cast(attrs, @required_fields ++ @optional_fields)
+    |> validate_required(@required_fields)
+    |> Jamie.Markdown.to_html!()
+    |> published_on()
+  end
+
+  defp published_on(changeset) do
+    case get_change(changeset, :status) do
+      :published ->
+        put_change(changeset, :published_on, Date.utc_today())
+
+      _ ->
+        changeset
+    end
+  end
+end

@@ -9,7 +9,7 @@ defmodule Jamie.Blog.RevisionsTest do
   import Ecto.Query
 
   defp make_post(opts \\ []) do
-    {:ok, post} = Blog.create_post(BlogFixtures.blog_attrs(opts))
+    {:ok, post} = Blog.create_post(BlogFixtures.post_attrs(opts))
     post
   end
 

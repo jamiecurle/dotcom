@@ -3,13 +3,30 @@ defmodule Jamie.Blog do
   The blog context boundary.
   """
 
-  alias Jamie.Blog.Post
+  alias Jamie.Blog.{Note, Post}
   alias Jamie.Blog.PostRevision
   alias Jamie.Repo
   import Ecto.Query
   alias Jamie.Accounts.Scope
 
   @snapshot_every 50
+
+  @doc """
+  returns a changeset for a note
+  """
+  def change_note(%Note{} = note, attrs \\ %{}) do
+    Note.changeset(note, attrs)
+  end
+
+  @doc """
+  Creates a note
+  """
+  def create_note(attrs) do
+    case change_note(%Note{}, attrs) do
+      %{valid?: true} = changeset -> Repo.insert(changeset)
+      changeset -> changeset
+    end
+  end
 
   @doc """
   returns a changeset for a post

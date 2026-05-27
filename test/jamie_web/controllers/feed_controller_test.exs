@@ -12,7 +12,7 @@ defmodule JamieWeb.FeedControllerTest do
 
     test "includes published posts", %{conn: conn} do
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "A Published Post", status: :published)
+        BlogFixtures.post_attrs(title: "A Published Post", status: :published)
         |> Blog.create_post()
 
       conn = get(conn, ~p"/feed.xml")
@@ -24,7 +24,7 @@ defmodule JamieWeb.FeedControllerTest do
 
     test "excludes draft posts", %{conn: conn} do
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "A Draft Post", status: :draft)
+        BlogFixtures.post_attrs(title: "A Draft Post", status: :draft)
         |> Blog.create_post()
 
       conn = get(conn, ~p"/feed.xml")
@@ -36,7 +36,7 @@ defmodule JamieWeb.FeedControllerTest do
 
     test "excludes hidden posts", %{conn: conn} do
       {:ok, post} =
-        BlogFixtures.blog_attrs(title: "A Hidden Post", status: :draft)
+        BlogFixtures.post_attrs(title: "A Hidden Post", status: :draft)
         |> Blog.create_post()
 
       {:ok, post} = Blog.update_post(post, %{status: :hidden})
@@ -50,15 +50,15 @@ defmodule JamieWeb.FeedControllerTest do
 
     test "only published posts appear when mix of statuses exist", %{conn: conn} do
       {:ok, published} =
-        BlogFixtures.blog_attrs(title: "Published One", status: :published)
+        BlogFixtures.post_attrs(title: "Published One", status: :published)
         |> Blog.create_post()
 
       {:ok, draft} =
-        BlogFixtures.blog_attrs(title: "Draft One", status: :draft)
+        BlogFixtures.post_attrs(title: "Draft One", status: :draft)
         |> Blog.create_post()
 
       {:ok, hidden_draft} =
-        BlogFixtures.blog_attrs(title: "Hidden One", status: :draft)
+        BlogFixtures.post_attrs(title: "Hidden One", status: :draft)
         |> Blog.create_post()
 
       {:ok, hidden} = Blog.update_post(hidden_draft, %{status: :hidden})
@@ -82,7 +82,7 @@ defmodule JamieWeb.FeedControllerTest do
 
     test "escapes html in post content", %{conn: conn} do
       {:ok, _post} =
-        BlogFixtures.blog_attrs(
+        BlogFixtures.post_attrs(
           title: "Post with <special> & 'chars'",
           status: :published
         )

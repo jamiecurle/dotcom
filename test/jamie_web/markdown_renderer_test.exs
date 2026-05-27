@@ -21,11 +21,11 @@ defmodule JamieWeb.MarkdownRendererTest do
 
     test "true for a published post, false for a draft or missing slug" do
       {:ok, published} =
-        BlogFixtures.blog_attrs(title: "Published Markdown", status: :published)
+        BlogFixtures.post_attrs(title: "Published Markdown", status: :published)
         |> Blog.create_post()
 
       {:ok, draft} =
-        BlogFixtures.blog_attrs(title: "Draft Markdown", status: :draft)
+        BlogFixtures.post_attrs(title: "Draft Markdown", status: :draft)
         |> Blog.create_post()
 
       assert MarkdownRenderer.has_markdown?(["posts", published.slug])
