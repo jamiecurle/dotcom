@@ -1,4 +1,4 @@
-defmodule JamieWeb.BlogLive.OfficeIndexLive do
+defmodule JamieWeb.BlogLive.PostIndex do
   use JamieWeb, :live_view
 
   @impl true

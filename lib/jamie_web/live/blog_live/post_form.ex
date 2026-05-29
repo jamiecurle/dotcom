@@ -1,4 +1,4 @@
-defmodule JamieWeb.BlogLive.Form do
+defmodule JamieWeb.BlogLive.PostForm do
   use JamieWeb, :live_view
   @moduledoc false
 
