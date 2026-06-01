@@ -23,10 +23,14 @@ defmodule JamieWeb.BlogLive.NoteForm do
   end
 
   @impl true
+  def handle_event("validate", _params, socket) do
+    socket
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
     <Layouts.office flash={@flash} current_scope={@current_scope}>
-      <h1>asds</h1>
       <div class="editor-pane">
         <.form
           for={@form}
@@ -48,7 +52,7 @@ defmodule JamieWeb.BlogLive.NoteForm do
             field={@form[:status]}
             type="select-naked"
             label="Status"
-            options={Enum.map(Blog.Post.statuses(), &{String.capitalize(to_string(&1)), &1})}
+            options={Enum.map(Blog.Note.statuses(), &{String.capitalize(to_string(&1)), &1})}
           />
 
           <.input
