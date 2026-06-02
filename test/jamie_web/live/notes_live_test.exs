@@ -8,7 +8,11 @@ defmodule Jamie.Blog.NotesLiveTest do
   end
 
   describe "auth tests" do
-    test "form redirects it not logged in", %{conn: conn} do
+    test "form redirects if with a standard view", %{conn: conn} do
+      assert 302 == (conn |> get("/office/notes/new")).status
+    end
+
+    test "form redirects if not logged in with live view", %{conn: conn} do
       {:error,
        {:redirect,
         %{
