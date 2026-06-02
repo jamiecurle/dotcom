@@ -1,5 +1,8 @@
 defmodule Jamie.Blog.NotesLiveTest do
   use JamieWeb.ConnCase, async: true
+
+  alias Jamie.Blog.Note
+  alias Jamie.Repo
   import Phoenix.LiveViewTest
   import Jamie.AccountsFixtures
 
@@ -45,16 +48,50 @@ defmodule Jamie.Blog.NotesLiveTest do
       %{user: user, conn: log_in_user(conn, user)}
     end
 
-    test "invalid with only a title", %{conn: conn} do
+    test "invalid without a title", %{conn: conn} do
       # get the live view
       {:ok, view, _} = live(conn, @url)
 
-      # html =
-      view
-      |> form("#note-form", %{note: %{title: "A note for you"}})
-      |> render_change()
+      # there are no notes
+      assert 0 == Repo.aggregate(Note, :count)
 
-      # assert html =~ "markdown is required"
+      view
+      |> element("#note-form")
+      |> render_submit(%{note: %{markdown: "A note for you", status: "draft"}})
+
+      # there are still no notes
+      assert 0 == Repo.aggregate(Note, :count)
+    end
+
+    test "note shows error when title is missing", %{conn: conn} do
+      {:ok, view, _} = live(conn, @url)
+
+      view
+      |> element("#note-form")
+      |> render_submit(%{
+        note: %{markdown: "A note for you", title: "", status: "draft"}
+      })
+
+      assert 0 == Repo.aggregate(Note, :count)
+      assert render(view) =~ "could not save note"
+    end
+
+    test "note saves when all is present ", %{conn: conn} do
+      # get the live view
+      {:ok, view, _} = live(conn, @url)
+
+      # there are no notes
+      assert 0 == Repo.aggregate(Note, :count)
+
+      view
+      |> element("#note-form")
+      |> render_submit(%{
+        note: %{markdown: "A note for you", title: "the title", status: "draft"}
+      })
+
+      # there is now one note and we redirected to the edit page
+      note = Repo.one(Note)
+      assert_redirect(view, ~p"/office/notes/#{note.id}")
     end
   end
 end
