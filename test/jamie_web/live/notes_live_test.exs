@@ -6,7 +6,7 @@ defmodule Jamie.Blog.NotesLiveTest do
   @url "/office/notes/new"
 
   describe "auth required tests" do
-    setup %{conn: conn} do
+    setup do
       %{user: user_fixture()}
     end
 
@@ -45,14 +45,14 @@ defmodule Jamie.Blog.NotesLiveTest do
       %{user: user, conn: log_in_user(conn, user)}
     end
 
-    test "invalid with only a title", %{conn: conn, user: user} do
+    test "invalid with only a title", %{conn: conn} do
       # get the live view
       {:ok, view, _} = live(conn, @url)
 
-      html =
-        view
-        |> form("#note-form", %{note: %{title: "A note for you"}})
-        |> render_change()
+      # html =
+      view
+      |> form("#note-form", %{note: %{title: "A note for you"}})
+      |> render_change()
 
       # assert html =~ "markdown is required"
     end
