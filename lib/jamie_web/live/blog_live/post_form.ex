@@ -119,11 +119,10 @@ defmodule JamieWeb.BlogLive.PostForm do
          |> push_navigate(to: ~p"/office/posts/#{post.id}")}
 
       %Ecto.Changeset{} = changeset ->
-        socket
-        |> put_flash(:error, "could not save post")
-        |> assign(form: to_form(changeset))
-
-        {:noreply, socket}
+        {:noreply,
+         socket
+         |> put_flash(:error, "could not save post")
+         |> assign(form: to_form(changeset))}
     end
   end
 
