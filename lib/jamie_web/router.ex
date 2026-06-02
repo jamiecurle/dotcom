@@ -74,6 +74,7 @@ defmodule JamieWeb.Router do
       on_mount: [{JamieWeb.UserAuth, :require_authenticated}] do
       live "/notes", BlogLive.NoteIndex, :index
       live "/notes/new", BlogLive.NoteForm, :new
+      live "/notes/:id", BlogLive.NoteForm, :edit
       live "/posts", BlogLive.PostIndex, :index
       live "/posts/new", BlogLive.PostForm, :new
       live "/posts/:id", BlogLive.PostForm, :edit

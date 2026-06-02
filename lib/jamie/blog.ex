@@ -12,6 +12,13 @@ defmodule Jamie.Blog do
   @snapshot_every 50
 
   @doc """
+  gets a note for a given id
+  """
+  def get_note!(id) do
+    Repo.get!(Note, id)
+  end
+
+  @doc """
   returns a changeset for a note
   """
   def change_note(%Note{} = note, attrs \\ %{}) do

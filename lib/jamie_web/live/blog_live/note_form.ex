@@ -12,16 +12,6 @@ defmodule JamieWeb.BlogLive.NoteForm do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end
 
-  defp apply_action(socket, :new, _params) do
-    note = %Blog.Note{}
-    changeset = Blog.change_note(note)
-
-    socket
-    |> assign(:page_title, "new note")
-    |> assign(:note, note)
-    |> assign(:form, to_form(changeset))
-  end
-
   @impl true
   def render(assigns) do
     ~H"""
@@ -55,7 +45,7 @@ defmodule JamieWeb.BlogLive.NoteForm do
             type="textarea-naked"
             label="Content (Markdown)"
             class="textarea w-full flex-1 font-mono min-h-96"
-            placeholder="Write your post in markdown..."
+            placeholder="Write your note in markdown..."
             phx-hook="SignImageUrl"
             phx-debounce="1500"
           />
@@ -77,24 +67,43 @@ defmodule JamieWeb.BlogLive.NoteForm do
   end
 
   @impl true
-  def handle_event("save", %{"note" => _note_params}, socket) do
-    {:noreply, socket}
+  def handle_event("save", %{"note" => note_params}, socket) do
+    save_note(socket, socket.assigns.live_action, note_params)
   end
 
-  # defp save_note(socket, :new, note_params) do
-  #   case Blog.create_note(note_params) do
-  #     {:ok, note} ->
-  #       {:noreply,
-  #        socket
-  #        |> put_flash(:info, "Note saved")}
+  defp save_note(socket, :new, note_params) do
+    case Blog.create_note(note_params) do
+      {:ok, note} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Note saved")
+         |> push_navigate(to: ~p"/office/notes/#{note.id}")}
 
-  #     # |> push_
-  #     %Ecto.Changeset{} = changeset ->
-  #       socket
-  #       |> put_flash(:error, "could not save note")
-  #       |> assign(form: to_form(changeset))
+      %Ecto.Changeset{} = changeset ->
+        {:noreply,
+         socket
+         |> put_flash(:error, "could not save note")
+         |> assign(form: to_form(changeset))}
+    end
+  end
 
-  #       {:noreply, socket}
-  #   end
-  # end
+  defp apply_action(socket, :new, _params) do
+    note = %Blog.Note{}
+    changeset = Blog.change_note(note)
+
+    socket
+    |> assign(:page_title, "new note")
+    |> assign(:note, note)
+    |> assign(:form, to_form(changeset))
+  end
+
+  defp apply_action(socket, :edit, %{"id" => id}) do
+    note = Blog.get_note!(id)
+    changeset = Blog.change_note(note)
+
+    socket
+    |> assign(:page_title, "Editing #{note.title}")
+    |> assign(:note, note)
+    |> assign(:form, to_form(changeset))
+  end
 end
