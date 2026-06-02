@@ -23,18 +23,13 @@ defmodule JamieWeb.BlogLive.NoteForm do
   end
 
   @impl true
-  def handle_event("validate", _params, socket) do
-    socket
-  end
-
-  @impl true
   def render(assigns) do
     ~H"""
     <Layouts.office flash={@flash} current_scope={@current_scope}>
       <div class="editor-pane">
         <.form
           for={@form}
-          id="post-form"
+          id="note-form"
           phx-change="validate"
           phx-debounce="1500"
           phx-submit="save"
@@ -44,7 +39,7 @@ defmodule JamieWeb.BlogLive.NoteForm do
             field={@form[:title]}
             label="Title"
             type="text-naked"
-            placeholder="NOte title"
+            placeholder="Note title"
             required
           />
 
@@ -75,4 +70,31 @@ defmodule JamieWeb.BlogLive.NoteForm do
     </Layouts.office>
     """
   end
+
+  @impl true
+  def handle_event("validate", _params, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("save", %{"note" => _note_params}, socket) do
+    {:noreply, socket}
+  end
+
+  # defp save_note(socket, :new, note_params) do
+  #   case Blog.create_note(note_params) do
+  #     {:ok, note} ->
+  #       {:noreply,
+  #        socket
+  #        |> put_flash(:info, "Note saved")}
+
+  #     # |> push_
+  #     %Ecto.Changeset{} = changeset ->
+  #       socket
+  #       |> put_flash(:error, "could not save note")
+  #       |> assign(form: to_form(changeset))
+
+  #       {:noreply, socket}
+  #   end
+  # end
 end
