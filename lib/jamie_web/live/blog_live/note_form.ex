@@ -71,6 +71,11 @@ defmodule JamieWeb.BlogLive.NoteForm do
     save_note(socket, socket.assigns.live_action, note_params)
   end
 
+  @impl true
+  def handle_event("edit", %{"note" => note_params}, socket) do
+    save_note(socket, socket.assigns.live_action, note_params)
+  end
+
   defp save_note(socket, :new, note_params) do
     case Blog.create_note(note_params) do
       {:ok, note} ->
@@ -86,6 +91,22 @@ defmodule JamieWeb.BlogLive.NoteForm do
          |> assign(form: to_form(changeset))}
     end
   end
+
+  # defp save_note(socket, :edit, note_params) do
+  #   note = socket.assigns.note
+
+  #   case Blog.update_note(note, note_params, note.updated_at) do
+  #     {:ok, updated} ->
+  #       {:noreply,
+  #        socket
+  #        |> assign(:note, updated)
+  #        |> assign(:form, to_form(Blog.change_note(updated)))
+  #        |> put_flash(:info, "note updated successfully.")}
+
+  #     {:error, %Ecto.Changeset{} = changeset} ->
+  #       {:noreply, assign(socket, form: to_form(changeset))}
+  #   end
+  # end
 
   defp apply_action(socket, :new, _params) do
     note = %Blog.Note{}
