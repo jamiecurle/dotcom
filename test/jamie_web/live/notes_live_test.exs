@@ -1,12 +1,12 @@
 defmodule Jamie.Blog.NotesLiveTest do
   use JamieWeb.ConnCase, async: true
 
-  alias Jamie.Blog
+  # alias Jamie.Blog
   alias Jamie.Blog.Note
   alias Jamie.Repo
   import Phoenix.LiveViewTest
   import Jamie.AccountsFixtures
-  alias Jamie.Support.BlogFixtures
+  # alias Jamie.Support.BlogFixtures
 
   @url "/office/notes/"
 
