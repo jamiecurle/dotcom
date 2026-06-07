@@ -1,13 +1,15 @@
-<div class="edit">
-  <a href={~p"/office/posts/#{@post.id}"}>Edit</a>
-</div>
-<header>
+<%= if @current_scope do %>
+  <div class="edit">
+    <a href={~p"/office/posts/#{@post.id}"}>Edit</a>
+  </div>
+<% end %>
+
+<header class="post">
+  <.pretty_date date={@post.published_on} />
   <h1 class="page-title">{@post.title}</h1>
   <p>
     {@post.description}
   </p>
-  <%= if @current_scope do %>
-  <% end %>
 </header>
 <section class="page-content">
   <article>
