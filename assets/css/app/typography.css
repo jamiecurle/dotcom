@@ -7,6 +7,11 @@
         line-height: var(--unit-3-2);
     }
 
+    hr {
+        border-top: 0;
+        border-bottom: 1px solid;
+    }
+
     pre,
     pre code {
         font-family: var(--font-code);
