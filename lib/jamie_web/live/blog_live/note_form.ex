@@ -16,46 +16,48 @@ defmodule JamieWeb.BlogLive.NoteForm do
   def render(assigns) do
     ~H"""
     <Layouts.office flash={@flash} current_scope={@current_scope}>
-      <div class="editor-pane">
-        <.form
-          for={@form}
-          id="note-form"
-          phx-change="validate"
-          phx-debounce="1500"
-          phx-submit="save"
-          phx-hook="SaveShortcut"
-        >
-          <.input
-            field={@form[:title]}
-            label="Title"
-            type="text-naked"
-            placeholder="Note title"
-            required
-          />
-
-          <.input
-            field={@form[:status]}
-            type="select-naked"
-            label="Status"
-            options={Enum.map(Blog.Note.statuses(), &{String.capitalize(to_string(&1)), &1})}
-          />
-
-          <.input
-            field={@form[:markdown]}
-            type="textarea-naked"
-            label="Content (Markdown)"
-            class="textarea w-full flex-1 font-mono min-h-96"
-            placeholder="Write your note in markdown..."
-            phx-hook="SignImageUrl"
+      <div class="editor-split">
+        <div class="editor-pane">
+          <.form
+            for={@form}
+            id="editor-form"
+            phx-change="validate"
             phx-debounce="1500"
-          />
+            phx-submit="save"
+            phx-hook="SaveShortcut"
+          >
+            <.input
+              field={@form[:title]}
+              label="Title"
+              type="text-naked"
+              placeholder="Note title"
+              required
+            />
 
-          <div class="mt-4">
-            <button type="submit" class="btn btn-primary" phx-disable-with="Saving...">
-              Save Post
-            </button>
-          </div>
-        </.form>
+            <.input
+              field={@form[:status]}
+              type="select-naked"
+              label="Status"
+              options={Enum.map(Blog.Note.statuses(), &{String.capitalize(to_string(&1)), &1})}
+            />
+
+            <.input
+              field={@form[:markdown]}
+              type="textarea-naked"
+              label="Content (Markdown)"
+              class="textarea w-full flex-1 font-mono min-h-96"
+              placeholder="Write your note in markdown..."
+              phx-hook="SignImageUrl"
+              phx-debounce="1500"
+            />
+
+            <div class="mt-4">
+              <button type="submit" class="btn btn-primary" phx-disable-with="Saving...">
+                Save Note
+              </button>
+            </div>
+          </.form>
+        </div>
       </div>
     </Layouts.office>
     """
@@ -92,21 +94,21 @@ defmodule JamieWeb.BlogLive.NoteForm do
     end
   end
 
-  # defp save_note(socket, :edit, note_params) do
-  #   note = socket.assigns.note
+  defp save_note(socket, :edit, note_params) do
+    note = socket.assigns.note
 
-  #   case Blog.update_note(note, note_params, note.updated_at) do
-  #     {:ok, updated} ->
-  #       {:noreply,
-  #        socket
-  #        |> assign(:note, updated)
-  #        |> assign(:form, to_form(Blog.change_note(updated)))
-  #        |> put_flash(:info, "note updated successfully.")}
+    case Blog.update_note(note, note_params) do
+      {:ok, updated} ->
+        {:noreply,
+         socket
+         |> assign(:note, updated)
+         |> assign(:form, to_form(Blog.change_note(updated)))
+         |> put_flash(:info, "note updated successfully.")}
 
-  #     {:error, %Ecto.Changeset{} = changeset} ->
-  #       {:noreply, assign(socket, form: to_form(changeset))}
-  #   end
-  # end
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {:noreply, assign(socket, form: to_form(changeset))}
+    end
+  end
 
   defp apply_action(socket, :new, _params) do
     note = %Blog.Note{}

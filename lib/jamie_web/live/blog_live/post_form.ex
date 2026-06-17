@@ -12,7 +12,7 @@ defmodule JamieWeb.BlogLive.PostForm do
         <div class="editor-pane">
           <.form
             for={@form}
-            id="post-form"
+            id="editor-form"
             phx-change="validate"
             phx-debounce="1500"
             phx-submit="save"

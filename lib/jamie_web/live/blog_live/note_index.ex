@@ -7,10 +7,25 @@ defmodule JamieWeb.BlogLive.NoteIndex do
   end
 
   @impl true
+  def handle_params(_params, _url, socket) do
+    socket =
+      with notes <- Jamie.Blog.get_published_notes(socket.assigns.current_scope) do
+        socket
+        |> assign(:notes, notes)
+      end
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      HELLO
+      <ul>
+        <li :for={post <- @notes}>
+          <.link href={~p"/office/notes/#{post.id}"}>{post.title}</.link>
+        </li>
+      </ul>
     </Layouts.app>
     """
   end

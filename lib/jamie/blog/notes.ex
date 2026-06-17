@@ -4,7 +4,7 @@ defmodule Jamie.Blog.Note do
 
   @statuses [:draft, :published, :hidden]
 
-  @required_fields [:markdown, :title]
+  @required_fields [:markdown, :title, :status]
   @optional_fields []
 
   schema "blog_notes" do

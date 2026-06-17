@@ -4,9 +4,103 @@ defmodule Jamie.Blog.Test do
   alias Jamie.Accounts.Scope
   alias Jamie.AccountsFixtures
   alias Jamie.Blog
-  alias Jamie.Blog.Post
+
+  alias Jamie.Blog.{
+    Note,
+    Post
+  }
+
   alias Jamie.Repo
   alias Jamie.Support.BlogFixtures
+
+  describe "update_note/1" do
+    setup do
+      # make a note
+      {:ok, note} =
+        BlogFixtures.note_attrs(
+          status: :published,
+          title: "Published note",
+          markdown: "## the published\nI am the published text"
+        )
+        |> Blog.create_note()
+
+      %{note: note}
+    end
+
+    test "happy path", %{note: note} do
+      # make attrs
+      attrs = %{
+        title: "change the entire thing",
+        markdown: "# brutal\n some edits are brutal"
+      }
+
+      # now update the note
+      {:ok, note} = Blog.update_note(note, attrs)
+
+      # get the note again from the database to be 100% sure
+      # we have the intended outcome
+      note = Repo.get!(Note, note.id)
+
+      # and the title is as we expect
+      assert note.title == attrs[:title]
+      assert note.markdown == attrs[:markdown]
+    end
+
+    test "sad path - missing fields", %{note: note} do
+      # make attrs
+      attrs = %{
+        title: nil,
+        markdown: nil
+      }
+
+      # now update the note
+      {:error, %Ecto.Changeset{} = cs} = Blog.update_note(note, attrs)
+
+      assert cs.errors == [
+               markdown: {"can't be blank", [validation: :required]},
+               title: {"can't be blank", [validation: :required]}
+             ]
+    end
+  end
+
+  describe "get_published_notes/1" do
+    setup do
+      # make two notes, one published and one not
+      # published note
+      {:ok, published_note} =
+        BlogFixtures.note_attrs(
+          status: :published,
+          title: "Published note",
+          markdown: "## the published\nI am the published text"
+        )
+        |> Blog.create_note()
+
+      # this is the unpublished note
+      {:ok, unpublished_note} =
+        BlogFixtures.note_attrs(status: :draft)
+        |> Blog.create_note()
+
+      %{published_note: published_note, unpublished_note: unpublished_note}
+    end
+
+    test "happy path no scope" do
+      # returns ones as there's no scope
+      assert 1 == Blog.get_published_notes() |> length()
+    end
+
+    test "happy path scope logged in" do
+      # when a user has a scope, and it is logged in, we return two
+      user = AccountsFixtures.user_fixture()
+      scope = Scope.for_user(user)
+      assert 2 == Blog.get_published_notes(scope) |> length()
+    end
+
+    test "happy path when scope is nil" do
+      # returns ones as there's no scope
+      scope = Scope.for_user(nil)
+      assert 1 == Blog.get_published_notes(scope) |> length()
+    end
+  end
 
   describe "create_note/1" do
     test "saves when valid" do

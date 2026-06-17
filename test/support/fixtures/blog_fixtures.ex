@@ -19,6 +19,8 @@ defmodule Jamie.Support.BlogFixtures do
     @default_note_attrs
     |> Keyword.merge(opts)
     |> Map.new()
+
+    # |> IO.inspect(label: "attrs")
   end
 
   @default_post_attrs [

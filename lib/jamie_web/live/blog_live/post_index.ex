@@ -7,7 +7,7 @@ defmodule JamieWeb.BlogLive.PostIndex do
   end
 
   @impl true
-  def handle_params(_parmams, _url, socket) do
+  def handle_params(_params, _url, socket) do
     socket =
       with posts <- Jamie.Blog.all_posts() do
         socket

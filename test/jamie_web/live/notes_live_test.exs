@@ -1,19 +1,19 @@
 defmodule Jamie.Blog.NotesLiveTest do
   use JamieWeb.ConnCase, async: true
 
-  # alias Jamie.Blog
+  alias Jamie.Blog
   alias Jamie.Blog.Note
   alias Jamie.Repo
   import Phoenix.LiveViewTest
   import Jamie.AccountsFixtures
-  # alias Jamie.Support.BlogFixtures
+  alias Jamie.Support.BlogFixtures
 
   @url "/office/notes/"
 
-  # defp create_note(attrs) do
-  #   {:ok, note} = attrs |> BlogFixtures.note_attrs() |> Blog.create_note()
-  #   note
-  # end
+  defp create_note(attrs) do
+    {:ok, note} = attrs |> BlogFixtures.note_attrs() |> Blog.create_note()
+    note
+  end
 
   describe "auth required tests" do
     setup do
@@ -44,7 +44,7 @@ defmodule Jamie.Blog.NotesLiveTest do
 
       # so now we can do some liveview things
       # has a form element that can submit
-      form = element(view, ~s(form#note-form))
+      form = element(view, ~s(form#editor-form))
       assert has_element?(form)
     end
   end
@@ -63,7 +63,7 @@ defmodule Jamie.Blog.NotesLiveTest do
       assert 0 == Repo.aggregate(Note, :count)
 
       view
-      |> form("#note-form", %{note: %{markdown: "A note for you", status: "draft"}})
+      |> form("#editor-form", %{note: %{markdown: "A note for you", status: "draft"}})
       |> render_submit()
 
       # there are still no notes
@@ -74,7 +74,7 @@ defmodule Jamie.Blog.NotesLiveTest do
       {:ok, view, _} = live(conn, @url <> "new")
 
       view
-      |> form("#note-form", %{note: %{markdown: "A note for you", status: "draft"}})
+      |> form("#editor-form", %{note: %{markdown: "A note for you", status: "draft"}})
       |> render_submit()
 
       assert 0 == Repo.aggregate(Note, :count)
@@ -89,7 +89,7 @@ defmodule Jamie.Blog.NotesLiveTest do
       assert 0 == Repo.aggregate(Note, :count)
 
       view
-      |> form("#note-form", %{
+      |> form("#editor-form", %{
         note: %{markdown: "A note for you", title: "a note", status: "draft"}
       })
       |> render_submit()
@@ -100,34 +100,33 @@ defmodule Jamie.Blog.NotesLiveTest do
     end
   end
 
-  # describe "editing a note works as expected" do
-  #   setup %{conn: conn} do
-  #     user = user_fixture()
-  #     note = create_note(title: "this is the note", markdown: "* list")
-  #     %{user: user, conn: log_in_user(conn, user), note: note}
-  #   end
+  describe "editing a note works as expected" do
+    setup %{conn: conn} do
+      user = user_fixture()
+      note = create_note(title: "this is the note", markdown: "* list")
+      %{user: user, conn: log_in_user(conn, user), note: note}
+    end
 
-  #   test "edit works as expected", %{conn: conn, note: note} do
-  #     # get the live view
-  #     {:ok, view, _} = live(conn, @url <> "#{note.id}")
+    test "edit works as expected", %{conn: conn, note: note} do
+      # get the live view
+      {:ok, view, _} = live(conn, @url <> "#{note.id}")
 
-  #     # one note and the title is what we expect
-  #     note = Repo.one(Note)
-  #     assert note.title == "this is the note"
-  #     assert note.markdown == "* list"
+      # one note and the title is what we expect
+      note = Repo.one(Note)
+      assert note.title == "this is the note"
+      assert note.markdown == "* list"
 
-  #     # submit the form
-  #     view
-  #     |> form("#note-form", %{
-  #       note: %{markdown: "An edited note", title: "this still is the note"}
-  #     })
-  #     |> render_submit()
+      # submit the form
+      view
+      |> form("#editor-form", %{
+        note: %{markdown: "An edited note", title: "this still is the note"}
+      })
+      |> render_submit()
 
-  #     #
-  #     # one note and the title is what we expect
-  #     note = Repo.one(Note)
-  #     assert note.title == "this still is the note"
-  #     assert note.markdown == "An edited note"
-  #   end
-  # end
+      # one note and the title is what we expect
+      note = Repo.one(Note)
+      assert note.title == "this still is the note"
+      assert note.markdown == "An edited note"
+    end
+  end
 end
