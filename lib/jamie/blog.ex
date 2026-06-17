@@ -12,6 +12,30 @@ defmodule Jamie.Blog do
   @snapshot_every 50
 
   @doc """
+  gets visible notes.
+
+  Takes a scope and if the user on the scope is not nil then it will return
+  all notes of all statuses.
+  """
+
+  def get_published_notes(scope \\ nil)
+
+  def get_published_notes(%Scope{user: user}) when not is_nil(user) do
+    from(n in Note,
+      order_by: [desc: n.published_on]
+    )
+    |> Repo.all()
+  end
+
+  def get_published_notes(_scope) do
+    from(n in Note,
+      where: n.status == :published,
+      order_by: [desc: n.published_on]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
   gets a note for a given id
   """
   def get_note!(id) do

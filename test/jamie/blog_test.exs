@@ -8,6 +8,45 @@ defmodule Jamie.Blog.Test do
   alias Jamie.Repo
   alias Jamie.Support.BlogFixtures
 
+  describe "get_published_notes/1" do
+    setup do
+      # make two notes, one published and one not
+      # published note
+      {:ok, published_note} =
+        BlogFixtures.note_attrs(
+          status: :published,
+          title: "Published note",
+          markdown: "## the published\nI am the published text"
+        )
+        |> Blog.create_note()
+
+      # this is the unpublished note
+      {:ok, unpublished_note} =
+        BlogFixtures.note_attrs(status: :draft)
+        |> Blog.create_note()
+
+      %{published_note: published_note, unpublished_note: unpublished_note}
+    end
+
+    test "happy path no scope" do
+      # returns ones as there's no scope
+      assert 1 == Blog.get_published_notes() |> length()
+    end
+
+    test "happy path scope logged in" do
+      # when a user has a scope, and it is logged in, we return two
+      user = AccountsFixtures.user_fixture()
+      scope = Scope.for_user(user)
+      assert 2 == Blog.get_published_notes(scope) |> length()
+    end
+
+    test "happy path when scope is nil" do
+      # returns ones as there's no scope
+      scope = Scope.for_user(nil)
+      assert 1 == Blog.get_published_notes(scope) |> length()
+    end
+  end
+
   describe "create_note/1" do
     test "saves when valid" do
       {:ok, note} =
