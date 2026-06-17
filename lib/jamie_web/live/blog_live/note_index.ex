@@ -7,7 +7,7 @@ defmodule JamieWeb.BlogLive.NoteIndex do
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
+  def handle_params(_params, _url, socket) do
     socket =
       with notes <- Jamie.Blog.get_published_notes(socket.assigns.current_scope) do
         socket
