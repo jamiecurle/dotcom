@@ -73,13 +73,28 @@ form {
     width: 100%;
 }
 
-form#post-form {
+form#editor-form {
     display: flex;
     flex-direction: column;
     flex: 1;
 }
 
-.layout .editor-split,
+form#editor-form textarea {
+    flex: 1;
+    resize: none;
+    font-family: var(--font-base);
+    border: 1px solid red;
+}
+form input,
+form textarea {
+    width: 100%;
+    font-size: var(--unit-3);
+    border: 0;
+    border-bottom: 1px solid var(--colour-mid-1);
+    padding: var(--unit-3);
+    outline: 0;
+}
+
 .editor-split {
     display: flex;
     flex-direction: row;
@@ -109,19 +124,4 @@ form#post-form {
     height: 100%;
     border: 0;
     background: var(--colour-light-1);
-}
-
-form#post-form textarea {
-    flex: 1;
-    resize: none;
-    font-family: var(--font-base);
-}
-form input,
-form textarea {
-    width: 100%;
-    font-size: var(--unit-3);
-    border: 0;
-    border-bottom: 1px solid var(--colour-mid-1);
-    padding: var(--unit-3);
-    outline: 0;
 }

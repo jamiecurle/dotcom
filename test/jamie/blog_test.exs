@@ -4,9 +4,48 @@ defmodule Jamie.Blog.Test do
   alias Jamie.Accounts.Scope
   alias Jamie.AccountsFixtures
   alias Jamie.Blog
-  alias Jamie.Blog.Post
+
+  alias Jamie.Blog.{
+    Note,
+    Post
+  }
+
   alias Jamie.Repo
   alias Jamie.Support.BlogFixtures
+
+  describe "update_note/1" do
+    setup do
+      # make a note
+      {:ok, note} =
+        BlogFixtures.note_attrs(
+          status: :published,
+          title: "Published note",
+          markdown: "## the published\nI am the published text"
+        )
+        |> Blog.create_note()
+
+      %{note: note}
+    end
+
+    test "happy path", %{note: note} do
+      # make attrs
+      attrs = %{
+        title: "change the entire thing",
+        markdown: "# brutal\n some edits are brutal"
+      }
+
+      # now update the note
+      {:ok, note} = Blog.update_note(note, attrs)
+
+      # get the note again from the database to be 100% sure
+      # we have the intended outcome
+      note = Repo.get!(Note, note.id)
+
+      # and the title is as we expect
+      assert note.title == attrs[:title]
+      assert note.markdown == attrs[:markdown]
+    end
+  end
 
   describe "get_published_notes/1" do
     setup do
