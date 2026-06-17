@@ -45,6 +45,22 @@ defmodule Jamie.Blog.Test do
       assert note.title == attrs[:title]
       assert note.markdown == attrs[:markdown]
     end
+
+    test "sad path - missing fields", %{note: note} do
+      # make attrs
+      attrs = %{
+        title: nil,
+        markdown: nil
+      }
+
+      # now update the note
+      {:error, %Ecto.Changeset{} = cs} = Blog.update_note(note, attrs)
+
+      assert cs.errors == [
+               markdown: {"can't be blank", [validation: :required]},
+               title: {"can't be blank", [validation: :required]}
+             ]
+    end
   end
 
   describe "get_published_notes/1" do
