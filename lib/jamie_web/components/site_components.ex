@@ -22,13 +22,20 @@ defmodule JamieWeb.SiteComponents do
   @months ~w(January February March April May June July August September October November December)
 
   @doc ~S"""
-  Renders a date as "10th May 2026" with a `<sup>` on the ordinal suffix.
+  Renders a date as "10th May 2026".
+
+  If date is nil (perhaps not published yet) then returns "Draft"
 
   ## Examples
-
       <.pretty_date date={~D[2026-05-10]} />
   """
-  attr :date, Date, required: true
+  attr :date, Date, default: nil
+
+  def pretty_date(%{date: nil} = assigns) do
+    ~H"""
+    <time>Draft</time>
+    """
+  end
 
   def pretty_date(assigns) do
     assigns =
