@@ -146,16 +146,7 @@ defmodule Jamie.Blog do
 
     updates =
       applied
-      |> Map.take([
-        :status,
-        :title,
-        :description,
-        :markdown,
-        :html,
-        :slug,
-        :published_on,
-        :edited_on
-      ])
+      |> Map.take(Post.fields())
       |> Map.to_list()
       |> Keyword.put(:updated_at, now)
 
