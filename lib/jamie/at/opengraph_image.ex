@@ -15,7 +15,7 @@ defmodule Jamie.At.OpengraphImage do
         font: "Inter",
         font_size: 96,
         font_weight: :bold,
-        text_fill_color: "white",
+        text_fill_color: [255, 255, 255],
         width: 650
       )
 
@@ -25,14 +25,14 @@ defmodule Jamie.At.OpengraphImage do
         font: "Inter",
         font_size: 32,
         font_weight: :normal,
-        text_fill_color: "white",
+        text_fill_color: [255, 255, 255],
         width: 650
       )
 
-    # make the image
-    Image.new!(1200, 630, color: "#0a0a0a")
+    # finally, build the image
+    Image.new!(1200, 630, color: [10, 10, 10])
     |> Image.compose!(bg, x: 0, y: 0)
     |> Image.compose!(title, x: 550, y: 48)
-    |> Image.compose!(description, x: 550, y: 48 - Image.height(title))
+    |> Image.compose!(description, x: 550, y: 48 + Image.height(title))
   end
 end
