@@ -21,26 +21,26 @@
         letter-spacing: -0.5px;
         margin-top: var(--unit-3);
         margin-bottom: var(--unit-2);
-        padding: var(--unit-3) var(--unit-3);
+        padding: var(--unit-3) var(--unit-3) var(--unit-3) 0;
         border-top: 1px solid;
     }
 
     @media (min-width: 750px) {
         header.post {
-            margin-left: var(--unit-4);
+            /*margin-left: var(--unit-4);*/
             padding-right: var(--unit-4);
         }
         h1.page-title {
             font-size: var(--unit-6);
             letter-spacing: -3px;
             line-height: var(--unit-6);
-            padding: var(--unit-3) var(--unit-3);
+            padding: var(--unit-3) var(--unit-3) var(--unit-3) 0;
             margin-bottom: 0;
-            padding-left: var(--unit-3-2);
+            /*padding-left: var(--unit-3-2);*/
         }
 
         div.post-body {
-            padding: var(--unit-2) var(--unit-4);
+            padding: var(--unit-2) var(--unit-4) var(--unit-2) 0;
         }
     }
     .post-body h1,

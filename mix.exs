@@ -67,7 +67,8 @@ defmodule Jamie.MixProject do
       {:sweet_xml, "~> 0.6"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:diffy, "~> 1.1"},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
+      {:image, "~> 0.64"}
     ]
   end
 
