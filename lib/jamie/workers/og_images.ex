@@ -5,8 +5,7 @@ defmodule Jamie.Workers.OgImages do
   use Oban.Worker, queue: :default, max_attempts: 5
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{"og_hash" => og_hash}}) do
-    og_hash
+  def perform(%Oban.Job{args: %{"og_hash" => _og_hash}}) do
     {:ok, :created}
   end
 end
