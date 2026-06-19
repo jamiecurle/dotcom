@@ -6,6 +6,7 @@ defmodule Jamie.Workers.OgImages do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"og_hash" => og_hash}}) do
+    og_hash
     {:ok, :created}
   end
 end
