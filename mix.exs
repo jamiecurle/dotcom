@@ -68,7 +68,9 @@ defmodule Jamie.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:diffy, "~> 1.1"},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:image, "~> 0.64"}
+      {:image, "~> 0.64"},
+      {:oban, "~> 2.23"},
+      {:igniter, "~> 0.5", only: [:dev]}
     ]
   end
 
