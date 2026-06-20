@@ -1,3 +1,7 @@
+## 0.7.0
+- now has notes
+
+
 ## 0.6.0
 - about mode
 - toasts now styled "a bit"
