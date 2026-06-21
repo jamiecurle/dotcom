@@ -1,4 +1,4 @@
-defmodule Jamie.At.OpengraphImage do
+defmodule Jamie.Blog.OgPostImage do
   @moduledoc """
   Generates open graph images for "things" with a title,
   description and maybe a url.
