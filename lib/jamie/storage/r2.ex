@@ -24,7 +24,19 @@ defmodule Jamie.Storage.R2 do
   @doc """
   Returns a list of files in the :ex_aws, :s3 :bucket configuration
   """
-  def put_file(_key) do
-    # TODO
+  def put_file(contents, filename) do
+    Application.get_env(:ex_aws, :s3)[:bucket]
+    |> ExAws.S3.put_object(filename, contents, content_type: content_type(filename))
+    |> ExAws.request()
+  end
+
+  defp content_type(filename) do
+    case Path.extname(filename) do
+      ".jpg" -> "image/jpeg"
+      ".jpeg" -> "image/jpeg"
+      ".png" -> "image/png"
+      ".pdf" -> "application/pdf"
+      _ -> "application/octet-stream"
+    end
   end
 end
