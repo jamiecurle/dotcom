@@ -4,23 +4,27 @@ defmodule Jamie.Workers.OgImageCreate do
   """
   use Oban.Worker, queue: :default, max_attempts: 5
 
+  require Logger
+  alias Jamie.Opengraph
+
   @impl Oban.Worker
   def perform(%Oban.Job{args: %{"thing" => thing, "id" => id}}) do
-    # get the type of thing
-    thing
-    |> type()
-    |> retreive(id)
+    # get the create function
+    create_fn =
+      case thing do
+        "post" -> &Opengraph.for_post/1
+        _ -> fn _ -> :error end
+      end
 
-    {:ok, :created}
-  end
+    # now do the create_fn
+    case create_fn.(id) do
+      {:ok, _result} ->
+        Logger.info("Oban: success: og image create #{thing}:#{id}")
+        :ok
 
-  defp type(thing) do
-    case thing do
-      "post" -> Jamie.Blog.Post
+      _ ->
+        Logger.error("Oban: error: og image create #{thing}:#{id}")
+        :error
     end
-  end
-
-  defp retreive(schema, id) do
-    Jamie.Repo.get!(schema, id)
   end
 end

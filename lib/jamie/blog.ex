@@ -8,6 +8,7 @@ defmodule Jamie.Blog do
   alias Jamie.Repo
   import Ecto.Query
   alias Jamie.Accounts.Scope
+  alias Jamie.Workers.OgImageCreate
 
   @snapshot_every 50
 
@@ -157,12 +158,19 @@ defmodule Jamie.Blog do
 
     case result do
       {:ok, updated_post} ->
+        # broadcast
         Phoenix.PubSub.broadcast(
           Jamie.PubSub,
           "post:#{updated_post.id}",
           {:post_updated, updated_post}
         )
 
+        # send og image job
+        %{thing: "post", id: updated_post.id}
+        |> OgImageCreate.new()
+        |> Oban.insert()
+
+        # now return
         {:ok, updated_post}
 
       {:error, _} = err ->

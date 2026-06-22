@@ -6,11 +6,17 @@ defmodule Jamie.Opengraph.Image do
   https://jola.dev/posts/generating-og-images was a big help
   """
 
+  alias Jamie.Blog
   alias Jamie.Storage.R2
 
-  def for_post(post) do
+  def for_post(%Blog.Post{} = post) do
     create(post.title, post.description)
     |> R2.put_file("opengraph/#{post.og_hash}.jpeg")
+  end
+
+  def for_post(post) do
+    Blog.get_post!(post)
+    |> for_post()
   end
 
   def create(title, description, _url \\ "") do
