@@ -27,7 +27,7 @@ defmodule JamieWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    get "/opengraph/:thing/:id", OgController, :image
+    # get "/opengraph/:thing/:id", OgController, :image
     get "/health", PageController, :health
     get "/about", PageController, :about
     get "/privacy", PageController, :privacy
