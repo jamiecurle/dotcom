@@ -6,21 +6,17 @@ defmodule Jamie.BlogPostTest do
   alias Jamie.Support.BlogFixtures
 
   describe "og_hash is saved when post is created and updated" do
-    test "og_hash is saved when post is created" do
-      # now make one
-      {:ok, post} =
-        BlogFixtures.post_attrs()
-        |> Blog.create_post()
+    setup do
+      {:ok, post} = BlogFixtures.post_attrs() |> Blog.create_post()
 
+      %{post: post}
+    end
+
+    test "og_hash is saved when post is created", %{post: post} do
       assert post.og_hash == "cfec820f6ea2a894beb0a272cc507f04"
     end
 
-    test "og_hash is saved again when post is edited" do
-      # now make one
-      {:ok, post} =
-        BlogFixtures.post_attrs()
-        |> Blog.create_post()
-
+    test "og_hash is saved again when post is edited", %{post: post} do
       # edit the post
       {:ok, post_edited} = Blog.update_post(post, %{"title" => "yes, this isn't the fixture"})
 
