@@ -70,6 +70,7 @@ defmodule Jamie.MixProject do
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:image, "~> 0.64"},
       {:oban, "~> 2.23"},
+      {:oban_web, "~> 2.11"},
       {:igniter, "~> 0.5", only: [:dev]}
     ]
   end
