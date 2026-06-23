@@ -60,7 +60,7 @@ defmodule JamieWeb.Router do
 
     scope "/dev" do
       pipe_through :browser
-
+      get "/image/:id", JamieWeb.DevController, :og_image
       live_dashboard "/dashboard", metrics: JamieWeb.Telemetry
       forward "/mailbox", Plug.Swoosh.MailboxPreview
     end
