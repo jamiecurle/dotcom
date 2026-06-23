@@ -158,7 +158,7 @@ defmodule Jamie.Blog do
         # update the post
         updated_post = commit_post_update(post.id, last_known_updated_at, updates, applied)
 
-        # if the og_hash has changed, schedule the og_image job
+        # if the og_hash has changed, schedule the og_image job 20 seconds in the future
         if og_hash_changed? do
           %{thing: "post", id: updated_post.id}
           |> OgImageCreate.new(scheduled_at: DateTime.add(now, 20, :second))
@@ -168,6 +168,9 @@ defmodule Jamie.Blog do
         updated_post
       end)
 
+    # lovely, handle the result and we're done.
+    # Remember to broadcast the change on the post to
+    # update the post to the latest version for everyone.
     case result do
       {:ok, updated_post} ->
         Phoenix.PubSub.broadcast(

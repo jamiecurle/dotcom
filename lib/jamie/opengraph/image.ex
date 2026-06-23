@@ -9,6 +9,11 @@ defmodule Jamie.Opengraph.Image do
   alias Jamie.Blog
   alias Jamie.Storage.R2
 
+  @doc """
+  Given a post struct or an id of an post create
+  and opengrah image and upload it into R2.
+  """
+
   def for_post(%Blog.Post{} = post) do
     create(post.title, post.description)
     |> R2.put_file("opengraph/#{post.og_hash}.jpeg")
@@ -19,6 +24,10 @@ defmodule Jamie.Opengraph.Image do
     |> for_post()
   end
 
+  @doc """
+  given a title and a description, create an in memory
+  open graphg image
+  """
   def create(title, description, _url \\ "") do
     # open the background
     {:ok, bg} = Image.open("priv/static/images/og-base.png")
