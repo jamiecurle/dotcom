@@ -38,6 +38,8 @@ defmodule Jamie.Opengraph.Image do
         font: "Inter",
         font_size: 144,
         font_weight: :bold,
+        background_fill_opacity: 1.0,
+        background_fill_color: "#3e3e3e",
         text_fill_color: [255, 255, 255],
         width: 1128,
         letter_spacing: -2
