@@ -1,6 +1,7 @@
 defmodule JamieWeb.Router do
   use JamieWeb, :router
 
+  import Oban.Web.Router
   import JamieWeb.UserAuth
 
   pipeline :browser do
@@ -68,10 +69,12 @@ defmodule JamieWeb.Router do
   ## Authenticated routes
   scope "/office", JamieWeb do
     pipe_through [:browser, :require_authenticated_user, :office]
+    oban_dashboard("/oban")
 
-    live_session :require_authenticated_user,
+    live_session :require_authenticated_user, [
       # live_session :foo,
-      on_mount: [{JamieWeb.UserAuth, :require_authenticated}] do
+      on_mount: [{JamieWeb.UserAuth, :require_authenticated}]
+    ] do
       live "/notes", BlogLive.NoteIndex, :index
       live "/notes/new", BlogLive.NoteForm, :new
       live "/notes/:id", BlogLive.NoteForm, :edit

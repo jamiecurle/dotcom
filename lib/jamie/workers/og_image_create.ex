@@ -2,7 +2,14 @@ defmodule Jamie.Workers.OgImageCreate do
   @moduledoc """
   Writes an opengraph image for a "thing" with a matching hash exists on R2.
   """
-  use Oban.Worker, queue: :default, max_attempts: 5
+  use Oban.Worker,
+    unique: [
+      period: {20, :seconds},
+      timestamp: :scheduled_at,
+      keys: [:id],
+      states: :incomplete,
+      fields: [:args, :worker]
+    ]
 
   require Logger
   alias Jamie.Opengraph

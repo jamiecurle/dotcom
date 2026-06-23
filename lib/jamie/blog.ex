@@ -143,7 +143,9 @@ defmodule Jamie.Blog do
   end
 
   defp do_update_with_revision(%Post{} = post, %Post{} = applied, last_known_updated_at) do
+    # we need the current time and boolean of whether or not the hash has changed
     now = DateTime.utc_now()
+    og_hash_changed? = post.og_hash != applied.og_hash
 
     updates =
       applied
@@ -153,24 +155,27 @@ defmodule Jamie.Blog do
 
     result =
       Repo.transaction(fn ->
-        commit_post_update(post.id, last_known_updated_at, updates, applied)
+        # update the post
+        updated_post = commit_post_update(post.id, last_known_updated_at, updates, applied)
+
+        # if the og_hash has changed, schedule the og_image job
+        if og_hash_changed? do
+          %{thing: "post", id: updated_post.id}
+          |> OgImageCreate.new(scheduled_at: DateTime.add(now, 20, :second))
+          |> Oban.insert!()
+        end
+
+        updated_post
       end)
 
     case result do
       {:ok, updated_post} ->
-        # broadcast
         Phoenix.PubSub.broadcast(
           Jamie.PubSub,
           "post:#{updated_post.id}",
           {:post_updated, updated_post}
         )
 
-        # send og image job
-        %{thing: "post", id: updated_post.id}
-        |> OgImageCreate.new()
-        |> Oban.insert()
-
-        # now return
         {:ok, updated_post}
 
       {:error, _} = err ->
