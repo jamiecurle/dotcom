@@ -36,10 +36,11 @@ defmodule Jamie.Opengraph.Image do
     {:ok, title} =
       Image.Text.text(title,
         font: "Inter",
-        font_size: 96,
+        font_size: 144,
         font_weight: :bold,
         text_fill_color: [255, 255, 255],
-        width: 650
+        width: 1128,
+        letter_spacing: -2
       )
 
     # and description
@@ -47,16 +48,16 @@ defmodule Jamie.Opengraph.Image do
       Image.Text.text(description,
         font: "Inter",
         font_size: 32,
-        font_weight: :normal,
+        font_weight: :light,
         text_fill_color: [255, 255, 255],
-        width: 650
+        width: 1128
       )
 
     # finally, build the image
-    Image.new!(1200, 630, color: [10, 10, 10])
-    |> Image.compose!(bg, x: 0, y: 0)
-    |> Image.compose!(title, x: 550, y: 48)
-    |> Image.compose!(description, x: 550, y: 48 + Image.height(title))
-    |> Image.write!(:memory, suffix: ".jpeg")
+    Image.new!(1200, 630, color: [0, 226, 227])
+    # |> Image.compose!(bg, x: 0, y: 0)
+    |> Image.compose!(title, x: 36, y: 36)
+    |> Image.compose!(description, x: 36, y: 72 + Image.height(title))
+    |> Image.write!(:memory, suffix: ".png")
   end
 end
