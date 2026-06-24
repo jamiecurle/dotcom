@@ -28,38 +28,67 @@ defmodule Jamie.Opengraph.Image do
   given a title and a description, create an in memory
   open graphg image
   """
-  def create(title, description, _url \\ "") do
-    # open the background
-    {:ok, bg} = Image.open("priv/static/images/og-base.png")
+  def create(title, description \\ "", url \\ "") do
+    # the size of the title text needs to be controlled
+    title_font_size =
+      cond do
+        String.length(title) > 45 -> 54
+        String.length(title) > 30 -> 90
+        true -> 108
+      end
+
+    # we need a font-file
+    font_file = "priv/static/fonts/InterVariable.ttf"
 
     # make the title
     {:ok, title} =
       Image.Text.text(title,
         font: "Inter",
-        font_size: 144,
-        font_weight: :bold,
-        background_fill_opacity: 1.0,
-        background_fill_color: "#3e3e3e",
+        font_file: font_file,
+        font_size: title_font_size,
+        font_weight: :normal,
         text_fill_color: [255, 255, 255],
-        width: 1128,
-        letter_spacing: -2
+        width: 865,
+        letter_spacing: 0
       )
 
-    # and description
+    # used in two places, store it on a variable
+    title_height = Image.height(title)
+
+    # open the bonsai
+    {:ok, bonsai} = Image.open("priv/static/images/og_bonsai.png")
+
+    # now place the description
     {:ok, description} =
       Image.Text.text(description,
         font: "Inter",
-        font_size: 32,
-        font_weight: :light,
+        font_file: font_file,
+        font_size: 27,
+        font_weight: 900,
+        text_fill_color: [0, 206, 224],
+        width: 865,
+        letter_spacing: 0
+      )
+
+    {:ok, url} =
+      Image.Text.text("https://jamiecurle.com" <> url,
+        font: "Inter",
+        font_file: font_file,
+        font_size: 16,
+        font_weight: 600,
         text_fill_color: [255, 255, 255],
-        width: 1128
+        width: 865,
+        letter_spacing: 0
       )
 
     # finally, build the image
-    Image.new!(1200, 630, color: [0, 226, 227])
-    # |> Image.compose!(bg, x: 0, y: 0)
-    |> Image.compose!(title, x: 36, y: 36)
-    |> Image.compose!(description, x: 36, y: 72 + Image.height(title))
+    Image.new!(1200, 630, color: [0, 206, 224])
+    |> Image.compose!(title, x: 72, y: 72)
+    |> Image.Draw.rect!(0, 72 + title_height + 72, 1200, 600, color: [62, 62, 62])
+    # REMEMBER: CENTRALISE THE DESCRIPTION AND THE URL INSIDE THE RECTANGLE
+    |> Image.compose!(description, x: 72, y: title_height + 196)
+    |> Image.compose!(url, x: 72, y: title_height + 196 + Image.height(description) + 36)
+    |> Image.compose!(bonsai, x: 980, y: title_height - 10)
     |> Image.write!(:memory, suffix: ".png")
   end
 end

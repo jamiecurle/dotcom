@@ -9,7 +9,7 @@ defmodule JamieWeb.DevController do
   @doc false
   def og_image(conn, %{"id" => id}) do
     post = Blog.get_post!(id)
-    image = Image.create(post.title, post.description)
+    image = Image.create(post.title, post.description, "/posts/#{post.slug}")
 
     conn
     |> put_resp_header("Content-Type", "image/png")
