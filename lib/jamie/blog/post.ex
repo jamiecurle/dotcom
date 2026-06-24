@@ -2,6 +2,21 @@ defmodule Jamie.Blog.Post do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          status: :draft | :published | :hidden,
+          title: String.t() | nil,
+          description: String.t() | nil,
+          markdown: String.t() | nil,
+          html: String.t() | nil,
+          slug: String.t() | nil,
+          published_on: Date.t() | nil,
+          edited_on: Date.t() | nil,
+          og_hash: String.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   @statuses [:draft, :published, :hidden]
   @required_fields [:status, :description, :title, :markdown]
   @optional_fields [:html, :slug, :edited_on, :published_on, :og_hash]

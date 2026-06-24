@@ -76,7 +76,7 @@ defmodule JamieWeb.BlogLive.Post do
 
       og_hash ->
         "https://" <>
-          Application.get_env(:jamie, :images)[:host] <> "/opengraph/" <> og_hash <> ".jpeg"
+          Application.get_env(:jamie, :images)[:host] <> "/opengraph/" <> og_hash <> ".png"
     end
   end
 end

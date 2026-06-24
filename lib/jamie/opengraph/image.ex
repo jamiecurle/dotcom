@@ -14,9 +14,10 @@ defmodule Jamie.Opengraph.Image do
   and opengrah image and upload it into R2.
   """
 
+  @spec for_post(Blog.Post.t() | integer) :: {:ok | :error, any()}
   def for_post(%Blog.Post{} = post) do
-    create(post.title, post.description)
-    |> R2.put_file("opengraph/#{post.og_hash}.jpeg")
+    create(post.title, post.description, "/posts/#{post.slug}")
+    |> R2.put_file("opengraph/#{post.og_hash}.png")
   end
 
   def for_post(post) do
@@ -28,7 +29,15 @@ defmodule Jamie.Opengraph.Image do
   given a title and a description, create an in memory
   open graphg image
   """
-  def create(title, description \\ "", url \\ "") do
+  @spec create(String.t(), String.t(), String.t()) :: binary()
+  def create(title, description, url \\ "") do
+    url =
+      if url != "" do
+        "https://jamiecurle.com" <> url
+      else
+        ""
+      end
+
     # the size of the title text needs to be controlled
     title_font_size =
       cond do
@@ -39,6 +48,8 @@ defmodule Jamie.Opengraph.Image do
 
     # we need a font-file
     font_file = "priv/static/fonts/InterVariable.ttf"
+
+    # build the url if it was present
 
     # make the title
     {:ok, title} =
@@ -71,7 +82,7 @@ defmodule Jamie.Opengraph.Image do
       )
 
     {:ok, url} =
-      Image.Text.text("https://jamiecurle.com" <> url,
+      Image.Text.text(url,
         font: "Inter",
         font_file: font_file,
         font_size: 16,
@@ -85,7 +96,7 @@ defmodule Jamie.Opengraph.Image do
     Image.new!(1200, 630, color: [0, 206, 224])
     |> Image.compose!(title, x: 72, y: 72)
     |> Image.Draw.rect!(0, 72 + title_height + 72, 1200, 600, color: [62, 62, 62])
-    # REMEMBER: CENTRALISE THE DESCRIPTION AND THE URL INSIDE THE RECTANGLE
+    # FUTURE YOU: CENTRALISE THE DESCRIPTION AND THE URL INSIDE THE RECTANGLE
     |> Image.compose!(description, x: 72, y: title_height + 196)
     |> Image.compose!(url, x: 72, y: title_height + 196 + Image.height(description) + 36)
     |> Image.compose!(bonsai, x: 980, y: title_height - 10)

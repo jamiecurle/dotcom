@@ -3,6 +3,8 @@ defmodule Jamie.Blog do
   The blog context boundary.
   """
 
+  require Logger
+
   alias Jamie.Blog.{Note, Post}
   alias Jamie.Blog.PostRevision
   alias Jamie.Repo
@@ -160,9 +162,13 @@ defmodule Jamie.Blog do
 
         # if the og_hash has changed, schedule the og_image job 20 seconds in the future
         if og_hash_changed? do
+          Logger.debug("og image: send - hash not changed")
+
           %{thing: "post", id: updated_post.id}
           |> OgImageCreate.new(scheduled_at: DateTime.add(now, 20, :second))
           |> Oban.insert!()
+        else
+          Logger.debug("og image: skip - hash not changed")
         end
 
         updated_post
