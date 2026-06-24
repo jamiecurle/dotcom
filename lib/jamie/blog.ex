@@ -3,8 +3,6 @@ defmodule Jamie.Blog do
   The blog context boundary.
   """
 
-  require Logger
-
   alias Jamie.Blog.{Note, Post}
   alias Jamie.Blog.PostRevision
   alias Jamie.Repo
@@ -83,8 +81,17 @@ defmodule Jamie.Blog do
   """
   def create_post(attrs) do
     case Post.changeset(%Post{}, attrs) do
-      %{valid?: true} = changeset -> Repo.insert(changeset)
-      changeset -> changeset
+      %{valid?: true} = changeset ->
+        # Insert the post and schedule its og image in the same transaction so
+        # the job is only enqueued if the post actually commits.
+        Repo.transaction(fn ->
+          post = Repo.insert!(changeset)
+          schedule_og_image(post.id)
+          post
+        end)
+
+      changeset ->
+        changeset
     end
   end
 
@@ -160,16 +167,8 @@ defmodule Jamie.Blog do
         # update the post
         updated_post = commit_post_update(post.id, last_known_updated_at, updates, applied)
 
-        # if the og_hash has changed, schedule the og_image job 20 seconds in the future
-        if og_hash_changed? do
-          Logger.debug("og image: send - hash not changed")
-
-          %{thing: "post", id: updated_post.id}
-          |> OgImageCreate.new(scheduled_at: DateTime.add(now, 20, :second))
-          |> Oban.insert!()
-        else
-          Logger.debug("og image: skip - hash not changed")
-        end
+        # only regenerate the og image when the hash actually changed
+        if og_hash_changed?, do: schedule_og_image(updated_post.id)
 
         updated_post
       end)
@@ -190,6 +189,15 @@ defmodule Jamie.Blog do
       {:error, _} = err ->
         err
     end
+  end
+
+  # Enqueue the og image worker a little in the future. The delay gives the
+  # post time to settle (and lets rapid successive edits dedupe via the worker's
+  # uniqueness window) before we spend effort rendering the image.
+  defp schedule_og_image(post_id) do
+    %{thing: "post", id: post_id}
+    |> OgImageCreate.new(scheduled_at: DateTime.add(DateTime.utc_now(), 20, :second))
+    |> Oban.insert!()
   end
 
   defp commit_post_update(post_id, last_known_updated_at, updates, applied) do
