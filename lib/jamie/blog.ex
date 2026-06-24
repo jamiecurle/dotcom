@@ -8,6 +8,7 @@ defmodule Jamie.Blog do
   alias Jamie.Repo
   import Ecto.Query
   alias Jamie.Accounts.Scope
+  alias Jamie.Workers.OgImageCreate
 
   @snapshot_every 50
 
@@ -80,8 +81,17 @@ defmodule Jamie.Blog do
   """
   def create_post(attrs) do
     case Post.changeset(%Post{}, attrs) do
-      %{valid?: true} = changeset -> Repo.insert(changeset)
-      changeset -> changeset
+      %{valid?: true} = changeset ->
+        # Insert the post and schedule its og image in the same transaction so
+        # the job is only enqueued if the post actually commits.
+        Repo.transaction(fn ->
+          post = Repo.insert!(changeset)
+          schedule_og_image(post.id)
+          post
+        end)
+
+      changeset ->
+        changeset
     end
   end
 
@@ -142,28 +152,30 @@ defmodule Jamie.Blog do
   end
 
   defp do_update_with_revision(%Post{} = post, %Post{} = applied, last_known_updated_at) do
+    # we need the current time and boolean of whether or not the hash has changed
     now = DateTime.utc_now()
+    og_hash_changed? = post.og_hash != applied.og_hash
 
     updates =
       applied
-      |> Map.take([
-        :status,
-        :title,
-        :description,
-        :markdown,
-        :html,
-        :slug,
-        :published_on,
-        :edited_on
-      ])
+      |> Map.take(Post.fields())
       |> Map.to_list()
       |> Keyword.put(:updated_at, now)
 
     result =
       Repo.transaction(fn ->
-        commit_post_update(post.id, last_known_updated_at, updates, applied)
+        # update the post
+        updated_post = commit_post_update(post.id, last_known_updated_at, updates, applied)
+
+        # only regenerate the og image when the hash actually changed
+        if og_hash_changed?, do: schedule_og_image(updated_post.id)
+
+        updated_post
       end)
 
+    # lovely, handle the result and we're done.
+    # Remember to broadcast the change on the post to
+    # update the post to the latest version for everyone.
     case result do
       {:ok, updated_post} ->
         Phoenix.PubSub.broadcast(
@@ -177,6 +189,15 @@ defmodule Jamie.Blog do
       {:error, _} = err ->
         err
     end
+  end
+
+  # Enqueue the og image worker a little in the future. The delay gives the
+  # post time to settle (and lets rapid successive edits dedupe via the worker's
+  # uniqueness window) before we spend effort rendering the image.
+  defp schedule_og_image(post_id) do
+    %{thing: "post", id: post_id}
+    |> OgImageCreate.new(scheduled_at: DateTime.add(DateTime.utc_now(), 20, :second))
+    |> Oban.insert!()
   end
 
   defp commit_post_update(post_id, last_known_updated_at, updates, applied) do

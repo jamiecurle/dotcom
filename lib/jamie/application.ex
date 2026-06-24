@@ -11,6 +11,7 @@ defmodule Jamie.Application do
       JamieWeb.Telemetry,
       Jamie.Repo,
       {DNSCluster, query: Application.get_env(:jamie, :dns_cluster_query) || :ignore},
+      {Oban, Application.fetch_env!(:jamie, Oban)},
       {Phoenix.PubSub, name: Jamie.PubSub},
       # Start a worker by calling: Jamie.Worker.start_link(arg)
       # {Jamie.Worker, arg},

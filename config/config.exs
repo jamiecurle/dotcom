@@ -7,6 +7,12 @@
 # General application configuration
 import Config
 
+config :jamie, Oban,
+  engine: Oban.Engines.Basic,
+  notifier: Oban.Notifiers.Postgres,
+  queues: [default: 10],
+  repo: Jamie.Repo
+
 config :jamie, :scopes,
   user: [
     default: true,

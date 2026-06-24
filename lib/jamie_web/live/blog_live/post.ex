@@ -1,6 +1,5 @@
 defmodule JamieWeb.BlogLive.Post do
   use JamieWeb, :live_view
-  # import JamieWeb.BlogComponents
 
   @impl true
   def mount(_params, _session, socket) do
@@ -15,7 +14,8 @@ defmodule JamieWeb.BlogLive.Post do
   @impl true
   def handle_params(%{"slug" => slug}, _url, socket) do
     socket =
-      with post <- Jamie.Blog.get_post_by_slug!(slug, socket.assigns.current_scope) do
+      with post <- Jamie.Blog.get_post_by_slug!(slug, socket.assigns.current_scope),
+           og_image <- og_image(post) do
         # do the pubsub
         if connected?(socket) do
           Phoenix.PubSub.subscribe(Jamie.PubSub, "post:#{post.id}")
@@ -28,6 +28,7 @@ defmodule JamieWeb.BlogLive.Post do
         |> assign(:page_title, post.title)
         |> assign(:page_description, post.description)
         |> assign(:og_type, "article")
+        |> assign(:og_image, og_image)
       end
 
     {:noreply, socket}
@@ -66,5 +67,16 @@ defmodule JamieWeb.BlogLive.Post do
     |> String.replace(~r/[^\w\s-]/, "")
     |> String.replace(~r/\s+/, "-")
     |> String.trim("-")
+  end
+
+  defp og_image(post) do
+    case post.og_hash do
+      nil ->
+        ""
+
+      og_hash ->
+        "https://" <>
+          Application.get_env(:jamie, :images)[:host] <> "/opengraph/" <> og_hash <> ".png"
+    end
   end
 end
