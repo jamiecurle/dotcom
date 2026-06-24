@@ -79,26 +79,15 @@ defmodule Jamie.Blog.Post do
   end
 
   defp og_hash(changeset) do
-    title =
-      if get_field(changeset, :title) == nil do
-        ""
-      else
-        get_field(changeset, :title)
-      end
+    title = get_field(changeset, :title) || ""
+    description = get_field(changeset, :description) || ""
 
-    description =
-      if get_field(changeset, :description) == nil do
-        ""
-      else
-        get_field(changeset, :description)
-      end
-
-    # make hash
+    # hash title + description so the filename changes whenever the visible
+    # content does; the \0 separator avoids ambiguous joins between the two.
     og_hash =
       :crypto.hash(:md5, [title, "\0", description])
       |> Base.encode16(case: :lower)
 
-    # add to changeset
     put_change(changeset, :og_hash, og_hash)
   end
 end

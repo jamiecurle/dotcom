@@ -20,7 +20,7 @@ defmodule Jamie.Workers.OgImageCreate do
     create_fn =
       case thing do
         "post" -> &Opengraph.for_post/1
-        _ -> fn _ -> :error end
+        _ -> fn _ -> {:error, :unknown_thing} end
       end
 
     # now do the create_fn
@@ -29,9 +29,9 @@ defmodule Jamie.Workers.OgImageCreate do
         Logger.info("Oban: success: og image create #{thing}:#{id}")
         :ok
 
-      error ->
+      {:error, _reason} = error ->
         Logger.error("Oban: error: og image create #{thing}:#{id}")
-        {:error, error}
+        error
     end
   end
 end

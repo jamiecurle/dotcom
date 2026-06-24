@@ -49,8 +49,6 @@ defmodule Jamie.Opengraph.Image do
     # we need a font-file
     font_file = "priv/static/fonts/InterVariable.ttf"
 
-    # build the url if it was present
-
     # make the title
     {:ok, title} =
       Image.Text.text(title,
