@@ -31,6 +31,7 @@ defmodule JamieWeb.BlogLive.NoteForm do
               label="Title"
               type="text-naked"
               placeholder="Note title"
+              phx-debounce="1500"
               required
             />
 

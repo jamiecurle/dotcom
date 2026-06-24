@@ -1,3 +1,9 @@
+## 0.8.1
+- fix: debounce validated fields, not just large markdown fields
+
+## 0.8.0
+- feat: now has open graph images
+
 ## 0.7.0
 - now has notes
 
@@ -22,8 +28,6 @@
 - sitemap.xml.
 - robots.txt, security.txt and humans.txt now in place.
 
-## 0.3.1
-- now with more tasteful tyopgraphy. Neo-brutalism always seemds like a nice idea until you have it.
 ## 0.3.1
 - now with more tasteful tyopgraphy. Neo-brutalism always seemds like a nice idea until you have it.
 
