@@ -40,7 +40,3 @@ npm-debug.log
 
 .env
 .elixir_ls/
-
-# Local secrets/env for the logging stack (Grafana Cloud creds) — never commit.
-deploy/logging/*.env
-deploy/logging/.env
