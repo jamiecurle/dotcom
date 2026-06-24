@@ -50,7 +50,7 @@ defmodule Jamie.Opengraph.Image do
     title_height = Image.height(title)
 
     # open the bonsai
-    {:ok, bonsai} = Image.open("priv/static/images/og_bonsai.png")
+    {:ok, bonsai} = Image.open(priv_path("images/og_bonsai.png"))
 
     # now place the description
     {:ok, description} =
@@ -93,7 +93,16 @@ defmodule Jamie.Opengraph.Image do
         [font: "Inter"]
 
       _ ->
-        [font: "Inter", font_file: "priv/static/fonts/InterVariable.ttf"]
+        [font: "Inter", font_file: priv_path("fonts/InterVariable.ttf")]
     end
+  end
+
+  # Resolve a path inside priv/static. We must go through Application.app_dir/2
+  # rather than a bare "priv/..." relative path: in a release the working
+  # directory is not the project root, so a relative path fails with :enoent
+  # even though the file is bundled. app_dir points at the priv dir inside the
+  # release (and at the project priv dir in dev), so it works everywhere.
+  defp priv_path(relative) do
+    Application.app_dir(:jamie, Path.join("priv/static", relative))
   end
 end
