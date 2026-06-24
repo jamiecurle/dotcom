@@ -1,0 +1,78 @@
+# Grafana Alloy log-shipping stack for Docker Swarm.
+#
+# Deploy:
+#   docker stack deploy -c deploy/logging/logging-stack.yml logging
+#
+# Runs Alloy as a *global* service: exactly one task per Swarm node, each
+# tailing its own local Docker daemon and pushing to Grafana Cloud Loki.
+#
+# Prereqs (see README.md):
+#   - external Docker secret `grafana_cloud_token` holding the Loki token
+#     (created from 1Password: op read … | docker secret create …)
+#   - LOKI_URL / LOKI_USERNAME in the environment, injected from 1Password via
+#     `op run --env-file=deploy/logging/logging.env.tpl -- docker stack deploy …`
+
+services:
+  alloy:
+    # grafana/alloy:latest is multi-arch (includes linux/arm64), so it runs
+    # on the Raspberry Pi nodes with no platform override.
+    image: grafana/alloy:latest
+
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+
+    environment:
+      # Loki push URL + username are interpolated from the shell environment at
+      # `docker stack deploy` time. Source them from 1Password with `op run`
+      # (see README.md) so nothing is hardcoded in the repo:
+      #   op run --env-file=deploy/logging/logging.env.tpl -- docker stack deploy ...
+      LOKI_URL: "${LOKI_URL?LOKI_URL is required — run via op run, see README}"
+      LOKI_USERNAME: "${LOKI_USERNAME?LOKI_USERNAME is required — run via op run, see README}"
+      # Per-task node hostname, filled in by Swarm task templating so each
+      # Alloy task labels its logs with the Pi it runs on.
+      NODE_HOSTNAME: "{{.Node.Hostname}}"
+
+    configs:
+      - source: alloy_config
+        target: /etc/alloy/config.alloy
+
+    secrets:
+      - grafana_cloud_token
+
+    volumes:
+      # Read-only access to the local Docker daemon for discovery + log tailing.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Persist Alloy's positions / WAL so a restart doesn't re-ship old logs.
+      - alloy_data:/var/lib/alloy/data
+
+    deploy:
+      # One task per node.
+      mode: global
+      restart_policy:
+        condition: on-failure
+
+    # Optional per-node debug UI. mode: host publishes 12345 on each node's own
+    # IP (a routine port:port mapping can't work with a global service).
+    # Reach it at http://<node>:12345 — comment this out to keep it private.
+    ports:
+      - target: 12345
+        published: 12345
+        protocol: tcp
+        mode: host
+
+configs:
+  alloy_config:
+    file: ./config.alloy
+
+secrets:
+  # Created out-of-band so the token never lands in the repo:
+  #   printf 'glc_...' | docker secret create grafana_cloud_token -
+  grafana_cloud_token:
+    external: true
+
+volumes:
+  # Named volume per node for Alloy state (positions, WAL).
+  alloy_data:
