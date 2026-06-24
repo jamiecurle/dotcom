@@ -26,17 +26,13 @@ defmodule Jamie.Opengraph.Image do
   end
 
   @doc """
-  given a title and a description, create an in memory
-  open graphg image
+  Given a title, description, and a site-relative path (e.g. "/posts/slug"),
+  render an open graph image in memory and return it as a PNG binary.
   """
   @spec create(String.t(), String.t(), String.t()) :: binary()
-  def create(title, description, url \\ "") do
-    url =
-      if url != "" do
-        "https://jamiecurle.com" <> url
-      else
-        ""
-      end
+  def create(title, description, path) do
+    # the path is shown as a full URL on the image
+    url = "https://jamiecurle.com" <> path
 
     # the size of the title text needs to be controlled
     title_font_size =
