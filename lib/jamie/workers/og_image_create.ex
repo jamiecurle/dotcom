@@ -29,9 +29,9 @@ defmodule Jamie.Workers.OgImageCreate do
         Logger.info("Oban: success: og image create #{thing}:#{id}")
         :ok
 
-      _ ->
+      error ->
         Logger.error("Oban: error: og image create #{thing}:#{id}")
-        :error
+        {:error, error}
     end
   end
 end
