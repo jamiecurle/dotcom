@@ -7,6 +7,11 @@ defmodule Jamie.Application do
 
   @impl true
   def start(_type, _args) do
+    # Oban emits telemetry for every job, but doesn't log it unless we attach
+    # its default logger. Without this, job successes and failures (including
+    # crashes) never appear in the application logs.
+    :ok = Oban.Telemetry.attach_default_logger()
+
     children = [
       JamieWeb.Telemetry,
       Jamie.Repo,
