@@ -42,20 +42,9 @@ defmodule Jamie.Opengraph.Image do
         true -> 108
       end
 
-    # we need a font-file
-    font_file = "priv/static/fonts/InterVariable.ttf"
-
     # make the title
     {:ok, title} =
-      Image.Text.text(title,
-        font: "Inter",
-        font_file: font_file,
-        font_size: title_font_size,
-        font_weight: :normal,
-        text_fill_color: [255, 255, 255],
-        width: 865,
-        letter_spacing: 0
-      )
+      Image.Text.text(title, text_opts(title_font_size, :normal, [255, 255, 255]))
 
     # used in two places, store it on a variable
     title_height = Image.height(title)
@@ -65,26 +54,10 @@ defmodule Jamie.Opengraph.Image do
 
     # now place the description
     {:ok, description} =
-      Image.Text.text(description,
-        font: "Inter",
-        font_file: font_file,
-        font_size: 27,
-        font_weight: 900,
-        text_fill_color: [0, 206, 224],
-        width: 865,
-        letter_spacing: 0
-      )
+      Image.Text.text(description, text_opts(27, 900, [0, 206, 224]))
 
     {:ok, url} =
-      Image.Text.text(url,
-        font: "Inter",
-        font_file: font_file,
-        font_size: 16,
-        font_weight: 600,
-        text_fill_color: [255, 255, 255],
-        width: 865,
-        letter_spacing: 0
-      )
+      Image.Text.text(url, text_opts(16, 600, [255, 255, 255]))
 
     # finally, build the image
     Image.new!(1200, 630, color: [0, 206, 224])
@@ -95,5 +68,32 @@ defmodule Jamie.Opengraph.Image do
     |> Image.compose!(url, x: 72, y: title_height + 196 + Image.height(description) + 36)
     |> Image.compose!(bonsai, x: 980, y: title_height - 10)
     |> Image.write!(:memory, suffix: ".png")
+  end
+
+  # Text options shared by every label on the image. Only the size, weight,
+  # and colour change per call; everything else (font, width, spacing) is fixed.
+  defp text_opts(font_size, font_weight, fill_color) do
+    [
+      font_size: font_size,
+      font_weight: font_weight,
+      text_fill_color: fill_color,
+      width: 865,
+      letter_spacing: 0
+    ] ++ font_opts()
+  end
+
+  # Inter is bundled with the app and is the canonical OG font. On Linux
+  # (production and CI) we point libvips straight at the .ttf via :font_file.
+  # That option isn't supported on macOS — it only emits a noisy fontconfig
+  # error — so for local previews we omit it and let the system resolve "Inter"
+  # by name, falling back to a default face if it isn't installed.
+  defp font_opts do
+    case :os.type() do
+      {:unix, :darwin} ->
+        [font: "Inter"]
+
+      _ ->
+        [font: "Inter", font_file: "priv/static/fonts/InterVariable.ttf"]
+    end
   end
 end
