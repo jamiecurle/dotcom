@@ -71,6 +71,7 @@ defmodule Jamie.MixProject do
       {:image, "~> 0.64"},
       {:oban, "~> 2.23"},
       {:oban_web, "~> 2.11"},
+      {:floki, "~> 0.38.4"},
       {:igniter, "~> 0.5", only: [:dev]}
     ]
   end
