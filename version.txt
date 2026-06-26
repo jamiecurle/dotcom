@@ -1,3 +1,7 @@
+## 0.9.0
+- feat: jettisoned the cloudflare analyics. rolled my own.
+
+
 ## 0.8.2
 - fix: gotosocial is being removed. Use bluesky instead.
 
