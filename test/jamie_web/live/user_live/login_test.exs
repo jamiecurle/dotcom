@@ -6,7 +6,7 @@ defmodule JamieWeb.UserLive.LoginTest do
 
   describe "login page" do
     test "renders login page", %{conn: conn} do
-      {:ok, _lv, html} = live(conn, ~p"/users/log-in")
+      {:ok, _lv, html} = live(conn, ~p"/front-door/log-in")
 
       assert html =~ "Log in"
       assert html =~ "Log in with email"
@@ -17,12 +17,12 @@ defmodule JamieWeb.UserLive.LoginTest do
     test "sends magic link email when user exists", %{conn: conn} do
       user = user_fixture()
 
-      {:ok, lv, _html} = live(conn, ~p"/users/log-in")
+      {:ok, lv, _html} = live(conn, ~p"/front-door/log-in")
 
       {:ok, _lv, html} =
         form(lv, "#login_form_magic", user: %{email: user.email})
         |> render_submit()
-        |> follow_redirect(conn, ~p"/users/log-in")
+        |> follow_redirect(conn, ~p"/front-door/log-in")
 
       assert html =~ "If your email is in our system"
 
@@ -31,12 +31,12 @@ defmodule JamieWeb.UserLive.LoginTest do
     end
 
     test "does not disclose if user is registered", %{conn: conn} do
-      {:ok, lv, _html} = live(conn, ~p"/users/log-in")
+      {:ok, lv, _html} = live(conn, ~p"/front-door/log-in")
 
       {:ok, _lv, html} =
         form(lv, "#login_form_magic", user: %{email: "idonotexist@example.com"})
         |> render_submit()
-        |> follow_redirect(conn, ~p"/users/log-in")
+        |> follow_redirect(conn, ~p"/front-door/log-in")
 
       assert html =~ "If your email is in our system"
     end
@@ -49,7 +49,7 @@ defmodule JamieWeb.UserLive.LoginTest do
     end
 
     test "shows login page with email filled in", %{conn: conn, user: user} do
-      {:ok, _lv, html} = live(conn, ~p"/users/log-in")
+      {:ok, _lv, html} = live(conn, ~p"/front-door/log-in")
 
       assert html =~ "You need to reauthenticate"
       assert html =~ "Log in with email"

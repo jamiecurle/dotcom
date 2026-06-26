@@ -33,7 +33,7 @@ defmodule JamieWeb.UserLive.Login do
           :let={f}
           for={@form}
           id="login_form_magic"
-          action={~p"/users/log-in"}
+          action={~p"/front-door/log-in"}
           phx-submit="submit_magic"
         >
           <.input
@@ -71,7 +71,7 @@ defmodule JamieWeb.UserLive.Login do
     if user = Accounts.get_user_by_email(email) do
       Accounts.deliver_login_instructions(
         user,
-        &url(~p"/users/log-in/#{&1}")
+        &url(~p"/front-door/log-in/#{&1}")
       )
     end
 
@@ -81,7 +81,7 @@ defmodule JamieWeb.UserLive.Login do
     {:noreply,
      socket
      |> put_flash(:info, info)
-     |> push_navigate(to: ~p"/users/log-in")}
+     |> push_navigate(to: ~p"/front-door/log-in")}
   end
 
   defp local_mail_adapter? do

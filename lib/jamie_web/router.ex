@@ -95,11 +95,11 @@ defmodule JamieWeb.Router do
     live_session :current_user,
       root_layout: {JamieWeb.Layouts, :auth},
       on_mount: [{JamieWeb.UserAuth, :mount_current_scope}] do
-      live "/users/log-in", UserLive.Login, :new
-      live "/users/log-in/:token", UserLive.Confirmation, :new
+      live "/front-door/log-in", UserLive.Login, :new
+      live "/front-door/log-in/:token", UserLive.Confirmation, :new
     end
 
-    post "/users/log-in", UserSessionController, :create
-    delete "/users/log-out", UserSessionController, :delete
+    post "/front-door/log-in", UserSessionController, :create
+    delete "/front-door/log-out", UserSessionController, :delete
   end
 end

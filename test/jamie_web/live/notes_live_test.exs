@@ -31,7 +31,7 @@ defmodule Jamie.Blog.NotesLiveTest do
       {:error,
        {:redirect,
         %{
-          to: "/users/log-in"
+          to: "/front-door/log-in"
         }}} = live(conn, @url <> "new")
     end
 

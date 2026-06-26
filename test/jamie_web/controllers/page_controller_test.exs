@@ -33,7 +33,7 @@ defmodule JamieWeb.PageControllerTest do
     end
 
     test "is absent on pages without a markdown rendering", %{conn: conn} do
-      body = conn |> get(~p"/users/log-in") |> html_response(200)
+      body = conn |> get(~p"/front-door/log-in") |> html_response(200)
       refute body =~ ~s(type="text/markdown")
     end
   end
