@@ -14,6 +14,7 @@ defmodule JamieWeb.Router do
     plug :put_secure_browser_headers
     plug :fetch_current_scope_for_user
     plug JamieWeb.Plugs.LinkHeaders
+    plug JamieWeb.Plugs.TrackPageview
   end
 
   pipeline :office do
@@ -38,7 +39,10 @@ defmodule JamieWeb.Router do
     get "/.well-known/api-catalog", ApiCatalogController, :index
 
     live_session :public,
-      on_mount: [{JamieWeb.UserAuth, :mount_current_scope}] do
+      on_mount: [
+        {JamieWeb.UserAuth, :mount_current_scope},
+        {JamieWeb.Analytics.Tracker, :track_pageviews}
+      ] do
       live "/posts", BlogLive.Index, :index
       live "/posts/:slug", BlogLive.Post, :post
     end
