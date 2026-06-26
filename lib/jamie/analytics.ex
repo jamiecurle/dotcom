@@ -52,14 +52,24 @@ defmodule Jamie.Analytics do
     secret <> Date.to_iso8601(date)
   end
 
+  # Non-browser clients and crawlers that UAParser doesn't already flag as a
+  # spider. Catches the HTTP libraries and scanners that hammer a fresh public
+  # IP (Go-http-client, curl, python-requests, …) so they don't pollute stats.
+  # Note: this can't catch scanners that spoof a real browser UA — that's a job
+  # for the network edge (rate-limiting / Cloudflare), not analytics.
+  @bot_ua_pattern ~r/bot|crawl|spider|slurp|go-http-client|http[-_]?client|python[-_]?requests|curl|wget|libwww|okhttp|axios|node[-_]?fetch|scrapy|httpx|aiohttp|postman|headless|phantomjs|zgrab|masscan|nuclei|nmap|semrush|ahrefs|\bjava\b/i
+
   @doc """
   Parse a user-agent string into `%{browser, os, device_type}`.
 
   `device_type` is one of "desktop", "mobile", "tablet", "bot" or "other".
-  UAParser doesn't classify device type directly, so we derive it from the
-  OS and device families.
+  A missing user-agent, or one matching a known non-browser/crawler, is
+  classified as "bot" (the tracking plug skips those). Otherwise UAParser's
+  device/OS families decide desktop vs mobile vs tablet.
   """
-  def parse_user_agent(nil), do: %{browser: nil, os: nil, device_type: "other"}
+  def parse_user_agent(user_agent) when user_agent in [nil, ""] do
+    %{browser: nil, os: nil, device_type: "bot"}
+  end
 
   def parse_user_agent(user_agent) do
     ua = UAParser.parse(user_agent)
@@ -67,9 +77,11 @@ defmodule Jamie.Analytics do
     %{
       browser: present(ua.family),
       os: present(ua.os && ua.os.family),
-      device_type: device_type(ua)
+      device_type: if(bot_ua?(user_agent), do: "bot", else: device_type(ua))
     }
   end
+
+  defp bot_ua?(user_agent), do: Regex.match?(@bot_ua_pattern, user_agent)
 
   # UAParser reports spiders/crawlers with a "Spider" device family or brand.
   defp device_type(%{device: %{family: "Spider"}}), do: "bot"

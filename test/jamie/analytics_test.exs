@@ -50,8 +50,25 @@ defmodule Jamie.AnalyticsTest do
       assert %{device_type: "bot"} = Analytics.parse_user_agent(@googlebot)
     end
 
-    test "handles a missing user-agent" do
-      assert %{browser: nil, os: nil, device_type: "other"} = Analytics.parse_user_agent(nil)
+    test "classifies non-browser HTTP clients as bot" do
+      for ua <- [
+            "Go-http-client/1.1",
+            "curl/8.4.0",
+            "python-requests/2.31.0",
+            "Wget/1.21.3",
+            "okhttp/4.9.3"
+          ] do
+        assert %{device_type: "bot"} = Analytics.parse_user_agent(ua), "expected bot: #{ua}"
+      end
+    end
+
+    test "treats a missing or empty user-agent as a bot" do
+      assert %{browser: nil, os: nil, device_type: "bot"} = Analytics.parse_user_agent(nil)
+      assert %{device_type: "bot"} = Analytics.parse_user_agent("")
+    end
+
+    test "does not mistake a real browser for a bot" do
+      assert %{device_type: "desktop"} = Analytics.parse_user_agent(@chrome)
     end
   end
 
