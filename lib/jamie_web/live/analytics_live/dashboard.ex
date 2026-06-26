@@ -51,37 +51,37 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
   def render(assigns) do
     ~H"""
     <Layouts.office flash={@flash} current_scope={@current_scope}>
-      <div class="max-w-5xl mx-auto p-4 space-y-6">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <h1 class="text-2xl font-semibold">Analytics</h1>
-          <div class="join">
+      <div class="analytics">
+        <header class="analytics-head">
+          <h1>Analytics</h1>
+          <div class="analytics-ranges">
             <button
               :for={{label, days} <- ranges()}
-              class={["btn btn-sm join-item", @days == days && "btn-primary"]}
+              class={["analytics-range", @days == days && "is-active"]}
               phx-click="set_range"
               phx-value-days={days}
             >
               {label}
             </button>
           </div>
-        </div>
+        </header>
 
-        <div class="stats shadow w-full">
-          <div class="stat">
-            <div class="stat-title">Pageviews</div>
-            <div class="stat-value">{@total_pageviews}</div>
-            <div class="stat-desc">last {@days} days</div>
+        <div class="analytics-stats">
+          <div class="analytics-stat">
+            <span class="analytics-stat-title">Pageviews</span>
+            <span class="analytics-stat-value">{@total_pageviews}</span>
+            <span class="analytics-stat-desc">last {@days} days</span>
           </div>
-          <div class="stat">
-            <div class="stat-title">Unique visitors</div>
-            <div class="stat-value">{@unique_visitors}</div>
-            <div class="stat-desc">last {@days} days</div>
+          <div class="analytics-stat">
+            <span class="analytics-stat-title">Unique visitors</span>
+            <span class="analytics-stat-value">{@unique_visitors}</span>
+            <span class="analytics-stat-desc">last {@days} days</span>
           </div>
         </div>
 
         <.chart series={@series} />
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="analytics-grid">
           <.table_card title="Top pages" rows={@top_pages} />
           <.table_card title="Top referrers" rows={@top_referrers} empty="No external referrers yet" />
           <.table_card title="Browsers" rows={@browsers} />
@@ -102,23 +102,19 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
     assigns = assign(assigns, :max, max)
 
     ~H"""
-    <div class="card bg-base-100 shadow">
-      <div class="card-body">
-        <h2 class="card-title text-base">Pageviews over time</h2>
-        <div :if={@series == []} class="text-sm opacity-60 py-8 text-center">
-          No data for this window yet
-        </div>
-        <div :if={@series != []} class="flex items-end gap-1 h-40">
-          <div
-            :for={point <- @series}
-            class="flex-1 bg-primary rounded-t tooltip"
-            data-tip={"#{Calendar.strftime(point.day, "%b %d")}: #{point.views} views"}
-            style={"height: #{bar_height(point.views, @max)}%"}
-          >
-          </div>
+    <section class="analytics-card">
+      <h2>Pageviews over time</h2>
+      <p :if={@series == []} class="analytics-empty">No data for this window yet</p>
+      <div :if={@series != []} class="analytics-chart">
+        <div
+          :for={point <- @series}
+          class="analytics-bar"
+          title={"#{Calendar.strftime(point.day, "%b %d")}: #{point.views} views"}
+          style={"height: #{bar_height(point.views, @max)}%"}
+        >
         </div>
       </div>
-    </div>
+    </section>
     """
   end
 
@@ -128,20 +124,18 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
 
   defp table_card(assigns) do
     ~H"""
-    <div class="card bg-base-100 shadow">
-      <div class="card-body">
-        <h2 class="card-title text-base">{@title}</h2>
-        <p :if={@rows == []} class="text-sm opacity-60">{@empty}</p>
-        <table :if={@rows != []} class="table table-sm">
-          <tbody>
-            <tr :for={row <- @rows}>
-              <td class="truncate max-w-[16rem]">{row.label}</td>
-              <td class="text-right tabular-nums">{row.count}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <section class="analytics-card">
+      <h2>{@title}</h2>
+      <p :if={@rows == []} class="analytics-empty">{@empty}</p>
+      <table :if={@rows != []} class="analytics-table">
+        <tbody>
+          <tr :for={row <- @rows}>
+            <td class="analytics-table-label">{row.label}</td>
+            <td class="analytics-table-count">{row.count}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
     """
   end
 
