@@ -14,9 +14,9 @@ How to contact or reach Jamie Curle directly.
 jamie@curle.io — preferred for professional enquiries,
 freelance work, and full-time opportunities.
 
-### Fediverse
-https://social.jamiecurle.com/@jamie — Jamie is active
-on the fediverse via GoToSocial. Mention or DM welcome.
+### Social
+https://bsky.app/profile/curle.io — Jamie is available
+on bluesky. Mention or DM welcome.
 
 ## Response Times
 Jamie is based in Northumberland, UK (UTC+1).

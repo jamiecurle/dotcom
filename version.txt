@@ -1,3 +1,7 @@
+## 0.8.2
+- fix: gotosocial is being removed. Use bluesky instead.
+
+
 ## 0.8.1
 - fix: debounce validated fields, not just large markdown fields
 

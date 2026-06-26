@@ -51,6 +51,7 @@ defmodule JamieWeb.AgentSkillsTest do
         body = response(artifact_conn, 200)
 
         "sha256:" <> expected = skill["digest"]
+
         actual = :crypto.hash(:sha256, body) |> Base.encode16(case: :lower)
 
         assert actual == expected,
