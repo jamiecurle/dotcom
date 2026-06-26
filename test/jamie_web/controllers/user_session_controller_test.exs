@@ -8,12 +8,12 @@ defmodule JamieWeb.UserSessionControllerTest do
     %{unconfirmed_user: unconfirmed_user_fixture(), user: user_fixture()}
   end
 
-  describe "POST /users/log-in - magic link" do
+  describe "POST /front-door/log-in - magic link" do
     test "logs the user in", %{conn: conn, user: user} do
       {token, _hashed_token} = generate_user_magic_link_token(user)
 
       conn =
-        post(conn, ~p"/users/log-in", %{
+        post(conn, ~p"/front-door/log-in", %{
           "user" => %{"token" => token}
         })
 
@@ -30,7 +30,7 @@ defmodule JamieWeb.UserSessionControllerTest do
       refute user.confirmed_at
 
       conn =
-        post(conn, ~p"/users/log-in", %{
+        post(conn, ~p"/front-door/log-in", %{
           "user" => %{"token" => token},
           "_action" => "confirmed"
         })
@@ -48,27 +48,27 @@ defmodule JamieWeb.UserSessionControllerTest do
 
     test "redirects to login page when magic link is invalid", %{conn: conn} do
       conn =
-        post(conn, ~p"/users/log-in", %{
+        post(conn, ~p"/front-door/log-in", %{
           "user" => %{"token" => "invalid"}
         })
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "The link is invalid or it has expired."
 
-      assert redirected_to(conn) == ~p"/users/log-in"
+      assert redirected_to(conn) == ~p"/front-door/log-in"
     end
   end
 
-  describe "DELETE /users/log-out" do
+  describe "DELETE /front-door/log-out" do
     test "logs the user out", %{conn: conn, user: user} do
-      conn = conn |> log_in_user(user) |> delete(~p"/users/log-out")
+      conn = conn |> log_in_user(user) |> delete(~p"/front-door/log-out")
       assert redirected_to(conn) == ~p"/"
       refute get_session(conn, :user_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
     end
 
     test "succeeds even if the user is not logged in", %{conn: conn} do
-      conn = delete(conn, ~p"/users/log-out")
+      conn = delete(conn, ~p"/front-door/log-out")
       assert redirected_to(conn) == ~p"/"
       refute get_session(conn, :user_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"

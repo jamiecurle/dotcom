@@ -69,8 +69,8 @@ defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
       end
     end
 
-    test "GET /users/log-in falls through to HTML (unsupported path)", %{conn: conn} do
-      conn = md_get(conn, ~p"/users/log-in")
+    test "GET /front-door/log-in falls through to HTML (unsupported path)", %{conn: conn} do
+      conn = md_get(conn, ~p"/front-door/log-in")
       assert html_response(conn, 200)
     end
 
@@ -114,7 +114,7 @@ defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
     end
 
     test "?format=markdown on an unsupported path downgrades to HTML", %{conn: conn} do
-      conn = get(conn, ~p"/users/log-in?format=markdown")
+      conn = get(conn, ~p"/front-door/log-in?format=markdown")
       assert html_response(conn, 200)
     end
 
@@ -166,7 +166,7 @@ defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
       alias JamieWeb.Plugs.MarkdownNegotiation
 
       conn =
-        build_conn(:post, "/users/log-in", %{})
+        build_conn(:post, "/front-door/log-in", %{})
         |> put_req_header("accept", "text/markdown")
         |> MarkdownNegotiation.call(MarkdownNegotiation.init([]))
 
