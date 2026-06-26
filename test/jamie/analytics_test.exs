@@ -2,6 +2,8 @@ defmodule Jamie.AnalyticsTest do
   use Jamie.DataCase, async: true
 
   alias Jamie.Analytics
+  alias Jamie.Analytics.Pageview
+  alias Jamie.Repo
 
   @chrome "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
   @iphone "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
@@ -113,6 +115,45 @@ defmodule Jamie.AnalyticsTest do
     test "requires path and visitor_hash" do
       assert {:error, changeset} = Analytics.track(%{path: "/"})
       assert %{visitor_hash: ["can't be blank"]} = errors_on(changeset)
+    end
+  end
+
+  describe "total_sessions/1" do
+    # inserted_at is set by the DB on a normal insert, so build rows directly
+    # to control timing.
+    defp pageview_at(visitor_hash, minutes_ago) do
+      at = DateTime.add(DateTime.utc_now(), -minutes_ago * 60, :second)
+      Repo.insert!(%Pageview{visitor_hash: visitor_hash, path: "/", inserted_at: at})
+    end
+
+    test "groups a visitor's nearby pageviews into one visit" do
+      pageview_at("a", 0)
+      pageview_at("a", 5)
+      pageview_at("a", 20)
+
+      assert Analytics.total_sessions(1) == 1
+    end
+
+    test "a gap longer than the 60-minute timeout starts a new visit" do
+      pageview_at("a", 0)
+      pageview_at("a", 90)
+
+      assert Analytics.total_sessions(1) == 2
+    end
+
+    test "different visitors are separate visits" do
+      pageview_at("a", 0)
+      pageview_at("b", 0)
+
+      assert Analytics.total_sessions(1) == 2
+    end
+
+    test "a refresh does not add a visit" do
+      pageview_at("a", 0)
+      pageview_at("a", 0)
+
+      assert Analytics.total_sessions(1) == 1
+      assert Analytics.total_pageviews(1) == 2
     end
   end
 end

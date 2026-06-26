@@ -2,12 +2,21 @@ defmodule Jamie.Analytics do
   @moduledoc """
   Lightweight, privacy-respecting web analytics.
 
-  We record one immutable row per pageview (`Jamie.Analytics.Pageview`)
-  and aggregate on read for the dashboard. No cookies, no client-side
-  tracker, and crucially no raw IP address is ever stored — visitors are
-  identified only by a salted, daily-rotating one-way hash so we can count
-  uniques without holding personal data.
+  We record one immutable row per pageview (`Jamie.Analytics.Pageview`) and
+  aggregate on read for the dashboard. The headline metric is *visits*
+  (sessions): a run of pageviews by the same visitor with no gap longer than
+  60 minutes counts as one visit, so refreshing or clicking around doesn't
+  inflate the number, but coming back later does. We
+  derive sessions on read with a window function rather than tracking session
+  state — see `total_sessions/1`.
+
+  No cookies, no client-side tracker, and no raw IP is ever stored. Visitors
+  are identified by a salted, daily-rotating one-way hash, which is stable far
+  longer than a session needs yet can't link anyone across days.
   """
+  # Pageviews from the same visitor more than this many minutes apart start a
+  # new session/visit (GA's default is 30; we use 60).
+  @session_timeout_minutes 60
   import Ecto.Query
 
   alias Jamie.Analytics.Pageview
@@ -123,6 +132,36 @@ defmodule Jamie.Analytics do
     from(p in Pageview,
       where: p.inserted_at >= ^since(days),
       select: count(p.visitor_hash, :distinct)
+    )
+    |> Repo.one()
+  end
+
+  @doc """
+  Total visits (sessions) in the window.
+
+  Walking each visitor's pageviews in time order, a new session begins on their
+  first hit and again after any gap longer than the session timeout. Counting
+  those session-starts gives the number of visits.
+  """
+  def total_sessions(days) do
+    # For each pageview, look up that visitor's previous pageview time.
+    with_prev =
+      from(p in Pageview,
+        where: p.inserted_at >= ^since(days),
+        windows: [visitor: [partition_by: p.visitor_hash, order_by: p.inserted_at]],
+        select: %{
+          inserted_at: p.inserted_at,
+          prev_at: over(fragment("lag(?)", p.inserted_at), :visitor)
+        }
+      )
+
+    # A session starts where there's no previous hit, or the gap exceeds the
+    # timeout. Count those starts.
+    from(row in subquery(with_prev),
+      where:
+        is_nil(row.prev_at) or
+          row.inserted_at > datetime_add(row.prev_at, ^@session_timeout_minutes, "minute"),
+      select: count()
     )
     |> Repo.one()
   end

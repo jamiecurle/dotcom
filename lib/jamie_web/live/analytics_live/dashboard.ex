@@ -36,6 +36,7 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
     days = socket.assigns.days
 
     assign(socket,
+      total_sessions: Analytics.total_sessions(days),
       total_pageviews: Analytics.total_pageviews(days),
       unique_visitors: Analytics.unique_visitors(days),
       series: fill_series(Analytics.pageviews_over_time(days), days),
@@ -67,6 +68,11 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
         </header>
 
         <div class="analytics-stats">
+          <div class="analytics-stat">
+            <span class="analytics-stat-title">Visits</span>
+            <span class="analytics-stat-value">{@total_sessions}</span>
+            <span class="analytics-stat-desc">last {@days} days</span>
+          </div>
           <div class="analytics-stat">
             <span class="analytics-stat-title">Pageviews</span>
             <span class="analytics-stat-value">{@total_pageviews}</span>
