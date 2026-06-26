@@ -38,7 +38,7 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
     assign(socket,
       total_pageviews: Analytics.total_pageviews(days),
       unique_visitors: Analytics.unique_visitors(days),
-      series: Analytics.pageviews_over_time(days),
+      series: fill_series(Analytics.pageviews_over_time(days), days),
       top_pages: Analytics.top_pages(days),
       top_referrers: Analytics.top_referrers(days),
       browsers: Analytics.breakdown_by(:browser, days),
@@ -104,8 +104,8 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
     ~H"""
     <section class="analytics-card">
       <h2>Pageviews over time</h2>
-      <p :if={@series == []} class="analytics-empty">No data for this window yet</p>
-      <div :if={@series != []} class="analytics-chart">
+      <p :if={@max == 0} class="analytics-empty">No data for this window yet</p>
+      <div :if={@max > 0} class="analytics-chart">
         <div
           :for={point <- @series}
           class="analytics-bar"
@@ -140,6 +140,19 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
   end
 
   defp ranges, do: @ranges
+
+  # The DB only returns days that had traffic. Expand that into one entry per
+  # day across the whole window (missing days = 0) so the chart always has a
+  # bar per day rather than a single block.
+  defp fill_series(rows, days) do
+    by_day = Map.new(rows, fn row -> {NaiveDateTime.to_date(row.day), row.views} end)
+    today = Date.utc_today()
+
+    for offset <- (days - 1)..0//-1 do
+      date = Date.add(today, -offset)
+      %{day: date, views: Map.get(by_day, date, 0)}
+    end
+  end
 
   # Keep a sliver of height so even the quietest day is visible.
   defp bar_height(_views, 0), do: 0
