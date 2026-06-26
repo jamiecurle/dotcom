@@ -1,6 +1,9 @@
 /* flash / toast notifications */
 @import "./app/toasts.css";
 
+/* analytics dashboard */
+@import "./analytics.css";
+
 /* the reset */
 *,
 *::before,

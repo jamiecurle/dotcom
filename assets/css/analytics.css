@@ -1,0 +1,183 @@
+/* Analytics dashboard (/office/analytics)
+   Uses the admin design tokens defined in admin.css. */
+
+.analytics {
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto;
+    padding: var(--unit-4) var(--unit-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--unit-4);
+    color: var(--colour-dark-1);
+}
+
+/* header + range selector */
+.analytics-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--unit-2);
+}
+
+.analytics-head h1 {
+    margin: 0;
+    font-size: var(--unit-4);
+    line-height: 1.1;
+}
+
+.analytics-ranges {
+    display: inline-flex;
+    border: 1px solid var(--colour-light-3);
+    border-radius: var(--unit-1);
+    overflow: hidden;
+}
+
+.analytics-range {
+    appearance: none;
+    border: 0;
+    border-left: 1px solid var(--colour-light-3);
+    background: var(--colour-light-1);
+    color: var(--colour-dark-2);
+    font: inherit;
+    font-size: var(--unit-2-2);
+    padding: var(--unit-1) var(--unit-2-1);
+    cursor: pointer;
+}
+
+.analytics-range:first-child {
+    border-left: 0;
+}
+
+.analytics-range:hover {
+    background: var(--colour-light-2);
+}
+
+.analytics-range.is-active {
+    background: var(--colour-dark-1);
+    color: var(--colour-light-1);
+}
+
+/* stat cards */
+.analytics-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--unit-3);
+}
+
+.analytics-stat {
+    display: flex;
+    flex-direction: column;
+    gap: var(--unit-1);
+    background: var(--colour-light-1);
+    border: 1px solid var(--colour-light-3);
+    border-radius: var(--unit-2);
+    padding: var(--unit-3);
+}
+
+.analytics-stat-title {
+    font-size: var(--unit-2-2);
+    color: var(--colour-mid-1);
+}
+
+.analytics-stat-value {
+    font-size: var(--unit-5);
+    line-height: 1;
+    font-weight: 600;
+    color: var(--colour-dark-0);
+    font-variant-numeric: tabular-nums;
+}
+
+.analytics-stat-desc {
+    font-size: var(--unit-2-1);
+    color: var(--colour-mid-1);
+}
+
+/* generic card used by the chart and the tables */
+.analytics-card {
+    background: var(--colour-light-1);
+    border: 1px solid var(--colour-light-3);
+    border-radius: var(--unit-2);
+    padding: var(--unit-3);
+}
+
+.analytics-card h2 {
+    margin: 0 0 var(--unit-2-1);
+    font-size: var(--unit-3);
+    font-weight: 600;
+    color: var(--colour-dark-1);
+}
+
+.analytics-empty {
+    margin: 0;
+    color: var(--colour-mid-1);
+    font-size: var(--unit-2-2);
+}
+
+/* dependency-free bar chart */
+.analytics-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 160px;
+}
+
+.analytics-bar {
+    flex: 1;
+    min-height: 2px;
+    background: var(--colour-dark-2);
+    border-radius: var(--unit-1) var(--unit-1) 0 0;
+    transition: background 0.15s ease;
+}
+
+.analytics-bar:hover {
+    background: var(--c-accent);
+}
+
+/* breakdown tables */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--unit-3);
+}
+
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--unit-2-2);
+}
+
+.analytics-table td {
+    padding: var(--unit-1) 0;
+    border-bottom: 1px solid var(--colour-light-2);
+    color: var(--colour-dark-2);
+}
+
+.analytics-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.analytics-table-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 16rem;
+}
+
+.analytics-table-count {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--colour-dark-0);
+    padding-left: var(--unit-3);
+    width: 1%;
+    white-space: nowrap;
+}
+
+/* stack on narrow screens */
+@media (max-width: 720px) {
+    .analytics-stats,
+    .analytics-grid {
+        grid-template-columns: 1fr;
+    }
+}

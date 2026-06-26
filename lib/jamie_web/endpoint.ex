@@ -11,9 +11,14 @@ defmodule JamieWeb.Endpoint do
     same_site: "Lax"
   ]
 
+  # `:peer_data`, `:user_agent` and `:x_headers` are exposed so that
+  # JamieWeb.Analytics.Tracker can record live navigations the same way the
+  # TrackPageview plug records full HTTP requests.
+  @connect_info [:peer_data, :user_agent, :x_headers, session: @session_options]
+
   socket "/live", Phoenix.LiveView.Socket,
-    websocket: [connect_info: [session: @session_options]],
-    longpoll: [connect_info: [session: @session_options]]
+    websocket: [connect_info: @connect_info],
+    longpoll: [connect_info: @connect_info]
 
   # Serve at "/" the static files from "priv/static" directory.
   #
