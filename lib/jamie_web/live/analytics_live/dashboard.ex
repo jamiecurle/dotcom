@@ -35,7 +35,8 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
   defp load(socket) do
     days = socket.assigns.days
 
-    assign(socket,
+    socket
+    |> assign(
       total_sessions: Analytics.total_sessions(days),
       total_pageviews: Analytics.total_pageviews(days),
       unique_visitors: Analytics.unique_visitors(days),
