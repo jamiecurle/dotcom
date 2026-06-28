@@ -23,6 +23,25 @@ defmodule JamieWeb.Plugs.TrackPageviewTest do
     assert_enqueued(worker: PageviewTrack, args: %{path: "/about", device_type: "desktop"})
   end
 
+  test "records the country stashed by the VisitorCountry plug" do
+    # In the real pipeline the VisitorCountry plug runs upstream and puts the
+    # normalized code in conn.assigns; here we set it directly.
+    build_conn(:get, "/about")
+    |> put_req_header("user-agent", @chrome)
+    |> assign(:visitor_country, "GB")
+    |> run()
+
+    assert_enqueued(worker: PageviewTrack, args: %{path: "/about", country: "GB"})
+  end
+
+  test "records a nil country when none was captured" do
+    build_conn(:get, "/about")
+    |> put_req_header("user-agent", @chrome)
+    |> run()
+
+    assert_enqueued(worker: PageviewTrack, args: %{path: "/about", country: nil})
+  end
+
   test "does not enqueue for crawlers" do
     build_conn(:get, "/")
     |> put_req_header("user-agent", @googlebot)

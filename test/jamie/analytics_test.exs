@@ -89,6 +89,24 @@ defmodule Jamie.AnalyticsTest do
     end
   end
 
+  describe "normalize_country/1" do
+    test "uppercases and trims a country code" do
+      assert Analytics.normalize_country("gb") == "GB"
+      assert Analytics.normalize_country(" US ") == "US"
+    end
+
+    test "drops Cloudflare's unknown (XX) and Tor (T1) sentinels" do
+      assert Analytics.normalize_country("XX") == nil
+      assert Analytics.normalize_country("T1") == nil
+    end
+
+    test "drops a missing or blank header" do
+      assert Analytics.normalize_country(nil) == nil
+      assert Analytics.normalize_country("") == nil
+      assert Analytics.normalize_country("  ") == nil
+    end
+  end
+
   describe "track/1 and aggregates" do
     setup do
       for attrs <- [
