@@ -14,6 +14,7 @@ defmodule JamieWeb.Router do
     plug :put_secure_browser_headers
     plug :fetch_current_scope_for_user
     plug JamieWeb.Plugs.LinkHeaders
+    plug JamieWeb.Plugs.VisitorCountry
     plug JamieWeb.Plugs.TrackPageview
   end
 

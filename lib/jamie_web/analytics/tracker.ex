@@ -19,11 +19,11 @@ defmodule JamieWeb.Analytics.Tracker do
   alias Jamie.Analytics
   alias Jamie.Workers.PageviewTrack
 
-  def on_mount(:track_pageviews, _params, _session, socket) do
+  def on_mount(:track_pageviews, _params, session, socket) do
     if connected?(socket) do
       socket =
         socket
-        |> assign(:analytics_visitor, visitor_attrs(socket))
+        |> assign(:analytics_visitor, visitor_attrs(socket, session))
         |> attach_hook(:track_pageview, :handle_params, &track_params/3)
 
       {:cont, socket}
@@ -54,13 +54,17 @@ defmodule JamieWeb.Analytics.Tracker do
       browser: visitor.browser,
       os: visitor.os,
       device_type: visitor.device_type,
+      country: visitor.country,
       visitor_hash: visitor.visitor_hash
     }
     |> PageviewTrack.new()
     |> Oban.insert()
   end
 
-  defp visitor_attrs(socket) do
+  # Country comes from the session, where the `VisitorCountry` plug stashed it
+  # during the dead render — the `CF-IPCountry` header isn't available over the
+  # websocket connection.
+  defp visitor_attrs(socket, session) do
     user_agent = get_connect_info(socket, :user_agent)
     ua = Analytics.parse_user_agent(user_agent)
 
@@ -68,6 +72,7 @@ defmodule JamieWeb.Analytics.Tracker do
       browser: ua.browser,
       os: ua.os,
       device_type: ua.device_type,
+      country: session["visitor_country"],
       visitor_hash: Analytics.visitor_hash(client_ip(socket), user_agent)
     }
   end

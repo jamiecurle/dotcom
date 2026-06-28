@@ -124,6 +124,25 @@ defmodule Jamie.Analytics do
     end
   end
 
+  @doc """
+  Normalize Cloudflare's `CF-IPCountry` header into a storable country code.
+
+  Cloudflare sends an uppercase ISO 3166-1 alpha-2 code, but also a couple of
+  non-country sentinels we don't want to record: `"XX"` when it can't determine
+  a country and `"T1"` for traffic arriving over Tor. Those, along with a
+  missing/blank header, become `nil`.
+  """
+  def normalize_country(nil), do: nil
+
+  def normalize_country(code) when is_binary(code) do
+    case String.upcase(String.trim(code)) do
+      "" -> nil
+      "XX" -> nil
+      "T1" -> nil
+      country -> country
+    end
+  end
+
   defp present(nil), do: nil
   defp present(""), do: nil
   defp present("Other"), do: nil
