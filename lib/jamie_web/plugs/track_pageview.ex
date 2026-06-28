@@ -68,6 +68,7 @@ defmodule JamieWeb.Plugs.TrackPageview do
       browser: ua.browser,
       os: ua.os,
       device_type: ua.device_type,
+      country: conn.assigns[:visitor_country],
       visitor_hash: Analytics.visitor_hash(client_ip(conn), user_agent)
     }
   end
