@@ -79,6 +79,7 @@ defmodule JamieWeb.Router do
       # live_session :foo,
       on_mount: [{JamieWeb.UserAuth, :require_authenticated}]
     ] do
+      live "/", OfficeLive.Dashboard, :index
       live "/analytics", AnalyticsLive.Dashboard, :index
       live "/notes", BlogLive.NoteIndex, :index
       live "/notes/new", BlogLive.NoteForm, :new
