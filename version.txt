@@ -1,3 +1,6 @@
+## 0.9.1
+- feat: dashboard on office
+
 ## 0.9.0
 - feat: jettisoned the cloudflare analyics. rolled my own.
 - feat: also hardeed the UA filter in analytics
