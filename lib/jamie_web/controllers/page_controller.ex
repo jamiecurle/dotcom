@@ -18,6 +18,7 @@ defmodule JamieWeb.PageController do
     |> assign(:posts, posts)
     |> assign(:body_id, "home")
     |> assign(:page_title, "Hello")
+    |> put_resp_header("cache-control", "public, max-age=300")
     |> render(:home)
   end
 
