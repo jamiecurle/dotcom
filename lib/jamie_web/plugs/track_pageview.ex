@@ -21,7 +21,7 @@ defmodule JamieWeb.Plugs.TrackPageview do
   # Dynamic routes that go through the browser pipeline but aren't real
   # pageviews. (Static assets are served by Plug.Static before the router,
   # so they never reach this plug.)
-  @skip_prefixes ["/office", "/dev", "/health", "/front-door"]
+  @skip_prefixes [~r"/office/*", ~r"/dev/*", ~r"/health/*", ~r"/front-door/*", ~r"^/+$"]
 
   @impl true
   def init(opts), do: opts
@@ -37,7 +37,7 @@ defmodule JamieWeb.Plugs.TrackPageview do
 
   def call(conn, _opts), do: conn
 
-  defp skip_path?(path), do: Enum.any?(@skip_prefixes, &String.starts_with?(path, &1))
+  defp skip_path?(path), do: Enum.any?(@skip_prefixes, &Regex.match?(&1, path))
 
   defp maybe_track(conn) do
     if trackable?(conn) do
