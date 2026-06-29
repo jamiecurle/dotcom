@@ -42,6 +42,14 @@ defmodule JamieWeb.Plugs.TrackPageviewTest do
     assert_enqueued(worker: PageviewTrack, args: %{path: "/about", country: nil})
   end
 
+  test "doesn't capture the homepage for a standard visitor" do
+    build_conn(:get, "/")
+    |> put_req_header("user-agent", @chrome)
+    |> run()
+
+    refute_enqueued(worker: PageviewTrack, args: %{path: "/", country: nil})
+  end
+
   test "does not enqueue for crawlers" do
     build_conn(:get, "/")
     |> put_req_header("user-agent", @googlebot)
