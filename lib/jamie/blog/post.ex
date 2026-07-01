@@ -36,6 +36,8 @@ defmodule Jamie.Blog.Post do
     field :og_hash, :string
 
     timestamps(type: :utc_datetime_usec)
+
+    has_many(:tags, Jamie.Tags.Tag)
   end
 
   def statuses, do: @statuses

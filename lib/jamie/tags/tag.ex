@@ -2,6 +2,16 @@ defmodule Jamie.Tags.Tag do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          title: String.t() | nil,
+          slug: String.t() | nil,
+          post_id: integer() | nil,
+          post: Jamie.Blog.Post.t() | Ecto.Association.NotLoaded.t() | nil,
+          note_id: integer() | nil,
+          note: Jamie.Blog.Note.t() | Ecto.Association.NotLoaded.t() | nil
+        }
+
   schema "tag_tags" do
     field :title, :string
     field :slug, :string
@@ -14,6 +24,7 @@ defmodule Jamie.Tags.Tag do
     tag
     |> cast(attrs, [:title])
     |> validate_required([:title])
+    |> update_change(:title, &String.downcase/1)
     |> slugify()
     |> unique_constraint(:slug)
   end

@@ -2,6 +2,18 @@ defmodule Jamie.Blog.Note do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          status: :draft | :published | :hidden,
+          title: String.t() | nil,
+          markdown: String.t() | nil,
+          html: String.t() | nil,
+          published_on: Date.t() | nil,
+          edited_on: Date.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
+
   @statuses [:draft, :published, :hidden]
 
   @required_fields [:markdown, :title, :status]
