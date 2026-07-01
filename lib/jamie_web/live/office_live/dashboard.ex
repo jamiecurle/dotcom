@@ -1,4 +1,5 @@
 defmodule JamieWeb.OfficeLive.Dashboard do
+  alias Jamie.Blog
   use JamieWeb, :live_view
 
   alias Jamie.Analytics
@@ -14,14 +15,22 @@ defmodule JamieWeb.OfficeLive.Dashboard do
         <div class="analytics-stats">
           <div class="analytics-stat">
             <span class="analytics-stat-title">Posts</span>
-            <span class="analytics-stat-value"></span>
+            <span :for={post <- @posts} class="analytics-stat-desc">
+              <.link href={~p"/office/posts/#{post.id}"}>
+                {post.title}
+              </.link>
+            </span>
             <span class="analytics-stat-desc">
               <.link href={~p"/office/posts/new"}> new post</.link>
             </span>
           </div>
           <div class="analytics-stat">
             <span class="analytics-stat-title">Notes</span>
-            <span class="analytics-stat-value"></span>
+            <span :for={note <- @notes} class="analytics-stat-desc">
+              <.link href={~p"/office/notes/#{note.id}"}>
+                {note.title}
+              </.link>
+            </span>
             <span class="analytics-stat-desc">
               <.link href={~p"/office/notes/new"}> new note</.link>
             </span>
@@ -66,6 +75,8 @@ defmodule JamieWeb.OfficeLive.Dashboard do
     socket
     |> assign(
       days: days,
+      posts: Blog.latest_published_posts(5),
+      notes: [],
       total_sessions: Analytics.total_sessions(days),
       unique_visitors: Analytics.unique_visitors(days)
     )
