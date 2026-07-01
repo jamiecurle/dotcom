@@ -11,6 +11,7 @@ defmodule Jamie.Tags.Tag do
   def changeset(tag, attrs) do
     tag
     |> cast(attrs, [:title])
+    |> validate_required([:title])
     |> slugify()
     |> unique_constraint(:slug)
   end
