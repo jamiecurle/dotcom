@@ -5,6 +5,8 @@ defmodule Jamie.Tags.Tag do
   schema "tag_tags" do
     field :title, :string
     field :slug, :string
+    belongs_to(:post, Jamie.Blog.Post)
+    belongs_to(:note, Jamie.Blog.Note)
   end
 
   @doc false
