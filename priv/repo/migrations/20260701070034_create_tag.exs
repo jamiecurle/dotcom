@@ -5,8 +5,8 @@ defmodule Jamie.Repo.Migrations.CreateTag do
     create table(:tag_tags) do
       add :title, :string
       add :slug, :string
-      add :post_id, references(:blog_posts, on_delete: :delete_all)
-      add :note_id, references(:blog_notes, on_delete: :delete_all)
+      add :post_id, references(:blog_posts)
+      add :note_id, references(:blog_notes)
     end
 
     create index(:tag_tags, [:title])

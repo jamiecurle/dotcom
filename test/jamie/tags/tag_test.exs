@@ -8,7 +8,106 @@ defmodule Jamie.Tags.Test do
   alias Jamie.Tags.Tag
 
   describe "Tags.tag/2" do
-    test "works with a post and a string tag" do
+    test "works with existing tag on an post, then a note" do
+      # there are no tags
+      assert 0 == Repo.aggregate(Tag, :count)
+
+      # make the tag and tag the post
+      {:ok, _tag} = Tags.create_tag(%{title: "wallop"})
+
+      {:ok, post} =
+        BlogFixtures.post_attrs(status: :published)
+        |> Blog.create_post()
+
+      {:ok, tag_returned} = Tags.tag(post, "wallop")
+
+      # we have one tag
+      assert 1 == Repo.aggregate(Tag, :count)
+
+      # and it is now on our post
+      %{tags: [tag_match]} =
+        Blog.Post
+        |> Repo.get(post.id)
+        |> Repo.preload(:tags)
+
+      assert tag_returned == tag_match
+
+      # now tag the note
+      {:ok, note} =
+        BlogFixtures.note_attrs(status: :published)
+        |> Blog.create_note()
+
+      {:ok, tag_returned} = Tags.tag(note, "wallop")
+
+      # we still have one tag
+      assert 1 == Repo.aggregate(Tag, :count)
+
+      # and it is now on our note AND our post
+      %{tags: [tag_match_note]} =
+        Blog.Note
+        |> Repo.get(note.id)
+        |> Repo.preload(:tags)
+
+      assert tag_returned == tag_match_note
+
+      # %{tags: [tag_match_post]} =
+      #   Blog.Post
+      #   |> Repo.get(post.id)
+      #   |> Repo.preload(:tags)
+
+      # assert tag_returned == tag_match_post
+    end
+
+    test "works with a note and a non-existing tag" do
+      # there are no tags
+      assert 0 == Repo.aggregate(Tag, :count)
+
+      # make a note
+      {:ok, note} =
+        BlogFixtures.note_attrs(status: :published)
+        |> Blog.create_note()
+
+      # tag it
+      {:ok, tag_returned} = Tags.tag(note, "wallop")
+
+      # we have one tag
+      assert 1 == Repo.aggregate(Tag, :count)
+
+      # and it is now on our note
+      %{tags: [tag_match]} =
+        Blog.Note
+        |> Repo.get(note.id)
+        |> Repo.preload(:tags)
+
+      assert tag_returned == tag_match
+    end
+
+    test "works with a post and an existing tag schema" do
+      # there are no tags
+      assert 0 == Repo.aggregate(Tag, :count)
+
+      # make a post
+      {:ok, post} =
+        BlogFixtures.post_attrs(status: :published)
+        |> Blog.create_post()
+
+      # make the tag and tag the post
+      {:ok, _tag} = Tags.create_tag(%{title: "wallop"})
+      {:ok, tag_returned} = Tags.tag(post, "wallop")
+
+      # we have one tag
+      assert 1 == Repo.aggregate(Tag, :count)
+
+      # and it is now on our post
+      %{tags: [tag_matched]} =
+        Blog.Post
+        |> Repo.get(post.id)
+        |> Repo.preload(:tags)
+
+      assert tag_returned == tag_matched
+    end
+
+    test "works with a post and a non-existing tag" do
       # there are no tags
       assert 0 == Repo.aggregate(Tag, :count)
 

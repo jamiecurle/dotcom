@@ -24,11 +24,12 @@ defmodule Jamie.Blog.Note do
     field :title, :string
     field :markdown, :string
     field :html, :string
-
     field :published_on, :date
     field :edited_on, :date
 
     timestamps(type: :utc_datetime_usec)
+
+    has_many(:tags, Jamie.Tags.Tag)
   end
 
   def statuses, do: @statuses

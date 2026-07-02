@@ -14,12 +14,18 @@ defmodule Jamie.Tags do
   alias Jamie.Tags.Tag
 
   @doc """
-  Tags a Post or a Note with a tag.
+  Tags a Post or a Note.
   If the tag doesn't exist, it is created
   """
 
-  @spec tag(Post.t() | Note.t(), String.t() | Tag.t()) :: {:ok | :error, any()}
+  @spec tag(Post.t() | Note.t(), String.t()) :: {:ok | :error, any()}
   def tag(target, tag)
+
+  def tag(%Blog.Note{} = note, tag) do
+    Ecto.build_assoc(note, :tags)
+    |> changeset_tag(%{title: tag})
+    |> upsert_tag()
+  end
 
   def tag(%Blog.Post{} = post, tag) do
     Ecto.build_assoc(post, :tags)
@@ -43,7 +49,7 @@ defmodule Jamie.Tags do
   def upsert_tag(%Ecto.Changeset{} = changeset) do
     changeset
     |> Repo.insert(
-      on_conflict: {:replace, [:title]},
+      on_conflict: {:replace, [:title, :post_id, :note_id]},
       conflict_target: :slug,
       returning: true
     )
