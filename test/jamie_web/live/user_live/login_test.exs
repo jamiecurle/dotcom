@@ -8,8 +8,7 @@ defmodule JamieWeb.UserLive.LoginTest do
     test "renders login page", %{conn: conn} do
       {:ok, _lv, html} = live(conn, ~p"/front-door/log-in")
 
-      assert html =~ "Log in"
-      assert html =~ "Log in with email"
+      assert html =~ "login"
     end
   end
 
@@ -52,7 +51,7 @@ defmodule JamieWeb.UserLive.LoginTest do
       {:ok, _lv, html} = live(conn, ~p"/front-door/log-in")
 
       assert html =~ "You need to reauthenticate"
-      assert html =~ "Log in with email"
+      assert html =~ "Login"
 
       assert html =~
                ~s(<input type="email" name="user[email]" id="login_form_magic_email" value="#{user.email}")

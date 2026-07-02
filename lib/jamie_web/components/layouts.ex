@@ -25,11 +25,48 @@ defmodule JamieWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :full_bleed, :boolean,
+    default: false,
+    doc: "when true the content fills the viewport (no centered container) — used by the editors"
+
   slot :inner_block, required: true
 
   def office(assigns) do
     ~H"""
-    {render_slot(@inner_block)}
+    <div class="flex min-h-dvh flex-col bg-base-200 text-base-content">
+      <div class="navbar border-b border-base-300 bg-base-100">
+        <div class="navbar-start">
+          <.link navigate={~p"/office"} class="btn btn-ghost px-2 text-lg font-semibold">
+            Office
+          </.link>
+        </div>
+        <div class="navbar-center hidden md:flex">
+          <ul class="menu menu-horizontal gap-1">
+            <li><.link navigate={~p"/office"}>Dashboard</.link></li>
+            <li><.link navigate={~p"/office/posts"}>Posts</.link></li>
+            <li><.link navigate={~p"/office/notes"}>Notes</.link></li>
+            <li><.link navigate={~p"/office/analytics"}>Analytics</.link></li>
+          </ul>
+        </div>
+        <div class="navbar-end gap-2">
+          <.theme_toggle />
+          <.link
+            href={~p"/front-door/log-out"}
+            method="delete"
+            class="btn btn-ghost btn-sm"
+          >
+            <.icon name="hero-arrow-right-start-on-rectangle" class="size-4" /> Log out
+          </.link>
+        </div>
+      </div>
+
+      <main :if={@full_bleed} class="flex min-h-0 flex-1 p-4">
+        {render_slot(@inner_block)}
+      </main>
+      <main :if={!@full_bleed} class="mx-auto w-full max-w-5xl px-4 py-8">
+        {render_slot(@inner_block)}
+      </main>
+    </div>
     <.flash_group flash={@flash} />
     """
   end
