@@ -8,55 +8,59 @@ defmodule JamieWeb.OfficeLive.Dashboard do
   def render(assigns) do
     ~H"""
     <Layouts.office flash={@flash} current_scope={@current_scope}>
-      <div class="analytics">
-        <header class="analytics-head">
-          <h1>Dashboard</h1>
-        </header>
-        <div class="analytics-stats">
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Posts</span>
-            <span :for={post <- @posts} class="analytics-stat-desc">
-              <.link href={~p"/office/posts/#{post.id}"}>
-                {post.title}
+      <header class="mb-6">
+        <h1 class="text-2xl font-semibold">Dashboard</h1>
+      </header>
+
+      <div class="stats stats-vertical mb-8 w-full shadow-sm sm:stats-horizontal">
+        <div class="stat">
+          <div class="stat-title">Visits</div>
+          <div class="stat-value">{@total_sessions}</div>
+          <div class="stat-desc">last {@days} days</div>
+        </div>
+        <div class="stat">
+          <div class="stat-title">Unique visitors</div>
+          <div class="stat-value">{@unique_visitors}</div>
+          <div class="stat-desc">
+            <.link navigate={~p"/office/analytics"} class="link link-hover">
+              View analytics
+            </.link>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="card bg-base-100 shadow-sm">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h2 class="card-title">Posts</h2>
+              <.link navigate={~p"/office/posts/new"} class="btn btn-primary btn-xs">
+                <.icon name="hero-plus" class="size-3.5" /> New
               </.link>
-            </span>
-            <span class="analytics-stat-desc">
-              <.link href={~p"/office/posts/new"}> new post</.link>
-            </span>
+            </div>
+            <ul class="menu w-full px-0">
+              <li :for={post <- @posts}>
+                <.link navigate={~p"/office/posts/#{post.id}"}>{post.title}</.link>
+              </li>
+              <li :if={@posts == []} class="menu-disabled"><span>No posts yet.</span></li>
+            </ul>
           </div>
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Notes</span>
-            <span :for={note <- @notes} class="analytics-stat-desc">
-              <.link href={~p"/office/notes/#{note.id}"}>
-                {note.title}
+        </div>
+
+        <div class="card bg-base-100 shadow-sm">
+          <div class="card-body">
+            <div class="flex items-center justify-between">
+              <h2 class="card-title">Notes</h2>
+              <.link navigate={~p"/office/notes/new"} class="btn btn-primary btn-xs">
+                <.icon name="hero-plus" class="size-3.5" /> New
               </.link>
-            </span>
-            <span class="analytics-stat-desc">
-              <.link href={~p"/office/notes/new"}> new note</.link>
-            </span>
-          </div>
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Projects</span>
-            <span class="analytics-stat-value"></span>
-            <span class="analytics-stat-desc"> new project</span>
-          </div>
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Bookmarks</span>
-            <span class="analytics-stat-value"></span>
-            <span class="analytics-stat-desc"> bookmarks</span>
-          </div>
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Visits</span>
-            <span class="analytics-stat-value">{@total_sessions}</span>
-            <span class="analytics-stat-desc">last {@days} days</span>
-          </div>
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Unique visitors</span>
-            <span class="analytics-stat-value">{@unique_visitors}</span>
-            <span class="analytics-stat-desc">last {@days} days</span>
-            <span class="analytics-stat-desc">
-              <.link href={~p"/office/analytics"}> analytics</.link>
-            </span>
+            </div>
+            <ul class="menu w-full px-0">
+              <li :for={note <- @notes}>
+                <.link navigate={~p"/office/notes/#{note.id}"}>{note.title}</.link>
+              </li>
+              <li :if={@notes == []} class="menu-disabled"><span>No notes yet.</span></li>
+            </ul>
           </div>
         </div>
       </div>
