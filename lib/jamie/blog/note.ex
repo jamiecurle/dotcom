@@ -1,6 +1,7 @@
 defmodule Jamie.Blog.Note do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Jamie.Tags.Tag
 
   @type t :: %__MODULE__{
           id: integer() | nil,
@@ -29,7 +30,7 @@ defmodule Jamie.Blog.Note do
 
     timestamps(type: :utc_datetime_usec)
 
-    has_many(:tags, Jamie.Tags.Tag)
+    many_to_many :tags, Tag, join_through: "tags_notes"
   end
 
   def statuses, do: @statuses

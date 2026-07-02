@@ -2,21 +2,22 @@ defmodule Jamie.Tags.Tag do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Jamie.Blog.{
+    Post,
+    Note
+  }
+
   @type t :: %__MODULE__{
           id: integer() | nil,
           title: String.t() | nil,
-          slug: String.t() | nil,
-          post_id: integer() | nil,
-          post: Jamie.Blog.Post.t() | Ecto.Association.NotLoaded.t() | nil,
-          note_id: integer() | nil,
-          note: Jamie.Blog.Note.t() | Ecto.Association.NotLoaded.t() | nil
+          slug: String.t() | nil
         }
 
   schema "tag_tags" do
     field :title, :string
     field :slug, :string
-    belongs_to(:post, Jamie.Blog.Post)
-    belongs_to(:note, Jamie.Blog.Note)
+    many_to_many :posts, Post, join_through: "tags_posts"
+    many_to_many :notes, Note, join_through: "tags_notes"
   end
 
   @doc false

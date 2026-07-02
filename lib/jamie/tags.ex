@@ -28,8 +28,9 @@ defmodule Jamie.Tags do
   end
 
   def tag(%Blog.Post{} = post, tag) do
-    Ecto.build_assoc(post, :tags)
+    tag
     |> changeset_tag(%{title: tag})
+    |> Ecto.Changeset.put_assoc(:tags)
     |> upsert_tag()
   end
 
@@ -49,7 +50,7 @@ defmodule Jamie.Tags do
   def upsert_tag(%Ecto.Changeset{} = changeset) do
     changeset
     |> Repo.insert(
-      on_conflict: {:replace, [:title, :post_id, :note_id]},
+      on_conflict: :nothing,
       conflict_target: :slug,
       returning: true
     )
