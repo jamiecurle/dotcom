@@ -20,13 +20,23 @@ defmodule JamieWeb.BlogLive.PostIndex do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <ul>
+    <Layouts.office flash={@flash} current_scope={@current_scope}>
+      <header class="mb-6 flex items-center justify-between">
+        <h1 class="text-2xl font-semibold">Posts</h1>
+        <.link navigate={~p"/office/posts/new"} class="btn btn-primary btn-sm">
+          <.icon name="hero-plus" class="size-4" /> New post
+        </.link>
+      </header>
+
+      <ul class="menu w-full rounded-box bg-base-100 shadow-sm">
         <li :for={post <- @posts}>
-          <.link href={~p"/office/posts/#{post.id}"}>{post.title}</.link>
+          <.link navigate={~p"/office/posts/#{post.id}"}>{post.title}</.link>
+        </li>
+        <li :if={@posts == []} class="menu-disabled">
+          <span>No posts yet.</span>
         </li>
       </ul>
-    </Layouts.app>
+    </Layouts.office>
     """
   end
 end

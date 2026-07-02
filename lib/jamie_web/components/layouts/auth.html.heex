@@ -13,7 +13,7 @@
     <.live_title default="" suffix="  - Jamie Curle">
       {assigns[:page_title]}
     </.live_title>
-    <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/admin.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
     <script>
@@ -37,12 +37,8 @@
     </script>
   </head>
   <body class={[assigns[:body_class]]} id={assigns[:body_id] || ""}>
-    <div class="layout">
-      <main class="min-h-screen flex items-center justify-center p-16">
-        <div class="w-full max-w-md p-8 bg-base-200">
-          {@inner_content}
-        </div>
-      </main>
-    </div>
+    <main class="flex min-h-dvh items-center justify-center bg-primary p-6">
+      {@inner_content}
+    </main>
   </body>
 </html>
