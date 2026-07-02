@@ -21,11 +21,11 @@ defmodule Jamie.Tags do
   @spec tag(Post.t() | Note.t(), String.t()) :: {:ok | :error, any()}
   def tag(target, tag)
 
-  def tag(%Blog.Note{} = note, tag) do
-    Ecto.build_assoc(note, :tags)
-    |> changeset_tag(%{title: tag})
-    |> upsert_tag()
-  end
+  # def tag(%Blog.Note{} = note, tag) do
+  #   Ecto.build_assoc(note, :tags)
+  #   |> changeset_tag(%{title: tag})
+  #   |> upsert_tag()
+  # end
 
   def tag(%Blog.Post{} = post, tag) do
     tag
@@ -50,7 +50,7 @@ defmodule Jamie.Tags do
   def upsert_tag(%Ecto.Changeset{} = changeset) do
     changeset
     |> Repo.insert(
-      on_conflict: :nothing,
+      on_conflict: {:replace, [:slug]},
       conflict_target: :slug,
       returning: true
     )

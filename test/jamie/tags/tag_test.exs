@@ -163,10 +163,10 @@ defmodule Jamie.Tags.Test do
         |> Tags.changeset_tag(%{title: "Tag Is A Tag"})
         |> Tags.upsert_tag()
 
-      # we still have one
+      # # we still have one
       assert 1 == Repo.aggregate(Tag, :count)
 
-      # tags1 and tag2 are the same
+      # # tags1 and tag2 are the same
       assert tag1.id == tag2.id
     end
   end
