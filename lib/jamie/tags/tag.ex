@@ -3,8 +3,8 @@ defmodule Jamie.Tags.Tag do
   import Ecto.Changeset
 
   alias Jamie.Blog.{
-    Post,
-    Note
+    Note,
+    Post
   }
 
   @type t :: %__MODULE__{

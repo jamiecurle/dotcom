@@ -3,8 +3,6 @@ defmodule Jamie.Tags do
   Context boundary for tags
   """
 
-  alias Jamie.Blog
-
   alias Jamie.Blog.{
     Note,
     Post
@@ -19,19 +17,44 @@ defmodule Jamie.Tags do
   """
 
   @spec tag(Post.t() | Note.t(), String.t()) :: {:ok | :error, any()}
-  def tag(target, tag)
+  def tag(target, tag_title)
 
-  # def tag(%Blog.Note{} = note, tag) do
-  #   Ecto.build_assoc(note, :tags)
-  #   |> changeset_tag(%{title: tag})
-  #   |> upsert_tag()
-  # end
+  def tag(%Post{} = post, tag_title) do
+    with attrs <- %{title: tag_title},
+         tag_cs <- changeset_tag(%Tag{}, attrs),
+         {:ok, tag} <- upsert_tag(tag_cs) do
+      # tag it
+      tag_content(post, tag.id)
+    end
+  end
 
-  def tag(%Blog.Post{} = post, tag) do
-    tag
-    |> changeset_tag(%{title: tag})
-    |> Ecto.Changeset.put_assoc(:tags)
-    |> upsert_tag()
+  def tag(%Note{} = note, tag_title) do
+    with attrs <- %{title: tag_title},
+         tag_cs <- changeset_tag(%Tag{}, attrs),
+         {:ok, tag} <- upsert_tag(tag_cs) do
+      # tag it
+      tag_content(note, tag.id)
+    end
+  end
+
+  defp tag_content(%Post{} = post, tag_id) do
+    Repo.insert_all(
+      "tags_posts",
+      [%{post_id: post.id, tag_id: tag_id}],
+      on_conflict: :nothing
+    )
+
+    {:ok, Repo.preload(post, :tags, force: true)}
+  end
+
+  defp tag_content(%Note{} = note, tag_id) do
+    Repo.insert_all(
+      "tags_notes",
+      [%{note_id: note.id, tag_id: tag_id}],
+      on_conflict: :nothing
+    )
+
+    {:ok, Repo.preload(note, :tags)}
   end
 
   @doc """

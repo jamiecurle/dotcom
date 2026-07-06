@@ -13,49 +13,33 @@ defmodule Jamie.Tags.Test do
       assert 0 == Repo.aggregate(Tag, :count)
 
       # make the tag and tag the post
-      {:ok, _tag} = Tags.create_tag(%{title: "wallop"})
+      {:ok, tag} = Tags.create_tag(%{title: "wallop"})
 
       {:ok, post} =
         BlogFixtures.post_attrs(status: :published)
         |> Blog.create_post()
 
-      {:ok, tag_returned} = Tags.tag(post, "wallop")
+      {:ok, post_returned} = Tags.tag(post, "wallop")
 
       # we have one tag
       assert 1 == Repo.aggregate(Tag, :count)
 
       # and it is now on our post
-      %{tags: [tag_match]} =
-        Blog.Post
-        |> Repo.get(post.id)
-        |> Repo.preload(:tags)
-
-      assert tag_returned == tag_match
+      assert tag in post_returned.tags
 
       # now tag the note
       {:ok, note} =
         BlogFixtures.note_attrs(status: :published)
         |> Blog.create_note()
 
-      {:ok, tag_returned} = Tags.tag(note, "wallop")
+      {:ok, note_returned} = Tags.tag(note, "wallop")
 
       # we still have one tag
       assert 1 == Repo.aggregate(Tag, :count)
 
       # and it is now on our note AND our post
-      %{tags: [tag_match_note]} =
-        Blog.Note
-        |> Repo.get(note.id)
-        |> Repo.preload(:tags)
-
-      assert tag_returned == tag_match_note
-
-      # %{tags: [tag_match_post]} =
-      #   Blog.Post
-      #   |> Repo.get(post.id)
-      #   |> Repo.preload(:tags)
-
-      # assert tag_returned == tag_match_post
+      assert tag in note_returned.tags
+      assert tag in post_returned.tags
     end
 
     test "works with a note and a non-existing tag" do
@@ -68,18 +52,14 @@ defmodule Jamie.Tags.Test do
         |> Blog.create_note()
 
       # tag it
-      {:ok, tag_returned} = Tags.tag(note, "wallop")
+      {:ok, note} = Tags.tag(note, "wallop")
 
       # we have one tag
       assert 1 == Repo.aggregate(Tag, :count)
 
-      # and it is now on our note
-      %{tags: [tag_match]} =
-        Blog.Note
-        |> Repo.get(note.id)
-        |> Repo.preload(:tags)
-
-      assert tag_returned == tag_match
+      # and it is on the note
+      %{tags: [tag]} = note
+      assert tag.title == "wallop"
     end
 
     test "works with a post and an existing tag schema" do
@@ -93,18 +73,14 @@ defmodule Jamie.Tags.Test do
 
       # make the tag and tag the post
       {:ok, _tag} = Tags.create_tag(%{title: "wallop"})
-      {:ok, tag_returned} = Tags.tag(post, "wallop")
+      {:ok, post} = Tags.tag(post, "wallop")
 
       # we have one tag
       assert 1 == Repo.aggregate(Tag, :count)
 
-      # and it is now on our post
-      %{tags: [tag_matched]} =
-        Blog.Post
-        |> Repo.get(post.id)
-        |> Repo.preload(:tags)
-
-      assert tag_returned == tag_matched
+      # and it is on the note
+      %{tags: [tag]} = post
+      assert tag.title == "wallop"
     end
 
     test "works with a post and a non-existing tag" do
@@ -117,18 +93,14 @@ defmodule Jamie.Tags.Test do
         |> Blog.create_post()
 
       # tag it
-      {:ok, tag_return} = Tags.tag(post, "wallop")
+      {:ok, post} = Tags.tag(post, "wallop")
 
       # we have one tag
       assert 1 == Repo.aggregate(Tag, :count)
-
-      # and it is now on our post
-      %{tags: [tag_match]} =
-        Blog.Post
-        |> Repo.get(post.id)
-        |> Repo.preload(:tags)
-
-      assert tag_return == tag_match
+      #
+      # and it is on the note
+      %{tags: [tag]} = post
+      assert tag.title == "wallop"
     end
   end
 
