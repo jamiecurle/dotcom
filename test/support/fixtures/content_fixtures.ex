@@ -1,6 +1,6 @@
-defmodule Jamie.Support.BlogFixtures do
+defmodule Jamie.Support.ContentFixtures do
   @moduledoc """
-  Fixtures for the blog context.
+  Fixtures for the content context.
   """
 
   @default_note_attrs [
@@ -24,7 +24,7 @@ defmodule Jamie.Support.BlogFixtures do
   end
 
   @default_post_attrs [
-    title: "Basic blog post",
+    title: "Basic post",
     description: "A lovely description",
     markdown: """
     # Hello, World!

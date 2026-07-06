@@ -11,7 +11,7 @@ defmodule JamieWeb.MarkdownRenderer do
   where the HTML 404 path is the right answer.
   """
 
-  alias Jamie.Blog
+  alias Jamie.Content
 
   @static_pages ~w(about privacy projects)a
 
@@ -60,7 +60,7 @@ defmodule JamieWeb.MarkdownRenderer do
   def render([]), do: render(["about"])
 
   def render(["posts", slug]) do
-    post = Blog.get_post_by_slug!(slug)
+    post = Content.get_post_by_slug!(slug)
     {:ok, post_front_matter(post) <> (post.markdown || "")}
   rescue
     Ecto.NoResultsError -> :passthrough

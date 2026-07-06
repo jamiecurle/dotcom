@@ -1,4 +1,4 @@
-defmodule JamieWeb.BlogLive.Index do
+defmodule JamieWeb.ContentLive.Index do
   use JamieWeb, :live_view
 
   @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
@@ -10,7 +10,7 @@ defmodule JamieWeb.BlogLive.Index do
 
   @impl true
   def handle_params(_params, _url, socket) do
-    archive = Jamie.Blog.published_posts() |> archive()
+    archive = Jamie.Content.published_posts() |> archive()
 
     socket =
       socket

@@ -1,11 +1,11 @@
 defmodule JamieWeb.PostMarkdownController do
   use JamieWeb, :controller
 
-  alias Jamie.Blog
+  alias Jamie.Content
   alias JamieWeb.MarkdownRenderer
 
   def show(conn, %{"slug" => slug}) do
-    post = Blog.get_post_by_slug!(slug)
+    post = Content.get_post_by_slug!(slug)
     body = MarkdownRenderer.post_front_matter(post) <> (post.markdown || "")
 
     conn

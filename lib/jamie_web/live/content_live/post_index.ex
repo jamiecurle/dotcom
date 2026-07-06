@@ -1,4 +1,4 @@
-defmodule JamieWeb.BlogLive.NoteIndex do
+defmodule JamieWeb.ContentLive.PostIndex do
   use JamieWeb, :live_view
 
   @impl true
@@ -9,9 +9,9 @@ defmodule JamieWeb.BlogLive.NoteIndex do
   @impl true
   def handle_params(_params, _url, socket) do
     socket =
-      with notes <- Jamie.Blog.get_published_notes(socket.assigns.current_scope) do
+      with posts <- Jamie.Content.all_posts() do
         socket
-        |> assign(:notes, notes)
+        |> assign(:posts, posts)
       end
 
     {:noreply, socket}
@@ -22,8 +22,8 @@ defmodule JamieWeb.BlogLive.NoteIndex do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <ul>
-        <li :for={post <- @notes}>
-          <.link href={~p"/office/notes/#{post.id}"}>{post.title}</.link>
+        <li :for={post <- @posts}>
+          <.link href={~p"/office/posts/#{post.id}"}>{post.title}</.link>
         </li>
       </ul>
     </Layouts.app>

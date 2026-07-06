@@ -1,10 +1,10 @@
-defmodule Jamie.Blog do
+defmodule Jamie.Content do
   @moduledoc """
-  The blog context boundary.
+  The content context boundary.
   """
 
-  alias Jamie.Blog.{Note, Post}
-  alias Jamie.Blog.PostRevision
+  alias Jamie.Content.{Note, Post}
+  alias Jamie.Content.PostRevision
   alias Jamie.Repo
   import Ecto.Query
   alias Jamie.Accounts.Scope

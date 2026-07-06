@@ -1,4 +1,4 @@
-defmodule Jamie.Blog.PostRevision do
+defmodule Jamie.Content.PostRevision do
   @moduledoc """
   A single saved revision of a post — either a `diffy` diff against the
   previous revision or a full-content snapshot.
@@ -14,7 +14,7 @@ defmodule Jamie.Blog.PostRevision do
     field :name, :string
     field :saved_at, :utc_datetime_usec
 
-    belongs_to :post, Jamie.Blog.Post
+    belongs_to :post, Jamie.Content.Post
   end
 
   def changeset(rev, attrs) do

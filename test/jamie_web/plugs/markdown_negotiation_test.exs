@@ -1,11 +1,11 @@
 defmodule JamieWeb.Plugs.MarkdownNegotiationTest do
   use JamieWeb.ConnCase, async: true
 
-  alias Jamie.Blog
-  alias Jamie.Support.BlogFixtures
+  alias Jamie.Content
+  alias Jamie.Support.ContentFixtures
 
   defp create_post(attrs) do
-    {:ok, post} = attrs |> BlogFixtures.post_attrs() |> Blog.create_post()
+    {:ok, post} = attrs |> ContentFixtures.post_attrs() |> Content.create_post()
     post
   end
 

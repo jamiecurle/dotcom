@@ -1,10 +1,10 @@
 defmodule JamieWeb.SitemapController do
   use JamieWeb, :controller
 
-  alias Jamie.Blog
+  alias Jamie.Content
 
   def index(conn, _params) do
-    posts = Blog.published_posts()
+    posts = Content.published_posts()
     base_url = JamieWeb.Endpoint.url()
     xml = JamieWeb.SitemapXML.render(posts, base_url)
 

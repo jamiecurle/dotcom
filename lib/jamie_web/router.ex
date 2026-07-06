@@ -44,8 +44,8 @@ defmodule JamieWeb.Router do
         {JamieWeb.UserAuth, :mount_current_scope},
         {JamieWeb.Analytics.Tracker, :track_pageviews}
       ] do
-      live "/posts", BlogLive.Index, :index
-      live "/posts/:slug", BlogLive.Post, :post
+      live "/posts", ContentLive.Index, :index
+      live "/posts/:slug", ContentLive.Post, :post
     end
   end
 
@@ -82,12 +82,12 @@ defmodule JamieWeb.Router do
     ] do
       live "/", OfficeLive.Dashboard, :index
       live "/analytics", AnalyticsLive.Dashboard, :index
-      live "/notes", BlogLive.NoteIndex, :index
-      live "/notes/new", BlogLive.NoteForm, :new
-      live "/notes/:id", BlogLive.NoteForm, :edit
-      live "/posts", BlogLive.PostIndex, :index
-      live "/posts/new", BlogLive.PostForm, :new
-      live "/posts/:id", BlogLive.PostForm, :edit
+      live "/notes", ContentLive.NoteIndex, :index
+      live "/notes/new", ContentLive.NoteForm, :new
+      live "/notes/:id", ContentLive.NoteForm, :edit
+      live "/posts", ContentLive.PostIndex, :index
+      live "/posts/new", ContentLive.PostForm, :new
+      live "/posts/:id", ContentLive.PostForm, :edit
     end
   end
 

@@ -1,4 +1,4 @@
-defmodule JamieWeb.BlogLive.Post do
+defmodule JamieWeb.ContentLive.Post do
   use JamieWeb, :live_view
 
   @impl true
@@ -14,7 +14,7 @@ defmodule JamieWeb.BlogLive.Post do
   @impl true
   def handle_params(%{"slug" => slug}, _url, socket) do
     socket =
-      with post <- Jamie.Blog.get_post_by_slug!(slug, socket.assigns.current_scope),
+      with post <- Jamie.Content.get_post_by_slug!(slug, socket.assigns.current_scope),
            og_image <- og_image(post) do
         # do the pubsub
         if connected?(socket) do

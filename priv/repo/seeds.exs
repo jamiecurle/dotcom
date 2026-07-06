@@ -1,7 +1,7 @@
 #
 # posts
 #
-alias Jamie.Blog.Post
+alias Jamie.Content.Post
 
 words = ~w(
   run jump swim fly climb crawl slide spin throw catch

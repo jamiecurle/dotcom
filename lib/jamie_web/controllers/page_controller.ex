@@ -1,7 +1,7 @@
 defmodule JamieWeb.PageController do
   use JamieWeb, :controller
 
-  alias Jamie.Blog
+  alias Jamie.Content
   alias JamieWeb.MarkdownRenderer
 
   def health(conn, _params) do
@@ -12,7 +12,7 @@ defmodule JamieWeb.PageController do
 
   def home(conn, _params) do
     posts =
-      Blog.latest_published_posts(10)
+      Content.latest_published_posts(10)
 
     conn
     |> assign(:posts, posts)

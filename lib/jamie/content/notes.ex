@@ -1,4 +1,4 @@
-defmodule Jamie.Blog.Note do
+defmodule Jamie.Content.Note do
   use Ecto.Schema
   import Ecto.Changeset
 

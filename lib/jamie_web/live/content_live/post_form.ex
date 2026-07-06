@@ -1,8 +1,8 @@
-defmodule JamieWeb.BlogLive.PostForm do
+defmodule JamieWeb.ContentLive.PostForm do
   use JamieWeb, :live_view
   @moduledoc false
 
-  alias Jamie.Blog
+  alias Jamie.Content
 
   @impl true
   def render(assigns) do
@@ -31,7 +31,7 @@ defmodule JamieWeb.BlogLive.PostForm do
               field={@form[:status]}
               type="select-naked"
               label="Status"
-              options={Enum.map(Blog.Post.statuses(), &{String.capitalize(to_string(&1)), &1})}
+              options={Enum.map(Content.Post.statuses(), &{String.capitalize(to_string(&1)), &1})}
             />
 
             <.input
@@ -101,7 +101,7 @@ defmodule JamieWeb.BlogLive.PostForm do
   def handle_event("validate", %{"post" => post_params}, socket) do
     changeset =
       socket.assigns.post
-      |> Blog.change_post(post_params)
+      |> Content.change_post(post_params)
       |> Map.put(:action, :validate)
 
     {:noreply, assign(socket, form: to_form(changeset))}
@@ -113,7 +113,7 @@ defmodule JamieWeb.BlogLive.PostForm do
   end
 
   defp save_post(socket, :new, post_params) do
-    case Blog.create_post(post_params) do
+    case Content.create_post(post_params) do
       {:ok, post} ->
         {:noreply,
          socket
@@ -131,12 +131,12 @@ defmodule JamieWeb.BlogLive.PostForm do
   defp save_post(socket, :edit, post_params) do
     post = socket.assigns.post
 
-    case Blog.update_post(post, post_params, post.updated_at) do
+    case Content.update_post(post, post_params, post.updated_at) do
       {:ok, updated} ->
         {:noreply,
          socket
          |> assign(:post, updated)
-         |> assign(:form, to_form(Blog.change_post(updated)))
+         |> assign(:form, to_form(Content.change_post(updated)))
          |> put_flash(:info, "Post updated successfully.")}
 
       {:error, :conflict} ->
@@ -153,8 +153,8 @@ defmodule JamieWeb.BlogLive.PostForm do
   end
 
   defp apply_action(socket, :new, _params) do
-    post = %Blog.Post{}
-    changeset = Blog.change_post(post)
+    post = %Content.Post{}
+    changeset = Content.change_post(post)
 
     socket
     |> assign(:page_title, "new post")
@@ -163,10 +163,10 @@ defmodule JamieWeb.BlogLive.PostForm do
   end
 
   defp apply_action(socket, :edit, params) do
-    post = Blog.get_post!(params["id"])
+    post = Content.get_post!(params["id"])
 
     changeset =
-      Blog.change_post(post)
+      Content.change_post(post)
 
     socket
     |> assign(:page_title, "Editing #{post.title}")
