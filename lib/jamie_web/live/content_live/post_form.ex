@@ -7,7 +7,7 @@ defmodule JamieWeb.ContentLive.PostForm do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.office flash={@flash} current_scope={@current_scope}>
+    <Layouts.office flash={@flash} current_scope={@current_scope} full_bleed>
       <div class="editor-split">
         <div class="editor-pane">
           <.form
@@ -52,15 +52,27 @@ defmodule JamieWeb.ContentLive.PostForm do
               phx-debounce="1500"
             />
 
-            <div class="mt-4">
+            <div class="mt-4 flex items-center gap-2">
               <button type="submit" class="btn btn-primary" phx-disable-with="Saving...">
                 Save Post
+              </button>
+              <button
+                :if={@live_action == :edit}
+                type="button"
+                class="btn btn-ghost btn-sm"
+                phx-click="toggle-preview"
+              >
+                <.icon
+                  name={if @show_preview, do: "hero-eye-slash", else: "hero-eye"}
+                  class="size-4"
+                />
+                {if @show_preview, do: "Hide preview", else: "Show preview"}
               </button>
             </div>
           </.form>
         </div>
 
-        <div :if={@live_action == :edit} class="preview-pane">
+        <div :if={@live_action == :edit and @show_preview} class="preview-pane">
           <iframe id="post-preview" src={~p"/posts/#{@post.slug}"} title="Post preview" />
         </div>
       </div>
@@ -70,7 +82,7 @@ defmodule JamieWeb.ContentLive.PostForm do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, :show_preview, true)}
   end
 
   @impl true
@@ -79,6 +91,10 @@ defmodule JamieWeb.ContentLive.PostForm do
   end
 
   @impl true
+  def handle_event("toggle-preview", _params, socket) do
+    {:noreply, update(socket, :show_preview, &(!&1))}
+  end
+
   def handle_event("sign-image-url", %{"name" => name}, socket) do
     host = Application.get_env(:jamie, :images)[:host]
     bucket = Application.get_env(:ex_aws, :s3)[:bucket]

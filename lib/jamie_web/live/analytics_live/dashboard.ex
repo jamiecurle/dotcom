@@ -53,13 +53,13 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
   def render(assigns) do
     ~H"""
     <Layouts.office flash={@flash} current_scope={@current_scope}>
-      <div class="analytics">
-        <header class="analytics-head">
-          <h1>Analytics</h1>
-          <div class="analytics-ranges">
+      <div class="flex flex-col gap-6">
+        <header class="flex flex-wrap items-center justify-between gap-2">
+          <h1 class="text-2xl font-semibold">Analytics</h1>
+          <div class="join">
             <button
               :for={{label, days} <- ranges()}
-              class={["analytics-range", @days == days && "is-active"]}
+              class={["btn btn-sm join-item", @days == days && "btn-primary"]}
               phx-click="set_range"
               phx-value-days={days}
             >
@@ -68,27 +68,27 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
           </div>
         </header>
 
-        <div class="analytics-stats">
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Visits</span>
-            <span class="analytics-stat-value">{@total_sessions}</span>
-            <span class="analytics-stat-desc">last {@days} days</span>
+        <div class="stats stats-vertical w-full shadow-sm sm:stats-horizontal">
+          <div class="stat">
+            <div class="stat-title">Visits</div>
+            <div class="stat-value">{@total_sessions}</div>
+            <div class="stat-desc">last {@days} days</div>
           </div>
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Pageviews</span>
-            <span class="analytics-stat-value">{@total_pageviews}</span>
-            <span class="analytics-stat-desc">last {@days} days</span>
+          <div class="stat">
+            <div class="stat-title">Pageviews</div>
+            <div class="stat-value">{@total_pageviews}</div>
+            <div class="stat-desc">last {@days} days</div>
           </div>
-          <div class="analytics-stat">
-            <span class="analytics-stat-title">Unique visitors</span>
-            <span class="analytics-stat-value">{@unique_visitors}</span>
-            <span class="analytics-stat-desc">last {@days} days</span>
+          <div class="stat">
+            <div class="stat-title">Unique visitors</div>
+            <div class="stat-value">{@unique_visitors}</div>
+            <div class="stat-desc">last {@days} days</div>
           </div>
         </div>
 
         <.chart series={@series} />
 
-        <div class="analytics-grid">
+        <div class="grid gap-4 md:grid-cols-2">
           <.table_card title="Top pages" rows={@top_pages} />
           <.table_card title="Top referrers" rows={@top_referrers} empty="No external referrers yet" />
           <.table_card title="Browsers" rows={@browsers} />
@@ -109,16 +109,18 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
     assigns = assign(assigns, :max, max)
 
     ~H"""
-    <section class="analytics-card">
-      <h2>Pageviews over time</h2>
-      <p :if={@max == 0} class="analytics-empty">No data for this window yet</p>
-      <div :if={@max > 0} class="analytics-chart">
-        <div
-          :for={point <- @series}
-          class="analytics-bar"
-          title={"#{Calendar.strftime(point.day, "%b %d")}: #{point.views} views"}
-          style={"height: #{bar_height(point.views, @max)}%"}
-        >
+    <section class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-base">Pageviews over time</h2>
+        <p :if={@max == 0} class="text-sm text-base-content/60">No data for this window yet</p>
+        <div :if={@max > 0} class="flex h-40 items-end gap-1">
+          <div
+            :for={point <- @series}
+            class="flex-1 rounded-t bg-primary transition-opacity hover:opacity-70"
+            title={"#{Calendar.strftime(point.day, "%b %d")}: #{point.views} views"}
+            style={"height: #{bar_height(point.views, @max)}%"}
+          >
+          </div>
         </div>
       </div>
     </section>
@@ -131,17 +133,19 @@ defmodule JamieWeb.AnalyticsLive.Dashboard do
 
   defp table_card(assigns) do
     ~H"""
-    <section class="analytics-card">
-      <h2>{@title}</h2>
-      <p :if={@rows == []} class="analytics-empty">{@empty}</p>
-      <table :if={@rows != []} class="analytics-table">
-        <tbody>
-          <tr :for={row <- @rows}>
-            <td class="analytics-table-label">{row.label}</td>
-            <td class="analytics-table-count">{row.count}</td>
-          </tr>
-        </tbody>
-      </table>
+    <section class="card bg-base-100 shadow-sm">
+      <div class="card-body">
+        <h2 class="card-title text-base">{@title}</h2>
+        <p :if={@rows == []} class="text-sm text-base-content/60">{@empty}</p>
+        <table :if={@rows != []} class="table table-sm">
+          <tbody>
+            <tr :for={row <- @rows}>
+              <td class="max-w-xs truncate">{row.label}</td>
+              <td class="text-right tabular-nums">{row.count}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
     """
   end

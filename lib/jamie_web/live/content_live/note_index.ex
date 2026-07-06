@@ -20,13 +20,23 @@ defmodule JamieWeb.ContentLive.NoteIndex do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <ul>
-        <li :for={post <- @notes}>
-          <.link href={~p"/office/notes/#{post.id}"}>{post.title}</.link>
+    <Layouts.office flash={@flash} current_scope={@current_scope}>
+      <header class="mb-6 flex items-center justify-between">
+        <h1 class="text-2xl font-semibold">Notes</h1>
+        <.link navigate={~p"/office/notes/new"} class="btn btn-primary btn-sm">
+          <.icon name="hero-plus" class="size-4" /> New note
+        </.link>
+      </header>
+
+      <ul class="menu w-full rounded-box bg-base-100 shadow-sm">
+        <li :for={note <- @notes}>
+          <.link navigate={~p"/office/notes/#{note.id}"}>{note.title}</.link>
+        </li>
+        <li :if={@notes == []} class="menu-disabled">
+          <span>No notes yet.</span>
         </li>
       </ul>
-    </Layouts.app>
+    </Layouts.office>
     """
   end
 end

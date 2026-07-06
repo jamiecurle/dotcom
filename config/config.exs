@@ -67,8 +67,21 @@ config :esbuild,
   ],
   css: [
     args:
-      ~w(css/app.css css/admin.css --bundle --outdir=../priv/static/assets/css --external:/fonts/* --external:/images/*),
+      ~w(css/app.css --bundle --outdir=../priv/static/assets/css --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__)
+  ]
+
+# Configure tailwind (the version is required). This ONLY builds the
+# /office admin entrypoint (admin.css). The public site (app.css) is
+# hand-rolled CSS bundled by esbuild above and is left untouched.
+config :tailwind,
+  version: "4.1.7",
+  jamie: [
+    args: ~w(
+      --input=assets/css/admin.css
+      --output=priv/static/assets/css/admin.css
+    ),
+    cd: Path.expand("..", __DIR__)
   ]
 
 # Configures Elixir's Logger

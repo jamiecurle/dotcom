@@ -1,6 +1,19 @@
 defmodule Jamie.Content.Note do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Jamie.Tags.Tag
+
+  @type t :: %__MODULE__{
+          id: integer() | nil,
+          status: :draft | :published | :hidden,
+          title: String.t() | nil,
+          markdown: String.t() | nil,
+          html: String.t() | nil,
+          published_on: Date.t() | nil,
+          edited_on: Date.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
 
   @statuses [:draft, :published, :hidden]
 
@@ -12,11 +25,12 @@ defmodule Jamie.Content.Note do
     field :title, :string
     field :markdown, :string
     field :html, :string
-
     field :published_on, :date
     field :edited_on, :date
 
     timestamps(type: :utc_datetime_usec)
+
+    many_to_many :tags, Tag, join_through: "tags_notes"
   end
 
   def statuses, do: @statuses

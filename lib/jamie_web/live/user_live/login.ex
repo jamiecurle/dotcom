@@ -7,49 +7,57 @@ defmodule JamieWeb.UserLive.Login do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
-      <div class="mx-auto max-w-sm space-y-4">
-        <div class="text-center">
-          <.header>
-            <p>Log in</p>
-            <:subtitle>
-              <%= if @current_scope do %>
-                You need to reauthenticate to perform sensitive actions on your account.
-              <% end %>
-            </:subtitle>
-          </.header>
-        </div>
+      <div class="card w-full max-w-md bg-base-100 shadow-xl">
+        <div class="card-body gap-4">
+          <h1 class="text-xl text-base-content/80">login</h1>
 
-        <div :if={local_mail_adapter?()} class="alert alert-info">
-          <.icon name="hero-information-circle" class="size-6 shrink-0" />
-          <div>
-            <p>You are running the local mail adapter.</p>
-            <p>
-              To see sent emails, visit <.link href="/dev/mailbox" class="underline">the mailbox page</.link>.
-            </p>
+          <p :if={@current_scope} class="text-sm text-base-content/60">
+            You need to reauthenticate to perform sensitive actions on your account.
+          </p>
+
+          <div :if={local_mail_adapter?()} class="alert alert-info alert-soft">
+            <.icon name="hero-information-circle" class="size-5 shrink-0" />
+            <span>
+              Local mail adapter — sent emails appear in <.link href="/dev/mailbox" class="link">the mailbox</.link>.
+            </span>
           </div>
-        </div>
 
-        <.form
-          :let={f}
-          for={@form}
-          id="login_form_magic"
-          action={~p"/front-door/log-in"}
-          phx-submit="submit_magic"
-        >
-          <.input
-            readonly={!!@current_scope}
-            field={f[:email]}
-            type="email"
-            label="Email"
-            autocomplete="username"
-            spellcheck="false"
-            required
-            phx-mounted={JS.focus()}
-          />
-          <.button class="btn btn-primary w-full">
-            Log in with email <span aria-hidden="true">→</span>
-          </.button>
-        </.form>
+          <.form
+            :let={f}
+            for={@form}
+            id="login_form_magic"
+            action={~p"/front-door/log-in"}
+            phx-submit="submit_magic"
+          >
+            <fieldset class="fieldset">
+              <label class="fieldset-label" for={f[:email].id}>Email</label>
+              <label class="input w-full">
+                <.icon name="hero-envelope" class="size-4 opacity-60" />
+                <input
+                  type="email"
+                  name={f[:email].name}
+                  id={f[:email].id}
+                  value={Phoenix.HTML.Form.normalize_value("email", f[:email].value)}
+                  placeholder="Email"
+                  autocomplete="username"
+                  spellcheck="false"
+                  readonly={!!@current_scope}
+                  required
+                  phx-mounted={JS.focus()}
+                  class="grow"
+                />
+              </label>
+
+              <button
+                type="submit"
+                class="btn btn-accent mt-4 self-start"
+                phx-disable-with="Sending..."
+              >
+                <.icon name="hero-heart-solid" class="size-4" /> Login
+              </button>
+            </fieldset>
+          </.form>
+        </div>
       </div>
     </Layouts.app>
     """

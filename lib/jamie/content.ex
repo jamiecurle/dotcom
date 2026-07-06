@@ -110,6 +110,7 @@ defmodule Jamie.Content do
     Post
     |> where(status: :published)
     |> where(slug: ^slug)
+    |> preload(:tags)
     |> Repo.one!()
   end
 

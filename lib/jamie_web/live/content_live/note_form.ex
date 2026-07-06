@@ -15,7 +15,7 @@ defmodule JamieWeb.ContentLive.NoteForm do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.office flash={@flash} current_scope={@current_scope}>
+    <Layouts.office flash={@flash} current_scope={@current_scope} full_bleed>
       <div class="editor-split">
         <div class="editor-pane">
           <.form
