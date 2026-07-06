@@ -1,5 +1,5 @@
 defmodule JamieWeb.OfficeLive.Dashboard do
-  alias Jamie.Blog
+  alias Jamie.Content
   use JamieWeb, :live_view
 
   alias Jamie.Analytics
@@ -79,7 +79,7 @@ defmodule JamieWeb.OfficeLive.Dashboard do
     socket
     |> assign(
       days: days,
-      posts: Blog.latest_published_posts(5),
+      posts: Content.latest_published_posts(5),
       notes: [],
       total_sessions: Analytics.total_sessions(days),
       unique_visitors: Analytics.unique_visitors(days)

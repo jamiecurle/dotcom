@@ -1,14 +1,14 @@
-defmodule JamieWeb.BlogLive.PostTest do
+defmodule JamieWeb.ContentLive.PostTest do
   use JamieWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
 
-  alias Jamie.Blog
-  alias Jamie.Support.BlogFixtures
+  alias Jamie.Content
+  alias Jamie.Support.ContentFixtures
 
   defp published_post(_) do
     {:ok, post} =
-      BlogFixtures.post_attrs(status: :published) |> Blog.create_post()
+      ContentFixtures.post_attrs(status: :published) |> Content.create_post()
 
     %{post: post}
   end

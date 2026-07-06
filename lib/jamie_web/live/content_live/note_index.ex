@@ -1,4 +1,4 @@
-defmodule JamieWeb.BlogLive.NoteIndex do
+defmodule JamieWeb.ContentLive.NoteIndex do
   use JamieWeb, :live_view
 
   @impl true
@@ -9,7 +9,7 @@ defmodule JamieWeb.BlogLive.NoteIndex do
   @impl true
   def handle_params(_params, _url, socket) do
     socket =
-      with notes <- Jamie.Blog.get_published_notes(socket.assigns.current_scope) do
+      with notes <- Jamie.Content.get_published_notes(socket.assigns.current_scope) do
         socket
         |> assign(:notes, notes)
       end

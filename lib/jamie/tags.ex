@@ -3,7 +3,7 @@ defmodule Jamie.Tags do
   Context boundary for tags
   """
 
-  alias Jamie.Blog.{
+  alias Jamie.Content.{
     Note,
     Post
   }

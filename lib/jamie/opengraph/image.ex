@@ -6,7 +6,7 @@ defmodule Jamie.Opengraph.Image do
   https://jola.dev/posts/generating-og-images was a big help
   """
 
-  alias Jamie.Blog
+  alias Jamie.Content
   alias Jamie.Storage.R2
 
   @doc """
@@ -14,14 +14,14 @@ defmodule Jamie.Opengraph.Image do
   and opengrah image and upload it into R2.
   """
 
-  @spec for_post(Blog.Post.t() | integer) :: {:ok | :error, any()}
-  def for_post(%Blog.Post{} = post) do
+  @spec for_post(Content.Post.t() | integer) :: {:ok | :error, any()}
+  def for_post(%Content.Post{} = post) do
     create(post.title, post.description, "/posts/#{post.slug}")
     |> R2.put_file("opengraph/#{post.og_hash}.png")
   end
 
   def for_post(post) do
-    Blog.get_post!(post)
+    Content.get_post!(post)
     |> for_post()
   end
 

@@ -1,9 +1,9 @@
 defmodule Jamie.Tags.Test do
   use Jamie.DataCase
 
-  alias Jamie.Blog
+  alias Jamie.Content
   alias Jamie.Repo
-  alias Jamie.Support.BlogFixtures
+  alias Jamie.Support.ContentFixtures
   alias Jamie.Tags
   alias Jamie.Tags.Tag
 
@@ -16,8 +16,8 @@ defmodule Jamie.Tags.Test do
       {:ok, tag} = Tags.create_tag(%{title: "wallop"})
 
       {:ok, post} =
-        BlogFixtures.post_attrs(status: :published)
-        |> Blog.create_post()
+        ContentFixtures.post_attrs(status: :published)
+        |> Content.create_post()
 
       {:ok, post_returned} = Tags.tag(post, "wallop")
 
@@ -29,8 +29,8 @@ defmodule Jamie.Tags.Test do
 
       # now tag the note
       {:ok, note} =
-        BlogFixtures.note_attrs(status: :published)
-        |> Blog.create_note()
+        ContentFixtures.note_attrs(status: :published)
+        |> Content.create_note()
 
       {:ok, note_returned} = Tags.tag(note, "wallop")
 
@@ -48,8 +48,8 @@ defmodule Jamie.Tags.Test do
 
       # make a note
       {:ok, note} =
-        BlogFixtures.note_attrs(status: :published)
-        |> Blog.create_note()
+        ContentFixtures.note_attrs(status: :published)
+        |> Content.create_note()
 
       # tag it
       {:ok, note} = Tags.tag(note, "wallop")
@@ -68,8 +68,8 @@ defmodule Jamie.Tags.Test do
 
       # make a post
       {:ok, post} =
-        BlogFixtures.post_attrs(status: :published)
-        |> Blog.create_post()
+        ContentFixtures.post_attrs(status: :published)
+        |> Content.create_post()
 
       # make the tag and tag the post
       {:ok, _tag} = Tags.create_tag(%{title: "wallop"})
@@ -89,8 +89,8 @@ defmodule Jamie.Tags.Test do
 
       # make a post
       {:ok, post} =
-        BlogFixtures.post_attrs(status: :published)
-        |> Blog.create_post()
+        ContentFixtures.post_attrs(status: :published)
+        |> Content.create_post()
 
       # tag it
       {:ok, post} = Tags.tag(post, "wallop")

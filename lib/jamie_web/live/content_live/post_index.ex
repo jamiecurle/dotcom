@@ -1,4 +1,4 @@
-defmodule JamieWeb.BlogLive.PostIndex do
+defmodule JamieWeb.ContentLive.PostIndex do
   use JamieWeb, :live_view
 
   @impl true
@@ -9,7 +9,7 @@ defmodule JamieWeb.BlogLive.PostIndex do
   @impl true
   def handle_params(_params, _url, socket) do
     socket =
-      with posts <- Jamie.Blog.all_posts() do
+      with posts <- Jamie.Content.all_posts() do
         socket
         |> assign(:posts, posts)
       end

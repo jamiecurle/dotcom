@@ -1,6 +1,6 @@
-defmodule JamieWeb.BlogLive.NoteForm do
+defmodule JamieWeb.ContentLive.NoteForm do
   use JamieWeb, :live_view
-  alias Jamie.Blog
+  alias Jamie.Content
 
   @impl true
   def mount(_params, _session, socket) do
@@ -39,7 +39,7 @@ defmodule JamieWeb.BlogLive.NoteForm do
               field={@form[:status]}
               type="select-naked"
               label="Status"
-              options={Enum.map(Blog.Note.statuses(), &{String.capitalize(to_string(&1)), &1})}
+              options={Enum.map(Content.Note.statuses(), &{String.capitalize(to_string(&1)), &1})}
             />
 
             <.input
@@ -80,7 +80,7 @@ defmodule JamieWeb.BlogLive.NoteForm do
   end
 
   defp save_note(socket, :new, note_params) do
-    case Blog.create_note(note_params) do
+    case Content.create_note(note_params) do
       {:ok, note} ->
         {:noreply,
          socket
@@ -98,12 +98,12 @@ defmodule JamieWeb.BlogLive.NoteForm do
   defp save_note(socket, :edit, note_params) do
     note = socket.assigns.note
 
-    case Blog.update_note(note, note_params) do
+    case Content.update_note(note, note_params) do
       {:ok, updated} ->
         {:noreply,
          socket
          |> assign(:note, updated)
-         |> assign(:form, to_form(Blog.change_note(updated)))
+         |> assign(:form, to_form(Content.change_note(updated)))
          |> put_flash(:info, "note updated successfully.")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -112,8 +112,8 @@ defmodule JamieWeb.BlogLive.NoteForm do
   end
 
   defp apply_action(socket, :new, _params) do
-    note = %Blog.Note{}
-    changeset = Blog.change_note(note)
+    note = %Content.Note{}
+    changeset = Content.change_note(note)
 
     socket
     |> assign(:page_title, "new note")
@@ -122,8 +122,8 @@ defmodule JamieWeb.BlogLive.NoteForm do
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
-    note = Blog.get_note!(id)
-    changeset = Blog.change_note(note)
+    note = Content.get_note!(id)
+    changeset = Content.change_note(note)
 
     socket
     |> assign(:page_title, "Editing #{note.title}")

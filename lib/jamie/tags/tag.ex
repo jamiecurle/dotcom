@@ -2,7 +2,7 @@ defmodule Jamie.Tags.Tag do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Jamie.Blog.{
+  alias Jamie.Content.{
     Note,
     Post
   }

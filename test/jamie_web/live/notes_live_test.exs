@@ -1,17 +1,17 @@
-defmodule Jamie.Blog.NotesLiveTest do
+defmodule Jamie.Content.NotesLiveTest do
   use JamieWeb.ConnCase, async: true
 
-  alias Jamie.Blog
-  alias Jamie.Blog.Note
+  alias Jamie.Content
+  alias Jamie.Content.Note
   alias Jamie.Repo
   import Phoenix.LiveViewTest
   import Jamie.AccountsFixtures
-  alias Jamie.Support.BlogFixtures
+  alias Jamie.Support.ContentFixtures
 
   @url "/office/notes/"
 
   defp create_note(attrs) do
-    {:ok, note} = attrs |> BlogFixtures.note_attrs() |> Blog.create_note()
+    {:ok, note} = attrs |> ContentFixtures.note_attrs() |> Content.create_note()
     note
   end
 

@@ -1,6 +1,6 @@
-alias Jamie.Blog
+alias Jamie.Content
 
-alias Jamie.Blog.{
+alias Jamie.Content.{
   Note,
   Post
 }

@@ -1,11 +1,11 @@
 defmodule JamieWeb.PostMarkdownControllerTest do
   use JamieWeb.ConnCase, async: true
 
-  alias Jamie.Blog
-  alias Jamie.Support.BlogFixtures
+  alias Jamie.Content
+  alias Jamie.Support.ContentFixtures
 
   defp create_post(attrs) do
-    {:ok, post} = attrs |> BlogFixtures.post_attrs() |> Blog.create_post()
+    {:ok, post} = attrs |> ContentFixtures.post_attrs() |> Content.create_post()
     post
   end
 
@@ -63,7 +63,7 @@ defmodule JamieWeb.PostMarkdownControllerTest do
 
     test "returns 404 for a hidden post", %{conn: conn} do
       draft = create_post(status: :draft)
-      {:ok, hidden} = Blog.update_post(draft, %{status: :hidden})
+      {:ok, hidden} = Content.update_post(draft, %{status: :hidden})
 
       assert_error_sent 404, fn ->
         get(conn, ~p"/posts/#{hidden.slug}/markdown")
