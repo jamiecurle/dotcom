@@ -1,0 +1,23 @@
+defmodule Jamie.Service.Linkding do
+  @moduledoc """
+  A library for accessing my Linkding service
+  """
+
+  @doc """
+  Wrapper around /api/bookmarks
+  https://linkding.link/api/#bookmarks
+  """
+  def bookmarks(opts \\ []) do
+    # get the config
+    config = Application.get_env(:jamie, :linkding)
+
+    # make the params
+    params = Keyword.take(opts, [:limit, :offset, :order])
+
+    # now make the request
+    Req.get(config[:host] <> "/api/bookmarks",
+      headers: [{"Authorization", "Token #{config[:api_token]}"}],
+      params: params
+    )
+  end
+end

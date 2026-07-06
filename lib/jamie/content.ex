@@ -3,6 +3,8 @@ defmodule Jamie.Content do
   The content context boundary.
   """
 
+  alias Jamie.Content.Bookmark
+
   alias Jamie.Content.{Note, Post}
   alias Jamie.Content.PostRevision
   alias Jamie.Repo
@@ -450,5 +452,141 @@ defmodule Jamie.Content do
       {:equal, _}, acc -> acc
       {_op, data}, acc -> acc + byte_size(data)
     end)
+  end
+
+  @doc """
+  Subscribes to scoped notifications about any bookmark changes.
+
+  The broadcasted messages match the pattern:
+
+    * {:created, %Bookmark{}}
+    * {:updated, %Bookmark{}}
+    * {:deleted, %Bookmark{}}
+
+  """
+  def subscribe_bookmarks(%Scope{} = scope) do
+    key = scope.user.id
+
+    Phoenix.PubSub.subscribe(Jamie.PubSub, "user:#{key}:bookmarks")
+  end
+
+  defp broadcast_bookmark(%Scope{} = scope, message) do
+    key = scope.user.id
+
+    Phoenix.PubSub.broadcast(Jamie.PubSub, "user:#{key}:bookmarks", message)
+  end
+
+  @doc """
+  Returns the list of bookmarks.
+
+  ## Examples
+
+      iex> list_bookmarks(scope)
+      [%Bookmark{}, ...]
+
+  """
+  def list_bookmarks(%Scope{} = scope) do
+    Repo.all_by(Bookmark, user_id: scope.user.id)
+  end
+
+  @doc """
+  Gets a single bookmark.
+
+  Raises `Ecto.NoResultsError` if the Bookmark does not exist.
+
+  ## Examples
+
+      iex> get_bookmark!(scope, 123)
+      %Bookmark{}
+
+      iex> get_bookmark!(scope, 456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_bookmark!(%Scope{} = scope, id) do
+    Repo.get_by!(Bookmark, id: id, user_id: scope.user.id)
+  end
+
+  @doc """
+  Creates a bookmark.
+
+  ## Examples
+
+      iex> create_bookmark(scope, %{field: value})
+      {:ok, %Bookmark{}}
+
+      iex> create_bookmark(scope, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_bookmark(%Scope{} = scope, attrs) do
+    with {:ok, bookmark = %Bookmark{}} <-
+           %Bookmark{}
+           |> Bookmark.changeset(attrs, scope)
+           |> Repo.insert() do
+      broadcast_bookmark(scope, {:created, bookmark})
+      {:ok, bookmark}
+    end
+  end
+
+  @doc """
+  Updates a bookmark.
+
+  ## Examples
+
+      iex> update_bookmark(scope, bookmark, %{field: new_value})
+      {:ok, %Bookmark{}}
+
+      iex> update_bookmark(scope, bookmark, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_bookmark(%Scope{} = scope, %Bookmark{} = bookmark, attrs) do
+    true = bookmark.user_id == scope.user.id
+
+    with {:ok, bookmark = %Bookmark{}} <-
+           bookmark
+           |> Bookmark.changeset(attrs, scope)
+           |> Repo.update() do
+      broadcast_bookmark(scope, {:updated, bookmark})
+      {:ok, bookmark}
+    end
+  end
+
+  @doc """
+  Deletes a bookmark.
+
+  ## Examples
+
+      iex> delete_bookmark(scope, bookmark)
+      {:ok, %Bookmark{}}
+
+      iex> delete_bookmark(scope, bookmark)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_bookmark(%Scope{} = scope, %Bookmark{} = bookmark) do
+    true = bookmark.user_id == scope.user.id
+
+    with {:ok, bookmark = %Bookmark{}} <-
+           Repo.delete(bookmark) do
+      broadcast_bookmark(scope, {:deleted, bookmark})
+      {:ok, bookmark}
+    end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking bookmark changes.
+
+  ## Examples
+
+      iex> change_bookmark(scope, bookmark)
+      %Ecto.Changeset{data: %Bookmark{}}
+
+  """
+  def change_bookmark(%Scope{} = scope, %Bookmark{} = bookmark, attrs \\ %{}) do
+    true = bookmark.user_id == scope.user.id
+
+    Bookmark.changeset(bookmark, attrs, scope)
   end
 end

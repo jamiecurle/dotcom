@@ -41,4 +41,18 @@ defmodule Jamie.Support.ContentFixtures do
     |> Keyword.merge(opts)
     |> Map.new()
   end
+
+  @doc """
+  Generate a bookmark.
+  """
+  def bookmark_fixture(scope, attrs \\ %{}) do
+    attrs =
+      Enum.into(attrs, %{
+        title: "some title",
+        url: "some url"
+      })
+
+    {:ok, bookmark} = Jamie.Content.create_bookmark(scope, attrs)
+    bookmark
+  end
 end

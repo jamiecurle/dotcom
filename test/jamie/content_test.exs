@@ -475,4 +475,97 @@ defmodule Jamie.Content.Test do
                "<h1><a href=\"#hello\" aria-hidden=\"true\" class=\"anchor\" id=\"hello\"></a>Hello</h1>"
     end
   end
+
+  describe "bookmarks" do
+    alias Jamie.Content.Bookmark
+
+    import Jamie.AccountsFixtures, only: [user_scope_fixture: 0]
+    import Jamie.Support.ContentFixtures
+
+    @invalid_attrs %{title: nil, url: nil}
+
+    test "list_bookmarks/1 returns all scoped bookmarks" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+      other_bookmark = bookmark_fixture(other_scope)
+      assert Content.list_bookmarks(scope) == [bookmark]
+      assert Content.list_bookmarks(other_scope) == [other_bookmark]
+    end
+
+    test "get_bookmark!/2 returns the bookmark with given id" do
+      scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+      other_scope = user_scope_fixture()
+      assert Content.get_bookmark!(scope, bookmark.id) == bookmark
+      assert_raise Ecto.NoResultsError, fn -> Content.get_bookmark!(other_scope, bookmark.id) end
+    end
+
+    test "create_bookmark/2 with valid data creates a bookmark" do
+      valid_attrs = %{title: "some title", url: "some url"}
+      scope = user_scope_fixture()
+
+      assert {:ok, %Bookmark{} = bookmark} = Content.create_bookmark(scope, valid_attrs)
+      assert bookmark.title == "some title"
+      assert bookmark.url == "some url"
+      assert bookmark.user_id == scope.user.id
+    end
+
+    test "create_bookmark/2 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      assert {:error, %Ecto.Changeset{}} = Content.create_bookmark(scope, @invalid_attrs)
+    end
+
+    test "update_bookmark/3 with valid data updates the bookmark" do
+      scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+      update_attrs = %{title: "some updated title", url: "some updated url"}
+
+      assert {:ok, %Bookmark{} = bookmark} =
+               Content.update_bookmark(scope, bookmark, update_attrs)
+
+      assert bookmark.title == "some updated title"
+      assert bookmark.url == "some updated url"
+    end
+
+    test "update_bookmark/3 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+
+      assert_raise MatchError, fn ->
+        Content.update_bookmark(other_scope, bookmark, %{})
+      end
+    end
+
+    test "update_bookmark/3 with invalid data returns error changeset" do
+      scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Content.update_bookmark(scope, bookmark, @invalid_attrs)
+
+      assert bookmark == Content.get_bookmark!(scope, bookmark.id)
+    end
+
+    test "delete_bookmark/2 deletes the bookmark" do
+      scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+      assert {:ok, %Bookmark{}} = Content.delete_bookmark(scope, bookmark)
+      assert_raise Ecto.NoResultsError, fn -> Content.get_bookmark!(scope, bookmark.id) end
+    end
+
+    test "delete_bookmark/2 with invalid scope raises" do
+      scope = user_scope_fixture()
+      other_scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+      assert_raise MatchError, fn -> Content.delete_bookmark(other_scope, bookmark) end
+    end
+
+    test "change_bookmark/2 returns a bookmark changeset" do
+      scope = user_scope_fixture()
+      bookmark = bookmark_fixture(scope)
+      assert %Ecto.Changeset{} = Content.change_bookmark(scope, bookmark)
+    end
+  end
 end
