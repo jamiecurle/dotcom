@@ -1,3 +1,6 @@
+## 0.10.0
+- feat: now with tags
+
 ## 0.9.3
 - feat: show latsts posts on dashboard
 
