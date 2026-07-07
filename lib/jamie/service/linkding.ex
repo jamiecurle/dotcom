@@ -22,17 +22,28 @@ defmodule Jamie.Service.Linkding do
   Wrapper around /api/bookmarks
   https://linkding.link/api/#bookmarks
   """
-  def bookmarks(opts \\ []) do
+  def bookmarks(url \\ nil, opts \\ []) do
     # get the config
     config = Application.get_env(:jamie, :linkding)
 
     # make the params
-    params = Keyword.take(opts, [:limit, :offset, :order])
+    params = Keyword.take(opts, [:limit, :offset, :order, :url])
+
+    # if url isn't in the params add it
+    url =
+      if url == nil do
+        config[:host] <> "/api/bookmarks"
+      else
+        url
+      end
 
     # now make the request
-    Req.get(config[:host] <> "/api/bookmarks",
-      headers: [{"Authorization", "Token #{config[:api_token]}"}],
-      params: params
-    )
+    {:ok, resp} =
+      Req.get(url,
+        headers: [{"Authorization", "Token #{config[:api_token]}"}],
+        params: params
+      )
+
+    resp.body
   end
 end
