@@ -19,4 +19,7 @@ defmodule Jamie.Service.Linkding.Test do
       assert ~U[2026-01-01 00:00:00Z] == Linkding.last_synced_at()
     end
   end
+
+  describe "" do
+  end
 end

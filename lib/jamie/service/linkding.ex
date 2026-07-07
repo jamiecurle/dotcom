@@ -29,7 +29,7 @@ defmodule Jamie.Service.Linkding do
     config = Application.get_env(:jamie, :linkding)
 
     # make the params
-    params = Keyword.take(opts, [:limit, :offset, :order, :url])
+    _params = Keyword.take(opts, [:limit, :offset, :order, :url])
 
     # if url isn't in the params add it
     url =
@@ -41,10 +41,18 @@ defmodule Jamie.Service.Linkding do
 
     # now make the request
     {:ok, resp} =
-      Req.get(url,
-        headers: [{"Authorization", "Token #{config[:api_token]}"}],
-        params: params
-      )
+      [
+        method: :get,
+        url: url,
+        headers: Application.get_env(:jamie, :bookmark_req)[:headers]
+      ]
+      |> Req.request()
+
+    # {:ok, resp} =
+    #   Req.get(url,
+    #     headers: [{"Authorization", "Token #{config[:api_token]}"}],
+    #     params: params
+    #   )
 
     resp.body
   end
