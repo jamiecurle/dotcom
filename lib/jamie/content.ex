@@ -455,7 +455,7 @@ defmodule Jamie.Content do
   end
 
   @doc """
-  Subscribes to scoped notifications about any bookmark changes.
+  Subscribes to notifications about any bookmark changes.
 
   The broadcasted messages match the pattern:
 
@@ -464,16 +464,12 @@ defmodule Jamie.Content do
     * {:deleted, %Bookmark{}}
 
   """
-  def subscribe_bookmarks(%Scope{} = scope) do
-    key = scope.user.id
-
-    Phoenix.PubSub.subscribe(Jamie.PubSub, "user:#{key}:bookmarks")
+  def subscribe_bookmarks do
+    Phoenix.PubSub.subscribe(Jamie.PubSub, "bookmarks")
   end
 
-  defp broadcast_bookmark(%Scope{} = scope, message) do
-    key = scope.user.id
-
-    Phoenix.PubSub.broadcast(Jamie.PubSub, "user:#{key}:bookmarks", message)
+  defp broadcast_bookmark(message) do
+    Phoenix.PubSub.broadcast(Jamie.PubSub, "bookmarks", message)
   end
 
   @doc """
@@ -481,12 +477,12 @@ defmodule Jamie.Content do
 
   ## Examples
 
-      iex> list_bookmarks(scope)
+      iex> list_bookmarks()
       [%Bookmark{}, ...]
 
   """
-  def list_bookmarks(%Scope{} = scope) do
-    Repo.all_by(Bookmark, user_id: scope.user.id)
+  def list_bookmarks do
+    Repo.all(Bookmark)
   end
 
   @doc """
@@ -496,15 +492,15 @@ defmodule Jamie.Content do
 
   ## Examples
 
-      iex> get_bookmark!(scope, 123)
+      iex> get_bookmark!(123)
       %Bookmark{}
 
-      iex> get_bookmark!(scope, 456)
+      iex> get_bookmark!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_bookmark!(%Scope{} = scope, id) do
-    Repo.get_by!(Bookmark, id: id, user_id: scope.user.id)
+  def get_bookmark!(id) do
+    Repo.get!(Bookmark, id)
   end
 
   @doc """
@@ -512,19 +508,19 @@ defmodule Jamie.Content do
 
   ## Examples
 
-      iex> create_bookmark(scope, %{field: value})
+      iex> create_bookmark(%{field: value})
       {:ok, %Bookmark{}}
 
-      iex> create_bookmark(scope, %{field: bad_value})
+      iex> create_bookmark(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_bookmark(%Scope{} = scope, attrs) do
+  def create_bookmark(attrs) do
     with {:ok, bookmark = %Bookmark{}} <-
            %Bookmark{}
-           |> Bookmark.changeset(attrs, scope)
+           |> Bookmark.changeset(attrs)
            |> Repo.insert() do
-      broadcast_bookmark(scope, {:created, bookmark})
+      broadcast_bookmark({:created, bookmark})
       {:ok, bookmark}
     end
   end
@@ -534,21 +530,19 @@ defmodule Jamie.Content do
 
   ## Examples
 
-      iex> update_bookmark(scope, bookmark, %{field: new_value})
+      iex> update_bookmark(bookmark, %{field: new_value})
       {:ok, %Bookmark{}}
 
-      iex> update_bookmark(scope, bookmark, %{field: bad_value})
+      iex> update_bookmark(bookmark, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_bookmark(%Scope{} = scope, %Bookmark{} = bookmark, attrs) do
-    true = bookmark.user_id == scope.user.id
-
+  def update_bookmark(%Bookmark{} = bookmark, attrs) do
     with {:ok, bookmark = %Bookmark{}} <-
            bookmark
-           |> Bookmark.changeset(attrs, scope)
+           |> Bookmark.changeset(attrs)
            |> Repo.update() do
-      broadcast_bookmark(scope, {:updated, bookmark})
+      broadcast_bookmark({:updated, bookmark})
       {:ok, bookmark}
     end
   end
@@ -558,19 +552,17 @@ defmodule Jamie.Content do
 
   ## Examples
 
-      iex> delete_bookmark(scope, bookmark)
+      iex> delete_bookmark(bookmark)
       {:ok, %Bookmark{}}
 
-      iex> delete_bookmark(scope, bookmark)
+      iex> delete_bookmark(bookmark)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_bookmark(%Scope{} = scope, %Bookmark{} = bookmark) do
-    true = bookmark.user_id == scope.user.id
-
+  def delete_bookmark(%Bookmark{} = bookmark) do
     with {:ok, bookmark = %Bookmark{}} <-
            Repo.delete(bookmark) do
-      broadcast_bookmark(scope, {:deleted, bookmark})
+      broadcast_bookmark({:deleted, bookmark})
       {:ok, bookmark}
     end
   end
@@ -580,13 +572,11 @@ defmodule Jamie.Content do
 
   ## Examples
 
-      iex> change_bookmark(scope, bookmark)
+      iex> change_bookmark(bookmark)
       %Ecto.Changeset{data: %Bookmark{}}
 
   """
-  def change_bookmark(%Scope{} = scope, %Bookmark{} = bookmark, attrs \\ %{}) do
-    true = bookmark.user_id == scope.user.id
-
-    Bookmark.changeset(bookmark, attrs, scope)
+  def change_bookmark(%Bookmark{} = bookmark, attrs \\ %{}) do
+    Bookmark.changeset(bookmark, attrs)
   end
 end

@@ -4,6 +4,14 @@ defmodule Jamie.Service.Linkding do
   """
 
   @doc """
+  Returns the last synced at date in a format that works
+  with the Linkding rest API
+  """
+  def last_synced_at do
+    nil
+  end
+
+  @doc """
   Wrapper around /api/bookmarks
   https://linkding.link/api/#bookmarks
   """

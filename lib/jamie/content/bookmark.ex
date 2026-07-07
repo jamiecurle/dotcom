@@ -5,16 +5,17 @@ defmodule Jamie.Content.Bookmark do
   schema "bookmarks" do
     field :url, :string
     field :title, :string
-    field :user_id, :id
+    field :description, :string
+    field :favicon, :string
+    field :preview, :string
 
     timestamps(type: :utc_datetime)
   end
 
   @doc false
-  def changeset(bookmark, attrs, user_scope) do
+  def changeset(bookmark, attrs) do
     bookmark
-    |> cast(attrs, [:url, :title])
+    |> cast(attrs, [:url, :title, :description, :favicon, :preview])
     |> validate_required([:url, :title])
-    |> put_change(:user_id, user_scope.user.id)
   end
 end
