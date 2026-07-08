@@ -5,6 +5,9 @@ defmodule Jamie.External.Linkding do
   import Ecto.Query
   alias Jamie.Content.Bookmark
   alias Jamie.Repo
+  alias Jamie.Service
+
+  @http Service.get!(:http)
 
   @doc """
   Returns the last synced at date in a format that works
@@ -22,19 +25,17 @@ defmodule Jamie.External.Linkding do
   Wrapper around /api/bookmarks
   https://linkding.link/api/#bookmarks
   """
-  def bookmarks(opts) when is_list(opts), do: bookmarks(nil, opts)
 
-  def bookmarks(url \\ nil, opts \\ []) do
-    # get the config
+  def bookmarks(url, opts \\ []) do
+    # get the config, service, new opts and make params
     config = Application.get_env(:jamie, :linkding)
+    {http, opts} = Keyword.pop(opts, :http, @http)
+    params = Keyword.take(opts, [:limit, :offset, :order, :url])
 
-    # make the params
-    _params = Keyword.take(opts, [:limit, :offset, :order, :url])
-
-    # if url isn't in the params add it
+    # if url wasn't given, make the url
     url =
       if url == nil do
-        config[:host] <> "/api/bookmarks"
+        config[:host] <> "/api/bookmarks/"
       else
         url
       end
@@ -42,12 +43,12 @@ defmodule Jamie.External.Linkding do
     # now make the request
     {:ok, resp} =
       [
-        method: :get,
         url: url,
-        headers: [{"Authorization", "Token " <> config[:api_token]}]
+        method: :get,
+        headers: [{"Authorization", "Token " <> config[:api_token]}],
+        params: params
       ]
-      # this is the service entry point
-      |> Req.request()
+      |> http.request()
 
     resp.body
   end

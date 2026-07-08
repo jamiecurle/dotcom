@@ -6,6 +6,8 @@ defmodule Jamie.External.Linkding.Test do
   alias Jamie.Repo
   alias Jamie.Support.ContentFixtures
 
+  @linkding_url Application.compile_env(:jamie, [:linkding, :host]) <> "/api/bookmarks/"
+
   describe "last_synced_at/0" do
     test "returns nil if no bookmarks" do
       assert 0 == Repo.aggregate(Content.Bookmark, :count)
@@ -20,6 +22,9 @@ defmodule Jamie.External.Linkding.Test do
     end
   end
 
-  describe "" do
-  end
+  # describe "bookmarks" do
+  #   test "happy path" do
+  #     Linkding.bookmarks(@linkding_url)
+  #   end
+  # end
 end

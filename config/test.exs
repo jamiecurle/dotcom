@@ -1,6 +1,11 @@
 import Config
 config :jamie, Oban, testing: :manual
 
+# services that call externally are handled with fakes
+config :jamie, :services, http: Jamie.Support.FakeReq
+
+#
+#
 # Configure your database
 #
 # The MIX_TEST_PARTITION environment variable can be used
