@@ -25,6 +25,10 @@ defmodule Jamie.External.Linkding do
   Wrapper around /api/bookmarks
   https://linkding.link/api/#bookmarks
   """
+  def bookmarks do
+    config = Application.get_env(:jamie, :linkding)
+    bookmarks(config[:host] <> "/api/bookmarks/")
+  end
 
   def bookmarks(url, opts \\ []) do
     # get the config, service, new opts and make params

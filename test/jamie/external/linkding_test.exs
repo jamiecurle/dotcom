@@ -22,9 +22,9 @@ defmodule Jamie.External.Linkding.Test do
     end
   end
 
-  # describe "bookmarks" do
-  #   test "happy path" do
-  #     Linkding.bookmarks(@linkding_url)
-  #   end
-  # end
+  describe "bookmarks" do
+    test "happy path" do
+      Linkding.bookmarks(@linkding_url)
+    end
+  end
 end
