@@ -23,6 +23,18 @@ defmodule Jamie.External.Linkding.Test do
   end
 
   describe "bookmarks" do
+    setup do
+      # Override the host for tests in this describe block
+      original_host = Application.get_env(:jamie, [:linkding, :host])
+      Application.put_env(:jamie, [:linkding, :host], "https://bookmark.test")
+
+      on_exit(fn ->
+        Application.put_env(:jamie, [:linkding, :host], original_host)
+      end)
+
+      :ok
+    end
+
     test "happy path" do
       Linkding.bookmarks(@linkding_url)
     end
