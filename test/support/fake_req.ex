@@ -69,6 +69,22 @@ defmodule Jamie.Support.FakeReq do
      }}
   end
 
+  # sync bookmarks - page 2
+  def request(
+        [url: "https://syncbookmarks.test.worker.describe/api/bookmarks/?limit=2&offset=2"] ++ _,
+        _opts
+      ) do
+    {:ok,
+     %{
+       body: %{
+         "count" => 3,
+         "next" => nil,
+         "previous" => "https://linkding.test.bookmarks.describe/api/bookmarks/?limit=2",
+         "results" => page_two_results()
+       }
+     }}
+  end
+
   # default page 2
   def request(
         [url: "https://your.linkding/api/bookmarks/?limit=2&offset=2"] ++ _,

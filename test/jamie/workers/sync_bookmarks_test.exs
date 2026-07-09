@@ -30,11 +30,18 @@ defmodule Jamie.Workers.SyncBookmarksTest do
       # we have no bookmarks
       assert 0 == Repo.aggregate(Bookmark, :count)
 
-      # run the job
+      # first job makes a second job
       perform_job(SyncBookmarks, %{})
 
-      # we have two
-      assert 2 == Repo.aggregate(Bookmark, :count)
+      # get the second job
+      [job] = all_enqueued(worker: "Jamie.Workers.SyncBookmarks")
+
+      perform_job(SyncBookmarks, job.args)
+
+      # assert length(jobs) == 3
+
+      # we have three
+      assert 3 == Repo.aggregate(Bookmark, :count)
     end
 
     test "idempotency" do

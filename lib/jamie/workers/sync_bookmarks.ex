@@ -8,20 +8,29 @@ defmodule Jamie.Workers.SyncBookmarks do
   alias Jamie.External.Linkding
   alias Jamie.Repo
 
+  # TODO: upload favicon and preview into cloudflare and use CF urls not my home network
+  # TODO: use a last_synced_date
   @impl Oban.Worker
-  def perform(%Oban.Job{args: _args}) do
-    # call bookmarks
+  def perform(%Oban.Job{args: args}) do
+    # call bookmarks with optional url from args
+    url = Map.get(args, "url")
+
+    response =
+      if url do
+        Linkding.bookmarks(url)
+      else
+        Linkding.bookmarks()
+      end
+
     %{
-      "next" => _next,
+      "next" => next,
       "results" => results
-    } = Linkding.bookmarks()
+    } = response
 
     # now
     now =
       DateTime.utc_now()
       |> DateTime.truncate(:second)
-
-    # reminder: upload favicon and preview into cloudflare - serve those
 
     # create bookmark structs
     structs =
@@ -47,6 +56,13 @@ defmodule Jamie.Workers.SyncBookmarks do
 
       {:ok, records}
     end)
+
+    # If there's a next page, schedule another sync job
+    if next do
+      %{"url" => next}
+      |> __MODULE__.new()
+      |> Oban.insert!()
+    end
 
     :ok
   end
