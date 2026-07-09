@@ -519,7 +519,10 @@ defmodule Jamie.Content do
     with {:ok, bookmark = %Bookmark{}} <-
            %Bookmark{}
            |> Bookmark.changeset(attrs)
-           |> Repo.insert() do
+           |> Repo.insert(
+             on_conflict: {:replace_all_except, [:id, :inserted_at]},
+             conflict_target: :url
+           ) do
       broadcast_bookmark({:created, bookmark})
       {:ok, bookmark}
     end
