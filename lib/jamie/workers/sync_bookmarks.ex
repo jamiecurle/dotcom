@@ -40,7 +40,10 @@ defmodule Jamie.Workers.SyncBookmarks do
 
     Repo.transact(fn ->
       {records, _stuff} =
-        Repo.insert_all(Bookmark, structs)
+        Repo.insert_all(Bookmark, structs,
+          on_conflict: {:replace_all_except, [:id, :inserted_at]},
+          conflict_target: :url
+        )
 
       {:ok, records}
     end)

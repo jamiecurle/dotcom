@@ -157,8 +157,7 @@ defmodule Jamie.Support.FakeReq do
         "unread" => true,
         "url" =>
           "https://labs.uk.barclays/demo-directory/founders/demo-day-founder-registration/",
-        "web_archive_snapshot_url" =>
-          "https://web.archive.org/web/20260707162938/https://labs.uk.barclays/demo-directory/founders/demo-day-founder-registration/",
+        "web_archive_snapshot_url" => "https://weders/demo-day-founder-registration/",
         "website_description" => nil,
         "website_title" => nil
       }

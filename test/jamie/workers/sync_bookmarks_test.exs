@@ -5,6 +5,7 @@ defmodule Jamie.Workers.SyncBookmarksTest do
 
   alias Jamie.Content.Bookmark
   alias Jamie.Repo
+  alias Jamie.Support.ContentFixtures
   alias Jamie.Workers.SyncBookmarks
 
   describe "worker" do
@@ -25,7 +26,7 @@ defmodule Jamie.Workers.SyncBookmarksTest do
       :ok
     end
 
-    test "asdad" do
+    test "happy path" do
       # we have no bookmarks
       assert 0 == Repo.aggregate(Bookmark, :count)
 
@@ -33,6 +34,22 @@ defmodule Jamie.Workers.SyncBookmarksTest do
       perform_job(SyncBookmarks, %{})
 
       # we have two
+      assert 2 == Repo.aggregate(Bookmark, :count)
+    end
+
+    test "idempotency" do
+      # make a bookmark
+      ContentFixtures.bookmark_fixture(%{
+        url: "https://bradleywoolf.com/links-1/sequencing-my-own-dna-at-home"
+      })
+
+      # we have a bookmark
+      assert 1 == Repo.aggregate(Bookmark, :count)
+
+      # run the job
+      perform_job(SyncBookmarks, %{})
+
+      # and now we have two becasue the upsert worked
       assert 2 == Repo.aggregate(Bookmark, :count)
     end
   end

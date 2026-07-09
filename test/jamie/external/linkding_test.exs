@@ -60,7 +60,9 @@ defmodule Jamie.External.Linkding.Test do
     end
 
     test "happy path" do
-      Linkding.bookmarks()
+      # this basically tests the FakeReq module more than anything
+      # but it is useful as if this fails, it's quick to diagnose FakeReq
+      assert Linkding.bookmarks() |> Map.keys() == ["count", "next", "previous", "results"]
     end
   end
 end
