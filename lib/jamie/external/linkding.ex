@@ -22,6 +22,15 @@ defmodule Jamie.External.Linkding do
   end
 
   @doc """
+  Returns the URL for a results dictionary.
+  """
+  def url do
+    Application.get_env(:jamie, :linkding)[:host] <> "/api/bookmarks/"
+  end
+
+  def url(%{"next" => url}), do: url
+
+  @doc """
   Wrapper around /api/bookmarks
   https://linkding.link/api/#bookmarks
   """

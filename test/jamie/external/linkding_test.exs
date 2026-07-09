@@ -6,6 +6,27 @@ defmodule Jamie.External.Linkding.Test do
   alias Jamie.Repo
   alias Jamie.Support.ContentFixtures
 
+  describe "url" do
+    test "url/0 works with no arguments" do
+      assert Linkding.url() == "https://your.linkding/api/bookmarks/"
+    end
+
+    test "url/1 returns next from results" do
+      # note: the default fake_req.request functions return a total offset
+      #       of three bookmarks over two pages. Page 1 has two, page 2 has one.
+      #       there is no third page
+      # get the first page
+      results = Linkding.bookmarks()
+      %{"next" => page_two_url} = results
+      assert page_two_url == "https://your.linkding/api/bookmarks/?limit=2&offset=2"
+
+      # get the second page
+      results = Linkding.bookmarks(page_two_url)
+      %{"next" => page_three_url} = results
+      assert page_three_url == nil
+    end
+  end
+
   describe "last_synced_at/0" do
     test "returns nil if no bookmarks" do
       assert 0 == Repo.aggregate(Content.Bookmark, :count)

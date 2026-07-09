@@ -21,7 +21,11 @@ defmodule Jamie.Support.FakeReq do
   """
   def request(params, opts \\ [])
 
-  def request([url: "https://linkding.test.bookmarks.describe/api/bookmarks/"] ++ _, _opts) do
+  # linkding tests - page 1
+  def request(
+        [url: "https://linkding.test.bookmarks.describe/api/bookmarks/"] ++ _,
+        _opts
+      ) do
     {:ok,
      %{
        body: %{
@@ -33,6 +37,7 @@ defmodule Jamie.Support.FakeReq do
      }}
   end
 
+  # linkding tests - page 2
   def request(
         [url: "https://linkding.test.bookmarks.describe/api/bookmarks/?limit=2&offset=2"] ++ _,
         _opts
@@ -48,7 +53,7 @@ defmodule Jamie.Support.FakeReq do
      }}
   end
 
-  # sync bookmarks
+  # sync bookmarks - page 1
   def request(
         [url: "https://syncbookmarks.test.worker.describe/api/bookmarks/"] ++ _,
         _opts
@@ -58,6 +63,35 @@ defmodule Jamie.Support.FakeReq do
        body: %{
          "count" => 3,
          "next" => "https://syncbookmarks.test.worker.describe/api/bookmarks/?limit=2&offset=2",
+         "previous" => nil,
+         "results" => page_one_results()
+       }
+     }}
+  end
+
+  # default page 2
+  def request(
+        [url: "https://your.linkding/api/bookmarks/?limit=2&offset=2"] ++ _,
+        _opts
+      ) do
+    {:ok,
+     %{
+       body: %{
+         "count" => 3,
+         "next" => nil,
+         "previous" => "https://your.linkding/api/bookmarks/?limit=2",
+         "results" => page_two_results()
+       }
+     }}
+  end
+
+  # default catch all
+  def request(_, _opts) do
+    {:ok,
+     %{
+       body: %{
+         "count" => 3,
+         "next" => "https://your.linkding/api/bookmarks/?limit=2&offset=2",
          "previous" => nil,
          "results" => page_one_results()
        }
