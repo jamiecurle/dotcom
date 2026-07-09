@@ -17,5 +17,6 @@ defmodule Jamie.Content.Bookmark do
     bookmark
     |> cast(attrs, [:url, :title, :description, :favicon, :preview])
     |> validate_required([:url, :title])
+    |> unique_constraint(:url)
   end
 end
