@@ -482,6 +482,19 @@ defmodule Jamie.Content.Test do
 
     @invalid_attrs %{title: nil, url: nil}
 
+    test "unique_constraint leads to an upsert" do
+      # make a bookmark and we have one
+      bookmark1 = bookmark_fixture()
+      assert 1 == Repo.aggregate(Bookmark, :count)
+
+      # make another and we trigged the upsert
+      bookmark2 = bookmark_fixture()
+      assert 1 == Repo.aggregate(Bookmark, :count)
+
+      # same id
+      assert bookmark1.id == bookmark2.id
+    end
+
     test "list_bookmarks/0 returns all bookmarks" do
       bookmark = bookmark_fixture()
       assert Content.list_bookmarks() == [bookmark]

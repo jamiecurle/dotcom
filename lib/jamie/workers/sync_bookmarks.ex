@@ -21,7 +21,7 @@ defmodule Jamie.Workers.SyncBookmarks do
       DateTime.utc_now()
       |> DateTime.truncate(:second)
 
-    # reminder: upload favivon and preview into cloudflare - serve those
+    # reminder: upload favicon and preview into cloudflare - serve those
 
     # create bookmark structs
     structs =

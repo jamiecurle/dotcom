@@ -6,8 +6,6 @@ defmodule Jamie.External.Linkding.Test do
   alias Jamie.Repo
   alias Jamie.Support.ContentFixtures
 
-  @linkding_url Application.compile_env(:jamie, [:linkding, :host]) <> "/api/bookmarks/"
-
   describe "last_synced_at/0" do
     test "returns nil if no bookmarks" do
       assert 0 == Repo.aggregate(Content.Bookmark, :count)
@@ -25,18 +23,23 @@ defmodule Jamie.External.Linkding.Test do
   describe "bookmarks" do
     setup do
       # Override the host for tests in this describe block
-      original_host = Application.get_env(:jamie, [:linkding, :host])
-      Application.put_env(:jamie, [:linkding, :host], "https://bookmark.test")
+      linkding_config = Application.get_env(:jamie, :linkding, [])
 
+      updated_config =
+        Keyword.put(linkding_config, :host, "https://linkding.test.bookmarks.describe")
+
+      Application.put_env(:jamie, :linkding, updated_config)
+
+      # now put things back as they were
       on_exit(fn ->
-        Application.put_env(:jamie, [:linkding, :host], original_host)
+        Application.put_env(:jamie, :linkding, linkding_config)
       end)
 
       :ok
     end
 
     test "happy path" do
-      Linkding.bookmarks(@linkding_url)
+      Linkding.bookmarks()
     end
   end
 end
