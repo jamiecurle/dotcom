@@ -22,6 +22,15 @@ end
 
 config :jamie, :images, host: System.get_env("CF_HOST", "media.jamiecurle.com")
 
+config :jamie, :bookmark_req,
+  headers: [
+    {"Authorization", "Token " <> System.get_env("LINKDING_API_TOKEN", "foo")}
+  ]
+
+config :jamie, :linkding,
+  host: System.get_env("LINKDING_HOST", "https://your.linkding"),
+  api_token: System.get_env("LINKDING_API_TOKEN", "linkding_api_token")
+
 config :ex_aws, :s3,
   access_key_id: System.get_env("CF_ACCESS_KEY_ID", "AKIAIOSFODNN7EXAMPLE"),
   secret_access_key:

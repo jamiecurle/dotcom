@@ -7,6 +7,9 @@
 # General application configuration
 import Config
 
+# registry pattern for dependancy injection
+config :jamie, :services, http: Req
+
 config :jamie, Oban,
   engine: Oban.Engines.Basic,
   notifier: Oban.Notifiers.Postgres,

@@ -3,6 +3,8 @@ defmodule Jamie.Content do
   The content context boundary.
   """
 
+  alias Jamie.Content.Bookmark
+
   alias Jamie.Content.{Note, Post}
   alias Jamie.Content.PostRevision
   alias Jamie.Repo
@@ -450,5 +452,134 @@ defmodule Jamie.Content do
       {:equal, _}, acc -> acc
       {_op, data}, acc -> acc + byte_size(data)
     end)
+  end
+
+  @doc """
+  Subscribes to notifications about any bookmark changes.
+
+  The broadcasted messages match the pattern:
+
+    * {:created, %Bookmark{}}
+    * {:updated, %Bookmark{}}
+    * {:deleted, %Bookmark{}}
+
+  """
+  def subscribe_bookmarks do
+    Phoenix.PubSub.subscribe(Jamie.PubSub, "bookmarks")
+  end
+
+  defp broadcast_bookmark(message) do
+    Phoenix.PubSub.broadcast(Jamie.PubSub, "bookmarks", message)
+  end
+
+  @doc """
+  Returns the list of bookmarks.
+
+  ## Examples
+
+      iex> list_bookmarks()
+      [%Bookmark{}, ...]
+
+  """
+  def list_bookmarks do
+    Repo.all(Bookmark)
+  end
+
+  @doc """
+  Gets a single bookmark.
+
+  Raises `Ecto.NoResultsError` if the Bookmark does not exist.
+
+  ## Examples
+
+      iex> get_bookmark!(123)
+      %Bookmark{}
+
+      iex> get_bookmark!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_bookmark!(id) do
+    Repo.get!(Bookmark, id)
+  end
+
+  @doc """
+  Creates a bookmark.
+
+  ## Examples
+
+      iex> create_bookmark(%{field: value})
+      {:ok, %Bookmark{}}
+
+      iex> create_bookmark(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_bookmark(attrs) do
+    with {:ok, bookmark = %Bookmark{}} <-
+           %Bookmark{}
+           |> Bookmark.changeset(attrs)
+           |> Repo.insert(
+             on_conflict: {:replace_all_except, [:id, :inserted_at]},
+             conflict_target: :url
+           ) do
+      broadcast_bookmark({:created, bookmark})
+      {:ok, bookmark}
+    end
+  end
+
+  @doc """
+  Updates a bookmark.
+
+  ## Examples
+
+      iex> update_bookmark(bookmark, %{field: new_value})
+      {:ok, %Bookmark{}}
+
+      iex> update_bookmark(bookmark, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_bookmark(%Bookmark{} = bookmark, attrs) do
+    with {:ok, bookmark = %Bookmark{}} <-
+           bookmark
+           |> Bookmark.changeset(attrs)
+           |> Repo.update() do
+      broadcast_bookmark({:updated, bookmark})
+      {:ok, bookmark}
+    end
+  end
+
+  @doc """
+  Deletes a bookmark.
+
+  ## Examples
+
+      iex> delete_bookmark(bookmark)
+      {:ok, %Bookmark{}}
+
+      iex> delete_bookmark(bookmark)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_bookmark(%Bookmark{} = bookmark) do
+    with {:ok, bookmark = %Bookmark{}} <-
+           Repo.delete(bookmark) do
+      broadcast_bookmark({:deleted, bookmark})
+      {:ok, bookmark}
+    end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking bookmark changes.
+
+  ## Examples
+
+      iex> change_bookmark(bookmark)
+      %Ecto.Changeset{data: %Bookmark{}}
+
+  """
+  def change_bookmark(%Bookmark{} = bookmark, attrs \\ %{}) do
+    Bookmark.changeset(bookmark, attrs)
   end
 end

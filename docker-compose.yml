@@ -18,6 +18,8 @@ services:
       POOL_SIZE: ${POOL_SIZE:-10}
       RELEASE_COOKIE: ${RELEASE_COOKIE}
       DNS_CLUSTER_QUERY: tasks.web
+      LINKDING_API_TOKEN: ${LINKDING_API_TOKEN}
+      LINKDING_HOST: ${LINKDING_HOST}
     healthcheck:
       test:
         ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:4000/health"]
