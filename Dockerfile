@@ -10,10 +10,10 @@
 #   - https://hub.docker.com/_/debian/tags?name=trixie-20260316-slim - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
 #   - Ex: docker.io/hexpm/elixir:1.18.3-erlang-27.3.4-debian-trixie-20260316-slim
-#
-ARG ELIXIR_VERSION=1.19.0
-ARG OTP_VERSION=28.0.1
-ARG DEBIAN_VERSION=trixie-20260316-slim
+# docker pull hexpm/elixir:1.20.2-erlang-29.0.3-debian-trixie-20260623-slim
+ARG ELIXIR_VERSION=1.20.2
+ARG OTP_VERSION=29.0.3
+ARG DEBIAN_VERSION=trixie-20260623-slim
 
 ARG BUILDER_IMAGE="docker.io/hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="docker.io/debian:${DEBIAN_VERSION}"
