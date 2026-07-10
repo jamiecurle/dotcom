@@ -1,9 +1,9 @@
-defmodule Jamie.External.Linkding.Test do
+defmodule Jamie.Service.Linkding.Test do
   use Jamie.DataCase
 
   alias Jamie.Content
-  alias Jamie.External.Linkding
   alias Jamie.Repo
+  alias Jamie.Service.Linkding
   alias Jamie.Support.ContentFixtures
 
   describe "url" do

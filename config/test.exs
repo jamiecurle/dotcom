@@ -2,7 +2,15 @@ import Config
 config :jamie, Oban, testing: :manual
 
 # services that call externally are handled with fakes
-config :jamie, :services, http: Jamie.Support.FakeReq
+config :jamie, :services,
+  http: Jamie.Support.FakeReq,
+  r2: Jamie.Support.FakeR2
+
+# Pin the linkding config so tests don't pick up a real LINKDING_HOST from the
+# developer's shell. runtime.exs skips this key under :test (see the guard there).
+config :jamie, :linkding,
+  host: "https://your.linkding",
+  api_token: "linkding_api_token"
 
 #
 #

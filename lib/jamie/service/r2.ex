@@ -1,4 +1,4 @@
-defmodule Jamie.Storage.R2 do
+defmodule Jamie.Service.R2 do
   @moduledoc """
   A basic storage backend context for R2
   """

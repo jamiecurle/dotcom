@@ -7,7 +7,9 @@ defmodule Jamie.Opengraph.Image do
   """
 
   alias Jamie.Content
-  alias Jamie.Storage.R2
+  alias Jamie.Service
+
+  @r2 Service.get!(:r2)
 
   @doc """
   Given a post struct or an id of an post create
@@ -17,7 +19,7 @@ defmodule Jamie.Opengraph.Image do
   @spec for_post(Content.Post.t() | integer) :: {:ok | :error, any()}
   def for_post(%Content.Post{} = post) do
     create(post.title, post.description, "/posts/#{post.slug}")
-    |> R2.put_file("opengraph/#{post.og_hash}.png")
+    |> @r2.put_file("opengraph/#{post.og_hash}.png")
   end
 
   def for_post(post) do
@@ -63,7 +65,7 @@ defmodule Jamie.Opengraph.Image do
     Image.new!(1200, 630, color: [0, 206, 224])
     |> Image.compose!(title, x: 72, y: 72)
     |> Image.Draw.rect!(0, 72 + title_height + 72, 1200, 600, color: [62, 62, 62])
-    # FUTURE YOU: CENTRALISE THE DESCRIPTION AND THE URL INSIDE THE RECTANGLE
+    # TODO: CENTRALISE THE DESCRIPTION AND THE URL INSIDE THE RECTANGLE
     |> Image.compose!(description, x: 72, y: title_height + 196)
     |> Image.compose!(url, x: 72, y: title_height + 196 + Image.height(description) + 36)
     |> Image.compose!(bonsai, x: 980, y: title_height - 10)
