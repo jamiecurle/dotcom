@@ -3,6 +3,7 @@ defmodule Jamie.Workers.OgImageCreate do
   Writes an opengraph image for a "thing" with a matching hash exists on R2.
   """
   use Oban.Worker,
+    queue: :r2,
     unique: [
       period: {20, :seconds},
       timestamp: :scheduled_at,
