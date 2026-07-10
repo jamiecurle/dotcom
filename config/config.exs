@@ -6,9 +6,12 @@
 
 # General application configuration
 import Config
+alias Jamie.Service.R2
 
 # registry pattern for dependancy injection
-config :jamie, :services, http: Req
+config :jamie, :services,
+  http: Req,
+  r2: R2
 
 config :jamie, Oban,
   engine: Oban.Engines.Basic,
