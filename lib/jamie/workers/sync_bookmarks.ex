@@ -5,8 +5,8 @@ defmodule Jamie.Workers.SyncBookmarks do
   use Oban.Worker, queue: :bookmarks, max_attempts: 3
 
   alias Jamie.Content.Bookmark
-  alias Jamie.External.Linkding
   alias Jamie.Repo
+  alias Jamie.Service.Linkding
 
   # TODO: upload favicon and preview into cloudflare and use CF urls not my home network
   # TODO: use a last_synced_date

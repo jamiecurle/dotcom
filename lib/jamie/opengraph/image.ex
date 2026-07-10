@@ -7,7 +7,7 @@ defmodule Jamie.Opengraph.Image do
   """
 
   alias Jamie.Content
-  alias Jamie.Storage.R2
+  alias Jamie.Service.R2
 
   @doc """
   Given a post struct or an id of an post create

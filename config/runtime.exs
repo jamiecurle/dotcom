@@ -27,9 +27,13 @@ config :jamie, :bookmark_req,
     {"Authorization", "Token " <> System.get_env("LINKDING_API_TOKEN", "foo")}
   ]
 
-config :jamie, :linkding,
-  host: System.get_env("LINKDING_HOST", "https://your.linkding"),
-  api_token: System.get_env("LINKDING_API_TOKEN", "linkding_api_token")
+# Skip in test so the pinned config in config/test.exs isn't overridden by a
+# LINKDING_HOST that happens to be set in the developer's shell.
+if config_env() != :test do
+  config :jamie, :linkding,
+    host: System.get_env("LINKDING_HOST", "https://your.linkding"),
+    api_token: System.get_env("LINKDING_API_TOKEN", "linkding_api_token")
+end
 
 config :ex_aws, :s3,
   access_key_id: System.get_env("CF_ACCESS_KEY_ID", "AKIAIOSFODNN7EXAMPLE"),

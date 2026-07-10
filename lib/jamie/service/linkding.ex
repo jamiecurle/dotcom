@@ -1,4 +1,4 @@
-defmodule Jamie.External.Linkding do
+defmodule Jamie.Service.Linkding do
   @moduledoc """
   A library for accessing my Linkding service
   """
