@@ -21,6 +21,15 @@ defmodule Jamie.Support.FakeReq do
   """
   def request(params, opts \\ [])
 
+  # sync_bookmark_test - favicon and preview images - simulate a 1x1 RGBA png
+  def request([url: "https://foo.io/favicon.png"] ++ _, _opts) do
+    {:ok, body: png()}
+  end
+
+  def request([url: "https://foo.io/preview.png"] ++ _, _opts) do
+    {:ok, body: png()}
+  end
+
   # linkding tests - page 1
   def request(
         [url: "https://linkding.test.bookmarks.describe/api/bookmarks/"] ++ _,
@@ -112,6 +121,13 @@ defmodule Jamie.Support.FakeReq do
          "results" => page_one_results()
        }
      }}
+  end
+
+  # a fake png
+  defp png do
+    <<137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6,
+      0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 10, 73, 68, 65, 84, 120, 156, 99, 0, 1, 0, 0, 5, 0, 1,
+      13, 10, 45, 184, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130>>
   end
 
   # page one and page two: saves spewing out the same data over and over again

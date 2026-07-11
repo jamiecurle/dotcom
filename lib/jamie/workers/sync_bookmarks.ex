@@ -36,13 +36,26 @@ defmodule Jamie.Workers.SyncBookmarks do
     structs =
       results
       |> Enum.map(fn result ->
+        # we know the images paths ahead of time
+        favicon_dest = "/bookmarks/#{result["id"]}/favicon.png"
+        preview_dest = "/bookmarks/#{result["id"]}/preview.png"
+
+        # fire off that image job
+        %{
+          "favicon_src" => result["favicon"],
+          "favicon" => favicon_dest,
+          "preview_src" => result["favicon"],
+          "preview" => preview_dest
+        }
+
+        # now build the struct
         %{
           id: result["id"],
           url: result["url"],
           title: result["title"],
           description: result["description"],
-          favicon: result["favicon"],
-          preview: result["preview_image_url"],
+          favicon: favicon_dest,
+          preview: preview_dest,
           inserted_at: now,
           updated_at: now
         }
