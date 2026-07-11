@@ -37,6 +37,7 @@ defmodule Jamie.Workers.SyncBookmarks do
       results
       |> Enum.map(fn result ->
         %{
+          id: result["id"],
           url: result["url"],
           title: result["title"],
           description: result["description"],
