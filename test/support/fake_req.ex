@@ -23,11 +23,19 @@ defmodule Jamie.Support.FakeReq do
 
   # sync_bookmark_test - favicon and preview images - simulate a 1x1 RGBA png
   def request([url: "https://foo.io/favicon.png"] ++ _, _opts) do
-    {:ok, body: png()}
+    {:ok,
+     %{
+       headers: %{"content-type" => ["image/png"]},
+       body: png()
+     }}
   end
 
   def request([url: "https://foo.io/preview.png"] ++ _, _opts) do
-    {:ok, body: png()}
+    {:ok,
+     %{
+       headers: %{"content-type" => ["image/png"]},
+       body: png()
+     }}
   end
 
   # linkding tests - page 1
@@ -114,6 +122,7 @@ defmodule Jamie.Support.FakeReq do
   def request(_, _opts) do
     {:ok,
      %{
+       headers: %{"content-type" => ["application/json"]},
        body: %{
          "count" => 3,
          "next" => "https://your.linkding/api/bookmarks/?limit=2&offset=2",

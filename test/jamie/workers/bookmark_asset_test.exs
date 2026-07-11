@@ -2,8 +2,11 @@ defmodule Jamie.Workers.BookmarkAssetTest do
   use Jamie.DataCase
   use Oban.Testing, repo: Jamie.Repo
 
+  alias Jamie.Service
   alias Jamie.Support.ContentFixtures
   alias Jamie.Workers.BookmarkAssets
+
+  @storage Service.get!(:r2)
 
   describe "happypath" do
     test "works as expected" do
@@ -18,13 +21,21 @@ defmodule Jamie.Workers.BookmarkAssetTest do
       args =
         %{
           "favicon_src" => bookmark.favicon,
-          "favicon" => "/bookmarks/#{bookmark.id}/favicon.png",
+          "favicon_dest" => "/bookmarks/#{bookmark.id}/favicon.png",
           "preview_src" => bookmark.preview,
-          "preview" => "/bookmarks/#{bookmark.id}/preview.png"
+          "preview_dest" => "/bookmarks/#{bookmark.id}/preview.png"
         }
 
       # fire the job off
       perform_job(BookmarkAssets, args)
+
+      # and now we have both keys in the storage
+      {:ok, %{body: %{contents: files}}} = @storage.list_files()
+
+      assert files == [
+               %{key: "/bookmarks/#{bookmark.id}/favicon.png"},
+               %{key: "/bookmarks/#{bookmark.id}/preview.png"}
+             ]
 
       # the fake_req library has the files in it's backend
       # and they match the destination from the args
