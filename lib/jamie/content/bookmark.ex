@@ -2,6 +2,9 @@ defmodule Jamie.Content.Bookmark do
   use Ecto.Schema
   import Ecto.Changeset
 
+  # The id is not auto-generated — it comes from linkding, the upstream source.
+  # See the sync worker, which writes linkding's id straight into this column.
+  @primary_key {:id, :integer, autogenerate: false}
   schema "bookmarks" do
     field :url, :string
     field :title, :string
@@ -15,7 +18,7 @@ defmodule Jamie.Content.Bookmark do
   @doc false
   def changeset(bookmark, attrs) do
     bookmark
-    |> cast(attrs, [:url, :title, :description, :favicon, :preview])
+    |> cast(attrs, [:id, :url, :title, :description, :favicon, :preview])
     |> validate_required([:url, :title])
     |> unique_constraint(:url)
   end

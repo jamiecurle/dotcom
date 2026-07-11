@@ -49,6 +49,7 @@ defmodule Jamie.Support.ContentFixtures do
   end
 
   @default_bookmark_attrs [
+    id: 1,
     title: "Some bookmark",
     url: "https://example.com",
     description: "A lovely bookmark",

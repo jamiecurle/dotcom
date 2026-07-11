@@ -16,7 +16,11 @@ config :jamie, :services,
 config :jamie, Oban,
   engine: Oban.Engines.Basic,
   notifier: Oban.Notifiers.Postgres,
-  queues: [default: 10],
+  queues: [
+    default: 10,
+    bookmarks: 1,
+    r2: 15
+  ],
   repo: Jamie.Repo
 
 config :jamie, :scopes,
