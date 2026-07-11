@@ -3,7 +3,7 @@ defmodule Jamie.Workers.BookmarkAssets do
   A dedicated worker to upload bookmark assets up to the storage backend
   """
   use Oban.Worker,
-    queue: :bookmarks,
+    queue: :r2,
     max_attempts: 3
 
   alias Jamie.Service

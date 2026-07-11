@@ -18,7 +18,8 @@ config :jamie, Oban,
   notifier: Oban.Notifiers.Postgres,
   queues: [
     default: 10,
-    bookmarks: 1
+    bookmarks: 1,
+    r2: 15
   ],
   repo: Jamie.Repo
 
