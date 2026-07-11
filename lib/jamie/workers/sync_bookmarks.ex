@@ -8,7 +8,6 @@ defmodule Jamie.Workers.SyncBookmarks do
   alias Jamie.Repo
   alias Jamie.Service.Linkding
 
-  # TODO: upload favicon and preview into cloudflare and use CF urls not my home network
   # TODO: use a last_synced_date
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
