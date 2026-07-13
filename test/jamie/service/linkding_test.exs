@@ -46,30 +46,6 @@ defmodule Jamie.Service.Linkding.Test do
     end
   end
 
-  describe "sync_bookmarks" do
-    setup do
-      # Override the host for tests in this describe block
-      linkding_config = Application.get_env(:jamie, :linkding, [])
-
-      updated_config =
-        Keyword.put(linkding_config, :host, "https://linkding.bookmarks-sync.describe")
-
-      Application.put_env(:jamie, :linkding, updated_config)
-
-      # now put things back as they were
-      on_exit(fn ->
-        Application.put_env(:jamie, :linkding, linkding_config)
-      end)
-
-      :ok
-    end
-
-    test "we supply a data" do
-      # since has to
-      Linkding.bookmarks(added_since: "2026-07-09T00:00:00")
-    end
-  end
-
   describe "bookmarks" do
     setup do
       # Override the host for tests in this describe block

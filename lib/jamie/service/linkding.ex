@@ -23,22 +23,9 @@ defmodule Jamie.Service.Linkding do
         last_synced_at
       end
 
-    # now call teh worker
+    # now call the worker
     %{"added_since" => added_since} |> SyncBookmarks.new() |> Oban.insert()
   end
-
-  # defp do_sync_bookmarks(url, added_since \\ nil) do
-  #   IO.inspect(url)
-  #   # get the results
-  #   results = bookmarks(url, added_since: added_since)
-
-  #   # next bakes in all of the useful parameters, so we
-  #   case Map.get(results, "next") do
-  #     nil -> :ok
-  #     url ->
-  #       do_sync_bookmarks(url)
-  #   end
-  # end
 
   @doc """
   Returns the last synced at date in a format that works
