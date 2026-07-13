@@ -9,7 +9,6 @@ defmodule Jamie.Workers.SyncBookmarks do
   alias Jamie.Service.Linkding
   alias Jamie.Workers.BookmarkAssets
 
-  # TODO: use a last_synced_date
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
     # call bookmarks with optional url from args
