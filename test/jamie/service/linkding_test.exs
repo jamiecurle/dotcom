@@ -67,7 +67,6 @@ defmodule Jamie.Service.Linkding.Test do
     test "we supply a data" do
       # since has to
       Linkding.bookmarks(added_since: "2026-07-09T00:00:00")
-      |> IO.inspect(label: "test")
     end
   end
 
