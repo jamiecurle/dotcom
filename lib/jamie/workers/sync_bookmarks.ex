@@ -7,18 +7,25 @@ defmodule Jamie.Workers.SyncBookmarks do
   alias Jamie.Content.Bookmark
   alias Jamie.Repo
   alias Jamie.Service.Linkding
+  alias Jamie.Workers.BookmarkAssets
 
-  # TODO: use a last_synced_date
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
     # call bookmarks with optional url from args
-    url = Map.get(args, "url")
+    url =
+      args
+      |> Map.get(
+        "url",
+        Application.get_env(:jamie, :linkding)[:host] <> "/api/bookmarks/"
+      )
+
+    added_since = Map.get(args, "added_since")
 
     response =
       if url do
         Linkding.bookmarks(url)
       else
-        Linkding.bookmarks()
+        Linkding.bookmarks(added_since)
       end
 
     %{
@@ -36,16 +43,32 @@ defmodule Jamie.Workers.SyncBookmarks do
       results
       |> Enum.map(fn result ->
         # we know the images paths ahead of time
-        favicon_dest = "/bookmarks/#{result["id"]}/favicon.png"
-        preview_dest = "/bookmarks/#{result["id"]}/preview.png"
+        # favicon is always a png
+        favicon_dest =
+          if result["favicon_url"] do
+            "/bookmarks/#{result["id"]}/favicon.png"
+          else
+            nil
+          end
 
-        # fire off that image job
+        # preview could be any image type
+        preview_dest =
+          if result["preview_image_url"] do
+            preview_ext = Path.extname(result["preview_image_url"])
+            "/bookmarks/#{result["id"]}/preview#{preview_ext}"
+          else
+            nil
+          end
+
+        # fire off that image job if favicon_dest or preview_dest are a thing
         %{
-          "favicon_src" => result["favicon"],
-          "favicon" => favicon_dest,
-          "preview_src" => result["favicon"],
-          "preview" => preview_dest
+          "favicon_src" => result["favicon_url"],
+          "favicon_dest" => favicon_dest,
+          "preview_src" => result["preview_image_url"],
+          "preview_dest" => preview_dest
         }
+        |> BookmarkAssets.new()
+        |> Oban.insert()
 
         # now build the struct
         %{

@@ -13,28 +13,19 @@ defmodule Jamie.Workers.BookmarkAssets do
 
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
-    # # default request opts
-    # request_opts =
-    #   [
-    #     method: :get,
-    #     headers: [
-    #       {"Authorization", "Token " <> Application.get_env(:jamie, :linkding)[:api_token]}
-    #     ]
-    #   ]
-
     # get the data
-    {favicon_data, _favicon_content_type} =
+    favicon_data =
       Map.get(args, "favicon_src")
       |> case do
-        nil -> {nil, nil}
-        url -> iodata_and_content_type(url)
+        nil -> nil
+        url -> iodata(url)
       end
 
-    {preview_data, _favicon_content_type} =
+    preview_data =
       Map.get(args, "preview_src")
       |> case do
-        nil -> {nil, nil}
-        url -> iodata_and_content_type(url)
+        nil -> nil
+        url -> iodata(url)
       end
 
     # and the destination
@@ -61,7 +52,7 @@ defmodule Jamie.Workers.BookmarkAssets do
     end
   end
 
-  def iodata_and_content_type(url) do
+  defp iodata(url) do
     # default request opts
     request_opts = [
       method: :get,
@@ -70,12 +61,8 @@ defmodule Jamie.Workers.BookmarkAssets do
       ]
     ]
 
-    {:ok,
-     %{
-       headers: %{"content-type" => [content_type | _]},
-       body: iodata
-     }} = @http.request([url: url] ++ request_opts)
+    {:ok, %{body: iodata}} = @http.request([url: url] ++ request_opts)
 
-    {iodata, content_type}
+    iodata
   end
 end

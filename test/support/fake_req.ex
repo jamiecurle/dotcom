@@ -20,8 +20,8 @@ defmodule Jamie.Support.FakeReq do
   Fake respsonses Req.request/2
   """
   def request(params, opts \\ [])
-
   # sync_bookmark_test - favicon and preview images - simulate a 1x1 RGBA png
+  # not actually using linkding instance, hence foo.io
   def request([url: "https://foo.io/favicon.png"] ++ _, _opts) do
     {:ok,
      %{

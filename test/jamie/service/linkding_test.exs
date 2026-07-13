@@ -28,16 +28,21 @@ defmodule Jamie.Service.Linkding.Test do
   end
 
   describe "last_synced_at/0" do
-    test "returns nil if no bookmarks" do
+    test "returns a decade ago if no bookmarks" do
       assert 0 == Repo.aggregate(Content.Bookmark, :count)
-      assert nil == Linkding.last_synced_at()
+
+      assert NaiveDateTime.utc_now()
+             |> NaiveDateTime.add(365 * -10, :day)
+             |> NaiveDateTime.truncate(:second)
+             |> NaiveDateTime.to_iso8601() ==
+               Linkding.last_synced_at()
     end
 
     test "returns the last synced date based on the bookmarks in db" do
       # make a bookmark
       ContentFixtures.bookmark_fixture(%{inserted_at: ~N[2026-01-01 00:00:00]})
       assert 1 == Repo.aggregate(Content.Bookmark, :count)
-      assert ~U[2026-01-01 00:00:00Z] == Linkding.last_synced_at()
+      assert "2026-01-01T00:00:00" == Linkding.last_synced_at()
     end
   end
 
