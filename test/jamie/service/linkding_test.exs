@@ -28,16 +28,46 @@ defmodule Jamie.Service.Linkding.Test do
   end
 
   describe "last_synced_at/0" do
-    test "returns nil if no bookmarks" do
+    test "returns a decade ago if no bookmarks" do
       assert 0 == Repo.aggregate(Content.Bookmark, :count)
-      assert nil == Linkding.last_synced_at()
+
+      assert NaiveDateTime.utc_now()
+             |> NaiveDateTime.add(365 * -10, :day)
+             |> NaiveDateTime.truncate(:second)
+             |> NaiveDateTime.to_iso8601() ==
+               Linkding.last_synced_at()
     end
 
     test "returns the last synced date based on the bookmarks in db" do
       # make a bookmark
       ContentFixtures.bookmark_fixture(%{inserted_at: ~N[2026-01-01 00:00:00]})
       assert 1 == Repo.aggregate(Content.Bookmark, :count)
-      assert ~U[2026-01-01 00:00:00Z] == Linkding.last_synced_at()
+      assert "2026-01-01T00:00:00" == Linkding.last_synced_at()
+    end
+  end
+
+  describe "sync_bookmarks" do
+    setup do
+      # Override the host for tests in this describe block
+      linkding_config = Application.get_env(:jamie, :linkding, [])
+
+      updated_config =
+        Keyword.put(linkding_config, :host, "https://linkding.bookmarks-sync.describe")
+
+      Application.put_env(:jamie, :linkding, updated_config)
+
+      # now put things back as they were
+      on_exit(fn ->
+        Application.put_env(:jamie, :linkding, linkding_config)
+      end)
+
+      :ok
+    end
+
+    test "we supply a data" do
+      # since has to
+      Linkding.bookmarks(added_since: "2026-07-09T00:00:00")
+      |> IO.inspect(label: "test")
     end
   end
 

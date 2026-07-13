@@ -21,7 +21,62 @@ defmodule Jamie.Support.FakeReq do
   """
   def request(params, opts \\ [])
 
+  # added since - three pages and kind of important hence it has it's own tests
+  def request([url: "https://linkding.bookmarks-sync.describe"] ++ _, _opts) do
+    %{
+      "count" => 4,
+      "next" =>
+        "https://bookmarks.curle.io/api/bookmarks/?added_since=2026-07-09T00%3A00%3A00&limit=2&offset=2",
+      "previous" => nil,
+      "results" => [
+        %{
+          "date_added" => "2026-07-11T14:01:44.002075Z",
+          "date_modified" => "2026-07-11T14:01:51.287514Z",
+          "description" =>
+            "Subscribe to my newsletter → https://www.sandeepswadia.com/newsletterCheck out my critical thinking video next! → https://youtu.be/5mfwXuS06OkMost people thi...",
+          "favicon_url" => "https://bookmarks.curle.io/static/https_www_youtube_com.png",
+          "id" => 368,
+          "is_archived" => false,
+          "notes" => "",
+          "preview_image_url" =>
+            "https://bookmarks.curle.io/static/7af2f89cbac3468001bd96d8c4ab169f.jpg",
+          "shared" => false,
+          "tag_names" => ["skills"],
+          "title" => "7 Skills That Will Be Worth Twice As Much By 2030 - YouTube",
+          "unread" => true,
+          "url" => "https://www.youtube.com/watch?v=1J4k8hHKHr4",
+          "web_archive_snapshot_url" =>
+            "https://web.archive.org/web/20260711140144/https://www.youtube.com/watch?v=1J4k8hHKHr4",
+          "website_description" => nil,
+          "website_title" => nil
+        },
+        %{
+          "date_added" => "2026-07-10T06:12:18.306631Z",
+          "date_modified" => "2026-07-10T06:12:25.667111Z",
+          "description" =>
+            "We break down the technical architecture behind our multi-stage vulnerability discovery harness and automated triage loop. Learn how we manage state controls, squash false positives through adversarial review, and route around LLM context limits.",
+          "favicon_url" => "https://bookmarks.curle.io/static/https_blog_cloudflare_com.png",
+          "id" => 367,
+          "is_archived" => false,
+          "notes" => "",
+          "preview_image_url" =>
+            "https://bookmarks.curle.io/static/c48ca07266dc97c4942357ec820cf1e3.png",
+          "shared" => false,
+          "tag_names" => ["ai", "techworld", "vulnerability"],
+          "title" => "Build your own vulnerability harness",
+          "unread" => false,
+          "url" => "https://blog.cloudflare.com/build-your-own-vulnerability-harness/",
+          "web_archive_snapshot_url" =>
+            "https://web.archive.org/web/20260710061218/https://blog.cloudflare.com/build-your-own-vulnerability-harness/",
+          "website_description" => nil,
+          "website_title" => nil
+        }
+      ]
+    }
+  end
+
   # sync_bookmark_test - favicon and preview images - simulate a 1x1 RGBA png
+  # not actually using linkding instance, hence foo.io
   def request([url: "https://foo.io/favicon.png"] ++ _, _opts) do
     {:ok,
      %{

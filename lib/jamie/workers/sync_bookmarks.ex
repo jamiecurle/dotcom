@@ -7,18 +7,26 @@ defmodule Jamie.Workers.SyncBookmarks do
   alias Jamie.Content.Bookmark
   alias Jamie.Repo
   alias Jamie.Service.Linkding
+  alias Jamie.Workers.BookmarkAssets
 
   # TODO: use a last_synced_date
   @impl Oban.Worker
   def perform(%Oban.Job{args: args}) do
     # call bookmarks with optional url from args
-    url = Map.get(args, "url")
+    url =
+      args
+      |> Map.get(
+        "url",
+        Application.get_env(:jamie, :linkding)[:host] <> "/api/bookmarks/"
+      )
+
+    added_since = Map.get(args, "added_since")
 
     response =
       if url do
         Linkding.bookmarks(url)
       else
-        Linkding.bookmarks()
+        Linkding.bookmarks(added_since)
       end
 
     %{
@@ -46,6 +54,8 @@ defmodule Jamie.Workers.SyncBookmarks do
           "preview_src" => result["favicon"],
           "preview" => preview_dest
         }
+        |> BookmarkAssets.new()
+        |> Oban.insert()
 
         # now build the struct
         %{
