@@ -2,6 +2,7 @@ defmodule Jamie.Service.Linkding.Test do
   use Jamie.DataCase
 
   alias Jamie.Content
+  alias Jamie.Content.Bookmark
   alias Jamie.Repo
   alias Jamie.Service.Linkding
   alias Jamie.Support.ContentFixtures
@@ -25,7 +26,23 @@ defmodule Jamie.Service.Linkding.Test do
     end
 
     test "sync_bookmarks with no args populates once, then does incremental" do
-      # IO.inspect("hello world")
+      # no bookmarks
+      assert 0 == Repo.aggregate(Bookmark, :count)
+
+      # call sync and we have four bookmarks
+      # and three sync jobs
+      # and five image jobs
+
+      # now we have five bookmarks
+
+      # make a new bookmark
+      # call sync again and it runs one sync job
+      # and one image job
+    end
+
+    test "syncbook_marks tags correctly" do
+      # todo - more than just tagging things, needs the tag
+      #        infra settingt up as for notes and posts
     end
   end
 
