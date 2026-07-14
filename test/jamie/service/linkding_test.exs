@@ -1,5 +1,6 @@
 defmodule Jamie.Service.Linkding.Test do
   use Jamie.DataCase
+  use Oban.Testing, repo: Jamie.Repo
 
   alias Jamie.Content
   alias Jamie.Content.Bookmark
@@ -29,15 +30,12 @@ defmodule Jamie.Service.Linkding.Test do
       # no bookmarks
       assert 0 == Repo.aggregate(Bookmark, :count)
 
-      # call sync and we have four bookmarks
-      # and three sync jobs
-      # and five image jobs
+      # get this sync party started
+      Linkding.sync_bookmarks()
 
-      # now we have five bookmarks
-
-      # make a new bookmark
-      # call sync again and it runs one sync job
-      # and one image job
+      # the job was queued with added_since being the same value as last synced_at
+      added_since = Linkding.last_synced_at()
+      assert_enqueued(worker: Jamie.Workers.SyncBookmarks, args: %{added_since: added_since})
     end
 
     test "syncbook_marks tags correctly" do

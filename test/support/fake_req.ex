@@ -20,6 +20,159 @@ defmodule Jamie.Support.FakeReq do
   Fake respsonses Req.request/2
   """
   def request(params, opts \\ [])
+
+  # sync_bookmarks - ensure total population and then incremental population works as expected.
+  # page 1
+  def request([url: "https://sync-bookmarks.describe/api/bookmarks/"] ++ _, _opts) do
+    {:ok,
+     %{
+       body: %{
+         "count" => 5,
+         "next" => "https://sync-bookmarks.describe/api/bookmarks/?limit=2&offset=2",
+         "previous" => nil,
+         "results" => [
+           %{
+             "date_added" => "2026-07-14T07:08:36.918264Z",
+             "date_modified" => "2026-07-14T07:08:41.159671Z",
+             "description" =>
+               "Working with lots of changes in parallel on git can be painful. You end up\njuggling branches and commits, and running scary rebase -i commands that can\nleave your tree in a half-broken state if you so much as sneeze.\njj, an alternative to git, gets discussed a\nlot these days (1,\n2,\n3,\n4) and is\noften pitched as a solution. While I’m very sold on the problems jj is\ntrying to solve, the way it solves them hasn’t quite hit home with me. Every 3\nmonths, for the last 1.5 years, I try it out for a few days, really trying to\nmake it part of my workflow but eventually I give up and go back to git.1\nThat’s where git history comes in. It’s an experimental\ncommand that arrived across two\nreleases,\n2.54\n(April, reword and split subcommands) and\n2.55\n(June, fixup subcommand). It got a flurry of attention on each release day,\nand then, as far as I can tell, not much community discussion since. Which is a\nshame, because IMO it already delivers several of the benefits people tout for\njj without needing to switch your whole workflow. And the cool thing is that\nit’s part of the core git distribution, so you can try it without installing\nanything.",
+             "favicon_url" => "https://foo.io/favicon.png",
+             "id" => 373,
+             "is_archived" => false,
+             "notes" => "",
+             "preview_image_url" => "https://foo.io/preview.png",
+             "shared" => false,
+             "tag_names" => ["git", "techworld"],
+             "title" => "The git history command deserves more attention - Lalit Maganti",
+             "unread" => false,
+             "url" => "https://lalitm.com/post/git-history/",
+             "web_archive_snapshot_url" =>
+               "https://web.archive.org/web/20260714070836/https://lalitm.com/post/git-history/",
+             "website_description" => nil,
+             "website_title" => nil
+           },
+           %{
+             "date_added" => "2026-07-14T05:59:19.260595Z",
+             "date_modified" => "2026-07-14T05:59:19.260601Z",
+             "description" => "",
+             "favicon_url" => "https://foo.io/favicon.png",
+             "id" => 372,
+             "is_archived" => false,
+             "notes" => "",
+             "preview_image_url" => "https://foo.io/preview.png",
+             "shared" => false,
+             "tag_names" => ["ai", "food", "techworld"],
+             "title" => "DoorDash",
+             "unread" => true,
+             "url" =>
+               "https://careersatdoordash.com/blog/building-food-metadata-with-llm-juries-context-optimization-multimodal-ai/",
+             "web_archive_snapshot_url" =>
+               "https://web.archive.org/web/20260714055919/https://careersatdoordash.com/blog/building-food-metadata-with-llm-juries-context-optimization-multimodal-ai/",
+             "website_description" => nil,
+             "website_title" => nil
+           }
+         ]
+       }
+     }}
+  end
+
+  # page 2
+  def request(
+        [url: "https://sync-bookmarks.describe/api/bookmarks/?limit=2&offset=2"] ++ _,
+        _opts
+      ) do
+    {:ok,
+     %{
+       body: %{
+         "count" => 5,
+         "next" => "https://sync-bookmarks.describe/api/bookmarks/?limit=2&offset=4",
+         "previous" => "https://sync-bookmarks.describe/api/bookmarks/?limit=2&offset=2",
+         "results" => [
+           %{
+             "date_added" => "2026-07-13T14:55:02.567777Z",
+             "date_modified" => "2026-07-13T14:55:14.198184Z",
+             "description" => "",
+             "favicon_url" => "https://foo.io/favicon.png",
+             "id" => 371,
+             "is_archived" => false,
+             "notes" => "",
+             "preview_image_url" => "https://foo.io/preview.png",
+             "shared" => false,
+             "tag_names" => ["dsar", "privacy", "techworld"],
+             "title" => "OneTrust Community",
+             "unread" => false,
+             "url" =>
+               "https://my.onetrust.com/s/article/Increased-DSAR-Request-Volumes?language=en_US&t=1780502366866",
+             "web_archive_snapshot_url" =>
+               "https://web.archive.org/web/20260713145502/https://my.onetrust.com/s/article/Increased-DSAR-Request-Volumes?language=en_US&t=1780502366866",
+             "website_description" => nil,
+             "website_title" => nil
+           },
+           %{
+             "date_added" => "2026-07-13T12:28:57.379351Z",
+             "date_modified" => "2026-07-13T12:29:06.919034Z",
+             "description" =>
+               "How katsuobushi -- Japanese dried bonito, said to be the world's hardest food -- is made in Nishi-Izu, Japan. Inside Kanesa Katsuobushi Shoten, a workshop fo...",
+             "favicon_url" => "https://foo.io/favicon.png",
+             "id" => 370,
+             "is_archived" => false,
+             "notes" => "",
+             "preview_image_url" => "https://foo.io/preview.png",
+             "shared" => false,
+             "tag_names" => ["bonito", "foodworld", "japan"],
+             "title" =>
+               "How the World's Hardest Food Is Made: Traditional Japanese Dried Bonito, Katsuobushi - YouTube",
+             "unread" => false,
+             "url" => "https://www.youtube.com/watch?v=HsMbNVEJp9g",
+             "web_archive_snapshot_url" =>
+               "https://web.archive.org/web/20260713122857/https://www.youtube.com/watch?v=HsMbNVEJp9g",
+             "website_description" => nil,
+             "website_title" => nil
+           }
+         ]
+       }
+     }}
+  end
+
+  # page 3
+
+  def request(
+        [url: "https://sync-bookmarks.describe/api/bookmarks/?limit=2&offset=4"] ++ _,
+        _opts
+      ) do
+    {:ok,
+     %{
+       body: %{
+         "count" => 5,
+         "next" => nil,
+         "previous" => "https://sync-bookmarks.describe/api/bookmarks/?limit=4",
+         "results" => [
+           %{
+             "date_added" => "2026-07-13T09:15:56.510844Z",
+             "date_modified" => "2026-07-13T09:15:56.510850Z",
+             "description" =>
+               "Claude Code vs OpenCode token overhead measured at the API boundary. Out-of-the-box baselines, instruction file weight, MCP schema tax, subagent multipliers, and cache-write behaviour.",
+             "favicon_url" => "https://foo.io/favicon.png",
+             "id" => 369,
+             "is_archived" => false,
+             "notes" => "",
+             "preview_image_url" => "https://foo.io/preview.png",
+             "shared" => false,
+             "tag_names" => ["ai", "opencode", "techworld"],
+             "title" =>
+               "Claude Code Sends 4.7x More Tokens Than OpenCode Before Reading Your Prompt | Systima Blog",
+             "unread" => false,
+             "url" => "https://systima.ai/blog/claude-code-vs-opencode-token-overhead",
+             "web_archive_snapshot_url" =>
+               "https://web.archive.org/web/20260713091556/https://systima.ai/blog/claude-code-vs-opencode-token-overhead",
+             "website_description" => nil,
+             "website_title" => nil
+           }
+         ]
+       }
+     }}
+  end
+
   # sync_bookmark_test - favicon and preview images - simulate a 1x1 RGBA png
   # not actually using linkding instance, hence foo.io
   def request([url: "https://foo.io/favicon.png"] ++ _, _opts) do
