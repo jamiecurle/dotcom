@@ -36,9 +36,6 @@ defmodule Jamie.Workers.BookmarkAssetTest do
                %{key: "/bookmarks/#{bookmark.id}/favicon.png"},
                %{key: "/bookmarks/#{bookmark.id}/preview.png"}
              ]
-
-      # the fake_req library has the files in it's backend
-      # and they match the destination from the args
     end
   end
 end

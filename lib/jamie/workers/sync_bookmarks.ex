@@ -22,10 +22,10 @@ defmodule Jamie.Workers.SyncBookmarks do
     added_since = Map.get(args, "added_since")
 
     response =
-      if url do
-        Linkding.bookmarks(url)
+      if added_since do
+        Linkding.bookmarks(url, added_since: added_since)
       else
-        Linkding.bookmarks(added_since)
+        Linkding.bookmarks(url)
       end
 
     %{

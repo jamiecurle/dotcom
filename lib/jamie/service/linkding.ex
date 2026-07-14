@@ -24,7 +24,9 @@ defmodule Jamie.Service.Linkding do
       end
 
     # now call the worker
-    %{"added_since" => added_since} |> SyncBookmarks.new() |> Oban.insert()
+    %{"added_since" => added_since}
+    |> SyncBookmarks.new()
+    |> Oban.insert()
   end
 
   @doc """
