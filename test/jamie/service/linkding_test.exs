@@ -6,6 +6,29 @@ defmodule Jamie.Service.Linkding.Test do
   alias Jamie.Service.Linkding
   alias Jamie.Support.ContentFixtures
 
+  describe "sync_bookmarks" do
+    setup do
+      # Override the host for tests in this describe block
+      linkding_config = Application.get_env(:jamie, :linkding, [])
+
+      updated_config =
+        Keyword.put(linkding_config, :host, "https://sync-bookmarks.describe")
+
+      Application.put_env(:jamie, :linkding, updated_config)
+
+      # now put things back as they were
+      on_exit(fn ->
+        Application.put_env(:jamie, :linkding, linkding_config)
+      end)
+
+      :ok
+    end
+
+    test "sync_bookmarks with no args populates once, then does incremental" do
+      # IO.inspect("hello world")
+    end
+  end
+
   describe "url" do
     test "url/0 works with no arguments" do
       assert Linkding.url() == "https://your.linkding/api/bookmarks/"
