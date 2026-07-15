@@ -1,0 +1,86 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: code.tailebf707.ts.net
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: docker
+
+    steps:
+      # The runner's default image for the `docker` label is node:lts, which
+      # has node (needed to run JS actions) but no docker CLI. The runner is
+      # configured with docker_host: automount, so the daemon socket is there
+      # - this just supplies the client to talk to it. Pinned to the host
+      # daemon's version.
+      - name: Install Docker CLI
+        run: |
+          curl -fsSL https://download.docker.com/linux/static/stable/aarch64/docker-29.6.1.tgz \
+            | tar -xz -C /usr/local/bin --strip-components=1 docker/docker
+          docker --version
+
+      - name: Checkout code
+        uses: https://github.com/actions/checkout@v4
+
+      # The runner is a persistent self-hosted box, so a named builder plus
+      # keep-state lets BuildKit hold its own cache between runs. That covers
+      # the expensive part of a Phoenix release build (deps compile) without
+      # needing cache-from/cache-to at all.
+      #
+      # The GC policy is the disk bound: the cache never exceeds maxUsedSpace,
+      # and BuildKit prunes to keep minFreeSpace available. Both are measured
+      # against the Docker VM's virtual disk (150GB), NOT the host volume it
+      # sits on - so these must stay well under that if they are to mean
+      # anything. Note that defining any custom gcpolicy makes buildkit ignore
+      # gckeepstorage entirely, so the cap has to live here.
+      - name: Set up Docker Buildx
+        uses: https://github.com/docker/setup-buildx-action@v3
+        with:
+          driver: docker-container
+          name: dotcom-builder
+          keep-state: true
+          buildkitd-config-inline: |
+            [worker.oci]
+              gc = true
+              [[worker.oci.gcpolicy]]
+                all = true
+                maxUsedSpace = "60GB"
+                minFreeSpace = "20GB"
+
+      # Forgejo's automatic token can't push to the package registry, so this
+      # uses a PAT with write:package scope. See REGISTRY_TOKEN in repo secrets.
+      - name: Log in to Forgejo Container Registry
+        uses: https://github.com/docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: https://github.com/docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # `latest` is gated on an explicit ref check rather than the
+          # is_default_branch helper, which relies on context Forgejo may
+          # not populate the same way GitHub does.
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and push Docker image
+        uses: https://github.com/docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

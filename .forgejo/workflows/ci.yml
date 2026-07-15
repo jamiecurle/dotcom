@@ -1,0 +1,49 @@
+name: CI
+on:
+  push:
+env:
+  MIX_ENV: test
+  DB_HOST: postgres
+jobs:
+  test:
+    runs-on: docker
+    container:
+      image: docker.io/hexpm/elixir:1.20.2-erlang-29.0.3-debian-trixie-20260623-slim
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: dotcom_test
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Install system dependencies
+        run: apt-get update && apt-get install -y --no-install-recommends build-essential git nodejs
+      - uses: https://github.com/actions/checkout@v5
+      # Forgejo's own fork of the cache action, not GitHub's: the runner's
+      # cache server speaks the older protocol that GitHub's actions/cache
+      # dropped in v4.2. Pinned to v4 because that is the last version built
+      # for the node20 runtime - the nodejs installed above is Debian's v20,
+      # and v5/v6 both declare node24.
+      - name: Cache deps
+        uses: https://code.forgejo.org/actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+      # Also carries the dialyzer PLT, which is the slowest part of mix check.
+      - name: Cache build
+        uses: https://code.forgejo.org/actions/cache@v4
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-build-
+      - name: Install dependencies
+        run: mix deps.get
+      - name: Compile with warnings as errors
+        run: mix compile --warnings-as-errors
+      - name: Run checks
+        run: mix check
