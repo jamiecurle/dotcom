@@ -12,7 +12,7 @@ config :jamie, Jamie.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost",
-  database: "jamiec_human_dev",
+  database: "dotcom_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
