@@ -78,6 +78,60 @@ defmodule Jamie.Tags do
   end
 
   @doc """
+  Bulk-tags many bookmarks from a list of Linkding `results` maps.
+
+  Each result is expected to carry a `"url"` and a `"tag_names"` list of
+  strings. `url_to_id` maps each result's url to the bookmark's real stored id
+  (as returned by the bookmark upsert) — an incoming id can't be trusted here
+  because a url that already existed keeps its original id on conflict.
+
+  Runs in two DB round-trips regardless of how many bookmarks/tags there are:
+
+    1. Upsert every distinct tag and read back its id. We use
+       `on_conflict: {:replace, [:slug]}` rather than `:nothing` because
+       Postgres only returns rows the statement actually touched, and we need
+       ids for tags that already existed.
+    2. Insert the join rows, ignoring any that are already present.
+  """
+  def tag_bookmarks_bulk(results, url_to_id) do
+    tag_rows =
+      results
+      |> Enum.flat_map(fn r -> r["tag_names"] || [] end)
+      |> Enum.map(&String.downcase/1)
+      |> Enum.uniq()
+      |> Enum.map(fn title -> %{title: title, slug: Tag.slugify(title)} end)
+
+    if tag_rows == [] do
+      {0, nil}
+    else
+      {_count, tags} =
+        Repo.insert_all(Tag, tag_rows,
+          on_conflict: {:replace, [:slug]},
+          conflict_target: :slug,
+          returning: [:id, :slug]
+        )
+
+      slug_to_id = Map.new(tags, &{&1.slug, &1.id})
+
+      join_rows =
+        results
+        |> Enum.flat_map(&join_rows_for(&1, url_to_id, slug_to_id))
+        |> Enum.uniq()
+
+      Repo.insert_all("tags_bookmarks", join_rows, on_conflict: :nothing)
+    end
+  end
+
+  defp join_rows_for(result, url_to_id, slug_to_id) do
+    for title <- result["tag_names"] || [] do
+      %{
+        bookmark_id: Map.fetch!(url_to_id, result["url"]),
+        tag_id: Map.fetch!(slug_to_id, Tag.slugify(title))
+      }
+    end
+  end
+
+  @doc """
   Gets a tag by title
   """
   def tag_by_title(title) do

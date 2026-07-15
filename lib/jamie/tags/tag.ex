@@ -26,23 +26,28 @@ defmodule Jamie.Tags.Tag do
     |> cast(attrs, [:title])
     |> validate_required([:title])
     |> update_change(:title, &String.downcase/1)
-    |> slugify()
+    |> put_slug()
     |> unique_constraint(:slug)
   end
 
-  defp slugify(changeset) do
+  @doc """
+  Turns a title into a URL-safe slug. Same rule the changeset uses, exposed
+  so bulk operations can compute the slug→id mapping the DB will land on.
+  """
+  def slugify(title) when is_binary(title) do
+    title
+    |> String.downcase()
+    |> String.replace(~r/[^a-z0-9]+/, "-")
+    |> String.trim("-")
+  end
+
+  defp put_slug(changeset) do
     case get_change(changeset, :title) do
       nil ->
         changeset
 
       title ->
-        slug =
-          title
-          |> String.downcase()
-          |> String.replace(~r/[^a-z0-9]+/, "-")
-          |> String.trim("-")
-
-        put_change(changeset, :slug, slug)
+        put_change(changeset, :slug, slugify(title))
     end
   end
 end

@@ -7,6 +7,7 @@ defmodule Jamie.Workers.SyncBookmarks do
   alias Jamie.Content.Bookmark
   alias Jamie.Repo
   alias Jamie.Service.Linkding
+  alias Jamie.Tags
   alias Jamie.Workers.BookmarkAssets
 
   @impl Oban.Worker
@@ -83,14 +84,22 @@ defmodule Jamie.Workers.SyncBookmarks do
         }
       end)
 
+    # insert the bookmarks and their tags in one transaction so a bookmark
+    # and its tags always land together
     Repo.transact(fn ->
-      {records, _stuff} =
+      {totals, bookmarks} =
         Repo.insert_all(Bookmark, structs,
           on_conflict: {:replace_all_except, [:id, :inserted_at]},
-          conflict_target: :url
+          conflict_target: :url,
+          returning: [:id, :url]
         )
 
-      {:ok, records}
+      # a bookmark that already existed under a different id keeps that id,
+      # so map tags by the real stored id (via url) not the incoming id
+      url_to_id = Map.new(bookmarks, &{&1.url, &1.id})
+      Tags.tag_bookmarks_bulk(results, url_to_id)
+
+      {:ok, totals}
     end)
 
     # If there's a next page, schedule another sync job

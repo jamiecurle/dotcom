@@ -7,7 +7,16 @@ defmodule Jamie.Workers.SyncBookmarksTest do
   alias Jamie.Repo
   alias Jamie.Service.Linkding
   alias Jamie.Support.ContentFixtures
+  alias Jamie.Tags.Tag
   alias Jamie.Workers.SyncBookmarks
+
+  defp tag_titles(bookmark_id) do
+    Repo.get!(Bookmark, bookmark_id)
+    |> Repo.preload(:tags)
+    |> Map.fetch!(:tags)
+    |> Enum.map(& &1.title)
+    |> Enum.sort()
+  end
 
   describe "sync_bookmarks" do
     setup do
@@ -71,8 +80,24 @@ defmodule Jamie.Workers.SyncBookmarksTest do
     end
 
     test "syncbook_marks tags correctly" do
-      # todo - more than just tagging things, needs the tag
-      #        infra settingt up as for notes and posts
+      # nothing to start with
+      assert 0 == Repo.aggregate(Bookmark, :count)
+      assert 0 == Repo.aggregate(Tag, :count)
+
+      # sync page one only
+      args = %{added_since: Linkding.last_synced_at()}
+      perform_job(Jamie.Workers.SyncBookmarks, args)
+
+      # page one has bookmark 373 (git, techworld) and 372 (ai, food, techworld)
+      # so four distinct tags, created once each
+      assert 4 == Repo.aggregate(Tag, :count)
+
+      assert ["ai", "food", "git", "techworld"] ==
+               Repo.all(Tag) |> Enum.map(& &1.title) |> Enum.sort()
+
+      # and the join rows link each bookmark to its own tags
+      assert ["git", "techworld"] == tag_titles(373)
+      assert ["ai", "food", "techworld"] == tag_titles(372)
     end
   end
 
@@ -106,10 +131,9 @@ defmodule Jamie.Workers.SyncBookmarksTest do
 
       perform_job(SyncBookmarks, job.args)
 
-      # assert length(jobs) == 3
-
-      # we have three
-      assert 3 == Repo.aggregate(Bookmark, :count)
+      # we have three bookmarks
+      bookmarks = Repo.all(Bookmark)
+      assert 3 == bookmarks |> length()
     end
 
     test "idempotency" do
