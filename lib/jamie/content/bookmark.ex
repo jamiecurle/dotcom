@@ -4,6 +4,16 @@ defmodule Jamie.Content.Bookmark do
 
   alias Jamie.Tags.Tag
 
+  @type t :: %__MODULE__{
+          id: integer(),
+          url: String.t(),
+          title: String.t(),
+          description: String.t() | nil,
+          favicon: String.t() | nil,
+          preview: String.t() | nil,
+          inserted_at: DateTime.t() | nil,
+          updated_at: DateTime.t() | nil
+        }
   # The id is not auto-generated — it comes from linkding, the upstream source.
   # See the sync worker, which writes linkding's id straight into this column.
   @primary_key {:id, :integer, autogenerate: false}
