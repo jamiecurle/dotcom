@@ -1,8 +1,9 @@
 defmodule Jamie.Support.FakeReq do
   @moduledoc """
-  A fake version of the req library for testing where each function matches Req
+  A fake version of the req library for testing where each function sign matches the url.
 
-  The pattern for reusability is to set the base url to something unique to each test.
+  The pattern for reusability is to set the base url to something unique to each test using
+  the setup hook.
 
   Whilst Req does have it's own methods for testing, they are specific to Req. This pattern,
   however, allows all my code to use the same testing approach when dealing with external
@@ -135,7 +136,6 @@ defmodule Jamie.Support.FakeReq do
   end
 
   # page 3
-
   def request(
         [url: "https://sync-bookmarks.describe/api/bookmarks/?limit=2&offset=4"] ++ _,
         _opts

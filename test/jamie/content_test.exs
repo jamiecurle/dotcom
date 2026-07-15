@@ -506,7 +506,7 @@ defmodule Jamie.Content.Test do
     end
 
     test "create_bookmark/1 with valid data creates a bookmark" do
-      valid_attrs = %{title: "some title", url: "some url"}
+      valid_attrs = %{title: "some title", url: "some url", id: 22}
 
       assert {:ok, %Bookmark{} = bookmark} = Content.create_bookmark(valid_attrs)
       assert bookmark.title == "some title"

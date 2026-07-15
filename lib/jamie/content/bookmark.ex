@@ -2,6 +2,8 @@ defmodule Jamie.Content.Bookmark do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Jamie.Tags.Tag
+
   # The id is not auto-generated — it comes from linkding, the upstream source.
   # See the sync worker, which writes linkding's id straight into this column.
   @primary_key {:id, :integer, autogenerate: false}
@@ -13,6 +15,8 @@ defmodule Jamie.Content.Bookmark do
     field :preview, :string
 
     timestamps(type: :utc_datetime)
+
+    many_to_many :tags, Tag, join_through: "tags_bookmarks"
   end
 
   @doc false
