@@ -1,4 +1,4 @@
-defmodule Jamie.ContentPostTest do
+defmodule Jamie.PostTest do
   use Jamie.DataCase
 
   alias Jamie.Content
