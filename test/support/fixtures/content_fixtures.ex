@@ -78,7 +78,8 @@ defmodule Jamie.Support.ContentFixtures do
 
     {:ok, bookmark} = Content.create_bookmark(attrs)
 
-    maybe_backdate(bookmark, inserted_at)
+    bookmark = maybe_backdate(bookmark, inserted_at)
+    {:ok, bookmark}
   end
 
   defp maybe_backdate(bookmark, nil), do: bookmark

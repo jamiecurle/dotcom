@@ -20,7 +20,7 @@ defmodule Jamie.Content.Note do
   @required_fields [:markdown, :title, :status]
   @optional_fields []
 
-  schema "blog_notes" do
+  schema "notes" do
     field :status, Ecto.Enum, values: @statuses, default: :draft
     field :title, :string
     field :markdown, :string

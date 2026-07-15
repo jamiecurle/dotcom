@@ -1,4 +1,4 @@
-defmodule Jamie.ContentOgImageTest do
+defmodule Jamie.OgImageTest do
   use Jamie.DataCase
   use Oban.Testing, repo: Jamie.Repo
 

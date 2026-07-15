@@ -1,4 +1,4 @@
-defmodule Jamie.Content.PostRevisionsTest do
+defmodule Jamie.PostRevisionsTest do
   use Jamie.DataCase, async: true
 
   alias Jamie.Content

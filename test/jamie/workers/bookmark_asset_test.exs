@@ -11,7 +11,7 @@ defmodule Jamie.Workers.BookmarkAssetTest do
   describe "happypath" do
     test "works as expected" do
       # build a bookmark
-      bookmark =
+      {:ok, bookmark} =
         ContentFixtures.bookmark_fixture(%{
           favicon: "https://foo.io/favicon.png",
           preview: "https://foo.io/preview.png"

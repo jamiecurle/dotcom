@@ -8,6 +8,26 @@ defmodule Jamie.Tags.Test do
   alias Jamie.Tags.Tag
 
   describe "Tags.tag/2" do
+    test "works on a bookmark" do
+      # there are no tags
+      assert 0 == Repo.aggregate(Tag, :count)
+
+      # make a bookmark
+      {:ok, bookmark} = ContentFixtures.bookmark_fixture()
+
+      # now tag it
+      {:ok, bookmark_returned} = Tags.tag(bookmark, "buhding")
+
+      # we have one tag
+      assert 1 == Repo.aggregate(Tag, :count)
+
+      # it is on the returned bookmark
+      %{tags: [tag]} = bookmark_returned
+
+      # and for good measure
+      assert tag.title == "buhding"
+    end
+
     test "works with existing tag on an post, then a note" do
       # there are no tags
       assert 0 == Repo.aggregate(Tag, :count)
@@ -27,11 +47,12 @@ defmodule Jamie.Tags.Test do
       # and it is now on our post
       assert tag in post_returned.tags
 
-      # now tag the note
+      # make a note
       {:ok, note} =
         ContentFixtures.note_attrs(status: :published)
         |> Content.create_note()
 
+      # now tag it
       {:ok, note_returned} = Tags.tag(note, "wallop")
 
       # we still have one tag

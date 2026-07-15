@@ -4,6 +4,7 @@ defmodule Jamie.Tags do
   """
 
   alias Jamie.Content.{
+    Bookmark,
     Note,
     Post
   }
@@ -16,8 +17,17 @@ defmodule Jamie.Tags do
   If the tag doesn't exist, it is created
   """
 
-  @spec tag(Post.t() | Note.t(), String.t()) :: {:ok | :error, any()}
+  @spec tag(Post.t() | Note.t() | Bookmark.t(), String.t()) :: {:ok | :error, any()}
   def tag(target, tag_title)
+
+  def tag(%Bookmark{} = bookmark, tag_title) do
+    with attrs <- %{title: tag_title},
+         tag_cs <- changeset_tag(%Tag{}, attrs),
+         {:ok, tag} <- upsert_tag(tag_cs) do
+      # tag it
+      tag_content(bookmark, tag.id)
+    end
+  end
 
   def tag(%Post{} = post, tag_title) do
     with attrs <- %{title: tag_title},
@@ -35,6 +45,16 @@ defmodule Jamie.Tags do
       # tag it
       tag_content(note, tag.id)
     end
+  end
+
+  defp tag_content(%Bookmark{} = bookmark, tag_id) do
+    Repo.insert_all(
+      "tags_bookmarks",
+      [%{bookmark_id: bookmark.id, tag_id: tag_id}],
+      on_conflict: :nothing
+    )
+
+    {:ok, Repo.preload(bookmark, :tags, force: true)}
   end
 
   defp tag_content(%Post{} = post, tag_id) do
