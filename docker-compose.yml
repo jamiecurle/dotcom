@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/jamiecurle/dotcom:latest
+    image: code.tailebf707.ts.net/jc/dotcom:latest
     ports:
       - "4000:4000"
     environment:
