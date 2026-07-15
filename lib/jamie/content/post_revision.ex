@@ -6,7 +6,7 @@ defmodule Jamie.Content.PostRevision do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "post_revisions" do
+  schema "posts_revisions" do
     field :revision_number, :integer, read_after_writes: true
     field :diff, :string
     field :snapshot, :string

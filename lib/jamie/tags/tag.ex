@@ -13,7 +13,7 @@ defmodule Jamie.Tags.Tag do
           slug: String.t() | nil
         }
 
-  schema "tag_tags" do
+  schema "tags" do
     field :title, :string
     field :slug, :string
     many_to_many :posts, Post, join_through: "tags_posts"

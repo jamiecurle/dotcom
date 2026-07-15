@@ -24,7 +24,7 @@ defmodule Jamie.Content.Post do
 
   def fields, do: @required_fields ++ @optional_fields
 
-  schema "blog_posts" do
+  schema "posts" do
     field :status, Ecto.Enum, values: @statuses, default: :draft
 
     field :title, :string

@@ -3,7 +3,7 @@ defmodule Jamie.Repo.Migrations.CreateTagsBookmarks do
 
   def change do
     create table(:tags_bookmarks, primary_key: false) do
-      add :tag_id, references(:tag_tags)
+      add :tag_id, references(:tags)
       add :bookmark_id, references(:bookmarks, type: :integer)
     end
 
