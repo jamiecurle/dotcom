@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+# Opens an IEx shell attached to the running release, the same job fly_iex_prod
+# does for Spine.
+#
+# Fly gives you `fly ssh console --select`, which finds an instance and hands
+# you a PTY. Swarm has no equivalent: `docker exec` only works on the node
+# actually hosting the task, so this hops to the swarm node first. The swarm is
+# a single node (stekpi, leader), so taking the first running container is
+# fine - revisit if a second node ever joins.
+#
+# Note the user: the account on the pi is `stekpi`, not your local username,
+# so a bare `ssh stekpi` falls back to a password prompt.
+HOST="${SWARM_HOST:-stekpi@stekpi}"
+SERVICE="${SWARM_SERVICE:-jamie_web}"
+
+# -t forces a PTY. Without it IEx has no terminal and exits immediately.
+ssh -t "$HOST" "
+  cid=\$(docker ps -q -f name=$SERVICE -f status=running | head -1)
+  if [ -z \"\$cid\" ]; then
+    echo \"no running $SERVICE container on \$(hostname)\" >&2
+    exit 1
+  fi
+  exec docker exec -it \"\$cid\" /app/bin/jamie remote
+"
