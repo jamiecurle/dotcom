@@ -20,7 +20,12 @@ defmodule Jamie.Workers.SyncBookmarks do
         Application.get_env(:jamie, :linkding)[:host] <> "/api/bookmarks/"
       )
 
-    added_since = Map.get(args, "added_since")
+    added_since =
+      if Map.get(args, "added_since") == nil do
+        Linkding.last_synced_at()
+      else
+        Map.get(args, "added_since")
+      end
 
     response =
       if added_since do
@@ -104,7 +109,7 @@ defmodule Jamie.Workers.SyncBookmarks do
 
     # If there's a next page, schedule another sync job
     if next do
-      %{"url" => next}
+      %{"url" => next, "added_since" => added_since}
       |> __MODULE__.new()
       |> Oban.insert!()
     end

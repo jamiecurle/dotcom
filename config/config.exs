@@ -21,7 +21,14 @@ config :jamie, Oban,
     bookmarks: 1,
     r2: 15
   ],
-  repo: Jamie.Repo
+  repo: Jamie.Repo,
+  plugins: [
+    {Oban.Plugins.Cron,
+     crontab: [
+       # bookmarks sync - every fifteen minutes
+       {"*/15 * * * *", Jamie.Workers.SyncBookmarks, queue: :bookmarks}
+     ]}
+  ]
 
 config :jamie, :scopes,
   user: [
