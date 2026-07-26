@@ -1,5 +1,5 @@
-## 0.11.0
-- fix: bookmark url should match linkding and be varchar(2048)
+## 0.11.1
+- fix: bookmark url and title should match linkding lengths varchar(2048/512) and not 255
 
 ## 0.11.0
 - feat: now with bookmarks

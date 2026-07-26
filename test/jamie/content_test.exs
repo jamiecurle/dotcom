@@ -486,14 +486,16 @@ defmodule Jamie.Content.Test do
       # no bookmarks
       assert 0 == Repo.aggregate(Bookmark, :count)
 
-      # make a long URL
+      # make a long URL, title
       url = "https://foo.com?powerfulmarketingreference=" <> String.duplicate("a", 1800)
+      title = String.duplicate("ab", 253)
 
       # send that as part of the fixture
-      {:ok, bookmark} = bookmark_fixture(url: url)
+      {:ok, bookmark} = bookmark_fixture(url: url, title: title)
 
-      # and the bookmark url matches
+      # and the bookmark url and title matches
       assert bookmark.url == url
+      assert bookmark.title == title
     end
 
     test "unique_constraint leads to an upsert" do
