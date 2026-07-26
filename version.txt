@@ -1,4 +1,7 @@
 ## 0.11.0
+- fix: bookmark url should match linkding and be varchar(2048)
+
+## 0.11.0
 - feat: now with bookmarks
 
 ## 0.10.0

@@ -482,6 +482,20 @@ defmodule Jamie.Content.Test do
 
     @invalid_attrs %{title: nil, url: nil}
 
+    test "we truncate anything too long" do
+      # no bookmarks
+      assert 0 == Repo.aggregate(Bookmark, :count)
+
+      # make a long URL
+      url = "https://foo.com?powerfulmarketingreference=" <> String.duplicate("a", 1800)
+
+      # send that as part of the fixture
+      {:ok, bookmark} = bookmark_fixture(url: url)
+
+      # and the bookmark url matches
+      assert bookmark.url == url
+    end
+
     test "unique_constraint leads to an upsert" do
       # make a bookmark and we have one
       {:ok, bookmark1} = bookmark_fixture()
