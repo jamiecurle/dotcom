@@ -21,6 +21,22 @@ defmodule JamieWeb do
     do:
       ~w(assets fonts images favicon.ico favicon-16x16.png favicon-32x32.png apple-touch-icon.png android-chrome-192x192.png android-chrome-512x512.png site.webmanifest llms.txt robots.txt humans.txt .well-known)
 
+  @doc """
+  Filename prefixes for the root-level static files, used by `Plug.Static`'s
+  `:only_matching`.
+
+  Two lists are needed because `:only` matches a path segment *exactly*. In
+  production `mix phx.digest` renames root files to `favicon-<hash>.ico`, and
+  `~p"/favicon.ico"` resolves to that digested name - which never matches the
+  plain `favicon.ico` in `static_paths/0`, so the request 404s before it ever
+  reaches the file. `:only_matching` matches on prefix instead, so it covers
+  both the plain and the digested name. Files under a directory already in
+  `static_paths/0` (assets, fonts, images) are fine, as the directory segment
+  matches exactly.
+  """
+  def static_prefixes,
+    do: ~w(favicon apple-touch-icon android-chrome site llms robots humans)
+
   def router do
     quote do
       use Phoenix.Router, helpers: false

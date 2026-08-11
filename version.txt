@@ -1,3 +1,6 @@
+## 0.11.2
+- fix: digested favicons and web manifest 404 in production
+
 ## 0.11.1
 - fix: bookmark url and title should match linkding lengths varchar(2048/512) and not 255
 
