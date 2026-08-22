@@ -4,7 +4,7 @@ defmodule JamieWeb.ContentLive.NoteForm do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, show_preview: true, preview_version: 0)}
   end
 
   @impl true
@@ -52,16 +52,57 @@ defmodule JamieWeb.ContentLive.NoteForm do
               phx-debounce="1500"
             />
 
-            <div class="mt-4">
+            <%!-- Per-note CSS, injected into the blank layout when the note is
+                  rendered publicly. Optional: blank means the note just gets
+                  the default notes.css. --%>
+            <.input
+              field={@form[:custom_css]}
+              type="textarea-naked"
+              label="Custom CSS"
+              class="textarea w-full font-mono min-h-48"
+              placeholder={~s(:root { --bg: #E1130F; --base: 32px; })}
+              phx-debounce="1500"
+            />
+
+            <div class="mt-4 flex items-center gap-2">
               <button type="submit" class="btn btn-primary" phx-disable-with="Saving...">
                 Save Note
+              </button>
+              <button
+                :if={@live_action == :edit}
+                type="button"
+                class="btn btn-ghost btn-sm"
+                phx-click="toggle-preview"
+              >
+                <.icon
+                  name={if @show_preview, do: "hero-eye-slash", else: "hero-eye"}
+                  class="size-4"
+                />
+                {if @show_preview, do: "Hide preview", else: "Show preview"}
               </button>
             </div>
           </.form>
         </div>
+
+        <%!-- The public note page is a plain controller, not a LiveView, so it
+              can't push its own updates. Bumping @preview_version changes the
+              iframe src, which is what makes the browser refetch it -- see
+              save_note/3. --%>
+        <div :if={@live_action == :edit and @show_preview} class="preview-pane">
+          <iframe
+            id="note-preview"
+            src={~p"/notes/#{@note.id}?v=#{@preview_version}"}
+            title="Note preview"
+          />
+        </div>
       </div>
     </Layouts.office>
     """
+  end
+
+  @impl true
+  def handle_event("toggle-preview", _params, socket) do
+    {:noreply, update(socket, :show_preview, &(!&1))}
   end
 
   @impl true
@@ -104,6 +145,7 @@ defmodule JamieWeb.ContentLive.NoteForm do
          socket
          |> assign(:note, updated)
          |> assign(:form, to_form(Content.change_note(updated)))
+         |> update(:preview_version, &(&1 + 1))
          |> put_flash(:info, "note updated successfully.")}
 
       {:error, %Ecto.Changeset{} = changeset} ->

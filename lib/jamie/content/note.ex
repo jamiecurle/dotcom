@@ -11,6 +11,7 @@ defmodule Jamie.Content.Note do
           html: String.t() | nil,
           published_on: Date.t() | nil,
           edited_on: Date.t() | nil,
+          custom_css: String.t() | nil,
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -18,7 +19,7 @@ defmodule Jamie.Content.Note do
   @statuses [:draft, :published, :hidden]
 
   @required_fields [:markdown, :title, :status]
-  @optional_fields []
+  @optional_fields [:custom_css]
 
   schema "notes" do
     field :status, Ecto.Enum, values: @statuses, default: :draft
@@ -27,6 +28,7 @@ defmodule Jamie.Content.Note do
     field :html, :string
     field :published_on, :date
     field :edited_on, :date
+    field :custom_css, :string
 
     timestamps(type: :utc_datetime_usec)
 

@@ -241,4 +241,18 @@ defmodule JamieWeb.Layouts do
     </div>
     """
   end
+
+  @doc """
+  Prepares a note's custom CSS for inlining in a `<style>` block.
+
+  The content is admin-authored, so this is not a general-purpose sanitiser —
+  it exists to stop a stray `</style>` (in a string, a comment, or a typo) from
+  closing the block early and letting the rest of the value be parsed as HTML.
+  Returns an empty string when the note has no custom CSS.
+  """
+  def inline_css(nil), do: ""
+
+  def inline_css(css) when is_binary(css) do
+    String.replace(css, ~r{</\s*style}i, "<\\/style")
+  end
 end

@@ -39,6 +39,8 @@ defmodule JamieWeb.Router do
     get "/posts/:slug/markdown", PostMarkdownController, :show
     get "/.well-known/api-catalog", ApiCatalogController, :index
 
+    get "/notes/:id", NoteController, :note
+
     live_session :public,
       on_mount: [
         {JamieWeb.UserAuth, :mount_current_scope},

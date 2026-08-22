@@ -1,0 +1,105 @@
+
+:root {
+  --ink: #fff;
+  --bg: #E1130F;
+  --base: 32px;
+
+  /* Type scale. Every size on the page is derived from --base by repeatedly
+     multiplying by --ratio, so changing --base rescales the whole note and
+     the proportions between headings stay put. Each step is chained off the
+     one below it, which is what keeps them a true geometric progression. */
+  --ratio: 1.25;
+  --step-1: calc(var(--base) * var(--ratio));
+  --step-2: calc(var(--step-1) * var(--ratio));
+  --step-3: calc(var(--step-2) * var(--ratio));
+  --step-4: calc(var(--step-3) * var(--ratio));
+
+  /* Half-steps, for sizes that want to land between two whole steps.
+     0.8944 is 1 / sqrt(--ratio); 1.1180 is sqrt(--ratio). */
+  --step-half-up: calc(var(--base) * 1.118);
+  --step-half-down: calc(var(--base) * 0.8944);
+
+  /* One whole step below base, for de-emphasised text. */
+  --step-down: calc(var(--base) / var(--ratio));
+
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+          Helvetica, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 2rem;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--base);
+  line-height: 1.5;
+  max-width: 690px;
+}
+
+/* Everything inherits white */
+body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd,
+blockquote, figure, figcaption, table, th, td, caption,
+small, strong, em, b, i, code, pre, kbd, samp, mark,
+abbr, cite, q, sub, sup, hr, label, legend,
+input, textarea, select, button {
+  color: var(--ink);
+  /*font-family: inherit;*/
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.15;
+  margin: 0.5em 0 0.5em;
+  font-weight: 700;
+}
+
+/* h6 sits at exactly --base; each heading above it climbs one step.
+   The bigger the type, the tighter it wants to be tracked. */
+h1 { font-size: var(--step-4); letter-spacing: -0.02em; }
+h2 { font-size: var(--step-3); letter-spacing: -0.015em; }
+h3 { font-size: var(--step-2); letter-spacing: -0.01em; }
+h4 { font-size: var(--step-1); }
+h5 { font-size: var(--step-half-up); }
+h6 { font-size: var(--base); text-transform: uppercase; letter-spacing: 0.05em; }
+
+p, ul, ol, dl, blockquote, table, pre, figure {
+  font-size: var(--base);
+  margin: 0 0 1em;
+}
+
+ul, ol { padding-left: 1.2em; }
+li { margin-bottom: 0.35em; }
+
+a { color: var(--ink); text-decoration: underline; text-underline-offset: 0.15em; }
+a:hover { text-decoration-thickness: 2px; }
+
+strong, b { font-weight: 700; }
+em, i { font-style: italic; }
+small, figcaption, caption { font-size: var(--step-down); }
+sub, sup { font-size: 0.7em; }
+
+blockquote {
+  margin-left: 0;
+  padding-left: 1em;
+  border-left: 3px solid var(--ink);
+  font-style: italic;
+}
+
+code, pre, kbd, samp {
+  font-family: "Helvetica Neue", Helvetica, monospace;
+  font-size: var(--step-half-down);
+}
+pre { padding: 1em; border: 1px solid var(--ink); overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.5em; border-bottom: 1px solid var(--ink); text-align: left; }
+th { font-weight: 700; }
+
+hr { border: 0; border-top: 1px solid var(--ink); margin: 2em 0; }
+
+::selection { background: var(--ink); color: var(--bg); }
+::placeholder { color: var(--ink); opacity: 0.7; }

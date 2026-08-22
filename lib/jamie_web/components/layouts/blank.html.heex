@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/css/notes.css"} />
+    <%!-- Per-note overrides, authored in /office. Loaded after notes.css so a
+          note can redefine the tokens (--bg, --base, --ratio) or any rule.
+          NB: HEEx treats <style>/<script> contents as raw text, so {...}
+          interpolation does not work in there -- it must be <%%= %>. --%>
+    <style type="text/css">
+      <%= raw(inline_css(assigns[:note] && @note.custom_css)) %>
+    </style>
+  </head>
+  {@inner_content}
+</html>

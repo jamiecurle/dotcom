@@ -84,7 +84,7 @@ config :esbuild,
   ],
   css: [
     args:
-      ~w(css/app.css --bundle --outdir=../priv/static/assets/css --external:/fonts/* --external:/images/*),
+      ~w(css/app.css css/notes.css --bundle --outdir=../priv/static/assets/css --external:/fonts/* --external:/images/*),
     cd: Path.expand("../assets", __DIR__)
   ]
 
@@ -97,6 +97,7 @@ config :tailwind,
     args: ~w(
       --input=assets/css/admin.css
       --output=priv/static/assets/css/admin.css
+
     ),
     cd: Path.expand("..", __DIR__)
   ]
