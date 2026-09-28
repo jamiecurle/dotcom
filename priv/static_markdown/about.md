@@ -1,7 +1,8 @@
 # About
 
 This is about me, the human. The one inside and outside of nine to five Monday to Friday.
-It is the version that doesn't fit into LinkedIn.
+It is the version that doesn't fit into LinkedIn. If you want my actual professional website
+the go to [https://jamiecurle.ltd](https://jamiecurle.ltd)
 
 My professional practice is informed by a solid grounding in engineering, infosec, privacy, teaching. I bind these things together with **design**.
 
@@ -76,13 +77,13 @@ Working closely with legal counsel I set up and maintained the privacy governanc
 
 Vendor security assessments gave me a solid basis from which to learn the field of information security. I qualified as an ISO27001 lead implementor in late 2018. By 2022 SoPost had been certified ISO/IEC 27001:2013 compliant. It would have been sooner, but COVID meant a ground up redesign of the ISMS based on remote-first.
 
-I've maintained a privacy and infosec practice. I'm a [member of the IAPP][pig2] and I'm working towards the [AI Governance Professional - AIGP][pig3] and [Certified Information Privacy Professional/Europe][pig4]. 
+I've maintained a privacy and infosec practice. I'm a [member of the IAPP][pig2] and I'm working towards the[CIPP/E: Certified Information Privacy Professional/Europe][pig4] and [CIPT: Certified Information Privacy Technologist][pig3]. 
 
 I actually enjoy reading ISO standards.
 
 [pig1]: https://sopost.com/
 [pig2]: https://iapp.org/
-[pig3]: https://iapp.org/certify/aigp
+[pig3]: https://iapp.org/certify/cipt
 [pig4]: https://iapp.org/certify/cipp
 
 
