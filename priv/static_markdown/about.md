@@ -1,16 +1,12 @@
-# About
-
 This is about me, the human. The one inside and outside of nine to five Monday to Friday.
 It is the version that doesn't fit into LinkedIn. If you want my actual professional website
 the go to [https://jamiecurle.ltd](https://jamiecurle.ltd)
 
 My professional practice is informed by a solid grounding in engineering, infosec, privacy, teaching. I bind these things together with **design**.
 
-My guiding principle is to do things the hard way because it makes everything easy. Take the easy path and everything is hard. Framing is everything.
-
 Here's how I arrived at where I'm at.
 
-### LEARNING
+## LEARNING
 
 A senior school teacher, Mr Mitchinson, put me on a journey to be a well rounded human being. So far in my life I've spent time as a [drummer](https://open.spotify.com/artist/6byF8ppsdUXcfuhAsSXaYE?si=fb232578b4a84f21), an olympic weightlifter, [an arborist](https://www.youtube.com/@lifeoftreedom), a teacher, a designer, a developer, a lead engineer, a CTO and CIO and most importantly an avid cook / bread baker. 
 
@@ -24,7 +20,7 @@ The most important thing I've learned is that relationships are more important t
 Time is cruel and distraction is a never ending battle.
 
 
-### DESIGN
+## DESIGN
 
 I started out in design as a pre-internet graphic designer. I moved to technology in 1998 where I started using html and css. 
 
@@ -34,7 +30,7 @@ Aesthetically speaking, I think there are [two kinds of designers in the world](
 
 Understanding design as a process is a super skill.
 
-### ENGINEER
+## ENGINEER
 
 As as designer I wrote code. I began teaching myself HTML in the late 1990's using [HTML Goodies][e1] and by right clicking and using view source. I moved onto CSS, ActionScript & JavaScript. Then I learned some [Perl, then PHP][e2]. It was magical. 
 
@@ -55,7 +51,7 @@ In todays' AI driven world, two of the main concepts from [Accelerate][d1] remai
 [e7]: https://jamiecurle.ltd
 [e8]: https://exercism.org/tracks/elixir
 
-### DEVOPS
+## DEVOPS
 
 I deployed my first server into my bedroom on a Saturday night in 2003. I took my only PC and installed Mandrake linux on it. There was no other PC with internet access and iPhones hadn't been invented. It took a day or so of reading man pages to be able to use it. I re-installed windows XP on the following Monday. I don't mind experimenting.
 
@@ -69,7 +65,7 @@ All engineers should be able to deploy frequently and correct errors and quickly
 
 [d1]: https://www.amazon.co.uk/Accelerate-Software-Performing-Technology-Organizations/dp/1942788339
 
-### PRIVACY, INFOSEC & GOVERNANCE.
+## PRIVACY, INFOSEC & GOVERNANCE.
 
 From 2016 until 2022, I spent a good section of my time as CTO/CIO at [SoPost][pig1] dealing with vendor security and privacy assessments. I was responsible for navigating the company through that part and ensuring the deals closed.
 
@@ -87,7 +83,7 @@ I actually enjoy reading ISO standards.
 [pig4]: https://iapp.org/certify/cipp
 
 
-### AI
+## AI
 
 AI is amazing.  As a child of seventies who used to have to go to a library to get books to read, the internet blew my head off. To now also have AI is wild. It is one of the best times to be a human on the planet.
 
@@ -102,7 +98,7 @@ Whilst I may use AI to gather my thoughts and spell check things, I <strong>do n
 
 It's an excellent cognitive exo-skeleton and a good pair-programmer.
 
-### AGI
+## AGI
 
 When AI gets a right hemisphere, ingests real-time sensory data from **everything** around it in a functionally similar way that humans do, they can power themselves and they can self-train on the fly, then, and only then, we have AGI. 
 
@@ -112,7 +108,7 @@ I'm not holding my breath for the former. I expect the latter, and soon, because
 
 [agi0]: https://pragprog.com/titles/jwpaieng/a-common-sense-guide-to-ai-engineering/
 
-### LEADER
+## LEADER
 
 Leadership isn't taken. It's given and earned.
 
@@ -139,7 +135,7 @@ I remember second of every situation in which I had to do that. I took no satisf
 Think before leading, it's more than a title.
 
 
-### TEACHERS
+## TEACHERS
 Very early on in my life I was fortunate to have exposure to exceptional teachers.
 
 They've impacted my life deeply and put me on a lifelong journey to be a well rounded
@@ -160,7 +156,7 @@ human being. If you taught me and your name is not in the below list then unders
 To each of you **thank you**. 
 
 
-### TEACHING
+## TEACHING
 
 Thanks to being lucky enough and privileged enough to get tutored by some truly excellent teachers I know the power a good teacher can give to a students life trajectory.
 
@@ -172,7 +168,7 @@ higher is just not classy.
 Teaching is a super skill like design.
 
 
-### MEDITATION
+## MEDITATION
 
 I've been formally meditating on and off for a decade. It's insightful on an existential level and very useful in managing distraction and in cultivating attention. I am not consistent in my practice. I don't judge myself for not being consistent.
 
@@ -181,7 +177,7 @@ We spend our lives distracted. Rarely do we experience awareness by chance. It h
 Design and teaching are professional super skills. Meditation is the ultimate personal skill. You should try meditation. If you don't have time for meditation, you should spend twice as long on it.
 
 
-### TREES
+## TREES
 
 In 2022 I'd been in tech for nearly quarter of a century and I was approaching my mid-forties. Prime time life-reflection territory. I don't mind if you refer to this also as a mid-life crisis. I don't, but I'm comfortable if you do. I didn't rush out and buy a sports car. I bought an [ancient semi-natural woodland][t1] instead. I resigned from my role as CIO (*responsibly and over a long period*). I set up my own company where I did engineering, privacy and tree-work part-time. For the rest of the time I studied Arboriculture and Woodland Management.
 
@@ -202,7 +198,7 @@ I have no time for ticks.
 [t2]: https://lifeoftreedom.com/
 [t3]: https://www.youtube.com/@lifeoftreedom
 
-### PROFESSIONAL ME
+## PROFESSIONAL ME
 
 To most people, I don't fit into a nice neat box. I've developed my engineering practice over a twenty year period and I'm a very competent engineer over the full stack. I can teach, I can lead and I'm fully up on infosec, privacy and AI governance.
 

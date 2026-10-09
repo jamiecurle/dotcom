@@ -1,48 +1,247 @@
 /* start post.css */
 
 @layer content {
-    body#post time {
-        display: block;
-        font-size: var(--unit-2-2);
-        text-align: center;
+    /* MASTHEAD
+       date, title and standfirst sit on the homepage's cyan field. The
+       field bleeds to the right edge of the window with the box-shadow /
+       clip-path trick, so nothing overflows and nothing scrolls sideways. */
+    header.masthead {
+        position: relative;
+        margin: calc(-1 * var(--unit-3)) calc(-1 * var(--unit-3)) 0;
+        padding: var(--unit-5) var(--unit-3) var(--unit-4);
+        box-shadow: 0 0 0 100vmax;
+        clip-path: inset(0 -100vmax 0 0);
+    }
+
+    /* date and reading time: the homepage's small, upper, tracked voice */
+    header.masthead .post-meta {
+        display: flex;
+        gap: var(--unit-3);
+        padding-bottom: var(--unit-1);
+        border-bottom: 2px solid;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
         text-transform: uppercase;
-        font-weight: bold;
-        padding: var(--unit-3);
+        letter-spacing: 0.05em;
+        font-variant-numeric: tabular-nums;
     }
-    hr,
-    header.post time,
-    header.post p {
-        border-bottom: 1px solid;
+
+    header.masthead h1.page-title {
+        margin: var(--unit-4) 0 var(--unit-3);
     }
-    header.post p {
+
+    header.masthead p.standfirst {
+        max-width: 40ch;
+        margin: 0;
         font-size: var(--unit-3-2);
-        line-height: var(--unit-4-3);
-        font-weight: 400;
+        line-height: var(--unit-4);
+        font-weight: 500;
         letter-spacing: -0.5px;
-        margin-top: var(--unit-3);
-        margin-bottom: var(--unit-2);
-        padding: var(--unit-3) var(--unit-3) var(--unit-3) 0;
-        border-top: 1px solid;
+    }
+
+    /* tags: the meta line's small tracked voice, each one a dark tab that
+       turns white on hover, set at the foot of the masthead */
+    header.masthead ul.post-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--unit-1);
+        list-style: none;
+        margin: var(--unit-4) 0 0;
+        padding: 0;
+    }
+    header.masthead ul.post-tags li {
+        margin: 0;
+        padding: 0;
+    }
+    header.masthead ul.post-tags a {
+        display: block;
+        padding: var(--unit-0) var(--unit-1);
+        text-decoration: none;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
     }
 
     @media (min-width: 750px) {
-        header.post {
-            /*margin-left: var(--unit-4);*/
-            padding-right: var(--unit-4);
+        header.masthead {
+            padding: var(--unit-6) var(--unit-4) var(--unit-5) var(--unit-6);
+            margin-left: calc(-1 * var(--unit-6));
         }
         h1.page-title {
             font-size: var(--unit-6);
             letter-spacing: -3px;
             line-height: var(--unit-6);
-            padding: var(--unit-3) var(--unit-3) var(--unit-3) 0;
-            margin-bottom: 0;
-            /*padding-left: var(--unit-3-2);*/
         }
+        header.masthead p.standfirst {
+            font-size: var(--unit-4);
+            line-height: var(--unit-4-2);
+            letter-spacing: -1px;
+        }
+    }
 
+    /* BODY
+       wide screens get a left gutter that the section numbers hang in */
+    section.page-content {
+        position: relative;
+        padding-top: var(--unit-5);
+    }
+
+    @media (min-width: 750px) {
+        body#post > main,
+        body#blog > main,
+        body.page > main {
+            padding-left: var(--unit-6);
+        }
         div.post-body {
             padding: var(--unit-2) var(--unit-4) var(--unit-2) 0;
         }
     }
+
+    /* every h2 is numbered 01, 02… The number hangs in the gutter on wide
+       screens and sits above the heading on narrow ones. The contents in
+       the margin counts the same way, so the two always agree. */
+    .post-body {
+        counter-reset: section;
+    }
+    .post-body h2 {
+        counter-increment: section;
+        position: relative;
+        margin-top: var(--unit-6);
+        scroll-margin-top: var(--unit-5);
+    }
+    .post-body h2::before {
+        content: counter(section, decimal-leading-zero);
+        display: block;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        font-variant-numeric: tabular-nums;
+    }
+    @media (min-width: 750px) {
+        .post-body h2::before {
+            position: absolute;
+            right: 100%;
+            top: 0.6em;
+            width: var(--unit-6);
+            padding-right: var(--unit-3);
+            text-align: right;
+        }
+    }
+
+    /* CONTENTS
+       lives in the empty margin to the right of the column and follows you
+       down the page. Only on screens wide enough to hold it. */
+    aside.margin-nav {
+        display: none;
+    }
+    @media (min-width: 1250px) {
+        aside.margin-nav {
+            display: block;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: calc(100% + var(--unit-6));
+            width: calc(4 * var(--unit-6));
+        }
+        aside.margin-nav nav {
+            position: sticky;
+            top: var(--unit-5);
+            padding-top: var(--unit-5);
+        }
+    }
+    aside.margin-nav h2 {
+        margin: 0 0 var(--unit-2);
+        padding-bottom: var(--unit-1);
+        border-bottom: 2px solid;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    aside.margin-nav ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        counter-reset: contents;
+    }
+    aside.margin-nav li {
+        counter-increment: contents;
+        margin: 0;
+        padding: 0;
+        border-bottom: 1px solid;
+    }
+    aside.margin-nav a {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--unit-2);
+        align-items: baseline;
+        padding: var(--unit-2) 0;
+        text-decoration: none;
+        font-size: var(--unit-2-2);
+        line-height: var(--unit-3);
+        font-weight: 600;
+    }
+    /* the post contents is numbered to match the hanging section numbers */
+    aside.margin-nav ol.numbered a {
+        display: grid;
+        grid-template-columns: var(--unit-4) 1fr;
+    }
+    aside.margin-nav ol.numbered a::before {
+        content: counter(contents, decimal-leading-zero);
+        font-size: var(--unit-2-1);
+        letter-spacing: 0.05em;
+        font-variant-numeric: tabular-nums;
+    }
+    aside.margin-nav a small {
+        font-size: var(--unit-2-1);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        font-variant-numeric: tabular-nums;
+    }
+    aside.margin-nav a span {
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        padding: 0 var(--unit-0);
+        margin: 0 calc(-1 * var(--unit-0));
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+
+    /* MORE WRITING
+       the homepage index again, closing the page */
+    section.more-writing {
+        margin-top: var(--unit-6);
+        padding: var(--unit-5) 0 var(--unit-3);
+    }
+    @media (min-width: 750px) {
+        section.more-writing {
+            padding-right: var(--unit-4);
+        }
+        section.more-writing ol.writing-index a {
+            display: grid;
+            grid-template-columns: calc(2 * var(--unit-6)) 1fr;
+            column-gap: var(--unit-3);
+            align-items: baseline;
+        }
+    }
+    section.more-writing h2 {
+        margin: 0 0 var(--unit-3);
+    }
+    /* the label's 2px rule already opens the list */
+    section.more-writing ol.writing-index li:first-child {
+        border-top: 0;
+    }
+
     .post-body h1,
     .post-body h2,
     .post-body h3,
@@ -52,6 +251,7 @@
         text-decoration: underline;
         text-decoration-thickness: var(--unit-1);
         text-underline-offset: 0.2em;
+        text-decoration-skip-ink: none;
         border-bottom: none;
     }
 
@@ -117,48 +317,35 @@
         }
     }
 
-    /* archive index */
-    section.archive-year h2,
-    section.archive-year h3 {
-        font-size: var(--unit-4);
-        text-transform: uppercase;
-        z-index: 10000;
+    /* ARCHIVE
+       each year is a section: the year set big over the 2px rule, with the
+       homepage's dated index underneath and the years listed in the margin */
+    section.archive-year {
+        margin-bottom: var(--unit-6);
+        scroll-margin-top: var(--unit-5);
     }
-    .archive-year,
-    .archive-month {
-        display: grid;
-        grid-template-columns: 6rem 1fr;
-        gap: var(--unit-1);
-        align-items: start;
-    }
-    .archive-month-label {
-        top: 0;
-    }
-    .archive-year-label,
-    .archive-month-label {
-        position: sticky;
-        top: 0;
-        margin: 0;
-        padding-bottom: var(--unit-3);
-        margin-bottom: var(--unit-3);
-    }
-
-    .archive-posts {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    @media (max-width: 754px) {
-        .archive-year,
-        .archive-month {
-            grid-template-columns: 1fr;
-        }
-        .archive-year-label,
-        .archive-month-label {
-            display: none;
+    @media (min-width: 750px) {
+        section.archive-year {
+            padding-right: var(--unit-4);
         }
     }
+    section.archive-year h2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 0;
+    }
+    section.archive-year h2 .year {
+        font-size: var(--unit-5);
+        line-height: var(--unit-5);
+        letter-spacing: -1px;
+        font-weight: 700;
+        text-transform: none;
+    }
+    section.archive-year ol.writing-index li:first-child {
+        border-top: 0;
+    }
+
 }
 
 /* end post.css */

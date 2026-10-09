@@ -50,135 +50,142 @@
         z-index: 1;
     }
 
-    /*posts */
+    /* latest writing: a typographic index rather than cards. The newest
+       post leads at display size; the rest sit on hairlines with the date
+       in its own narrow column, like a contents page. */
 
-    div.latest-published-posts {
-        margin: calc(1 * var(--unit-6)) var(--unit-2) var(--unit-2);
-        padding: var(--unit-2);
+    /* on the homepage the list sits in the photo, clear of the fixed header */
+    #alreet .writing-list {
         width: 100%;
-    }
-    div.latest-published-posts a {
-        border-radius: var(--unit-2);
-        display: block;
-        margin-bottom: var(--unit-3);
+        margin: calc(var(--unit-6) + var(--unit-4)) 0 var(--unit-5);
         padding: var(--unit-3);
-        text-decoration: none;
-        font-weight: 600;
-        transition: transform 0.2s ease-in-out;
-
-        &:hover {
-            transform: scale(1.2);
-        }
-
-        p {
-            margin: 0;
-            line-height: var(--unit-2-3);
-            padding: 0;
-        }
-        p time {
-            display: block;
-            font-size: var(--unit-2-1);
-        }
     }
 
+    .writing-list a {
+        display: block;
+        text-decoration: none;
+    }
+
+    /* the label everything hangs from */
+    .writing-list h2 {
+        margin: 0 0 var(--unit-4);
+        padding-bottom: var(--unit-1);
+        border-bottom: 2px solid;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* dates use the same voice as the post page: small, upper, tracked */
+    .writing-list time {
+        display: block;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* titles wrap as highlighter strokes on hover, one bar per line. The
+       inner span stays inline so the bar follows each line, even when the
+       title itself is a grid cell. */
+    .writing-list .title > span {
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        padding: 0 var(--unit-0);
+        margin: 0 calc(-1 * var(--unit-0));
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+
+    a.lead-post {
+        margin-bottom: var(--unit-5);
+    }
+
+    a.lead-post time {
+        margin-bottom: var(--unit-2);
+    }
+
+    a.lead-post .title {
+        font-size: var(--unit-5);
+        line-height: calc(var(--unit-5) - var(--unit-1));
+        letter-spacing: -1px;
+        font-weight: 700;
+    }
+
+    a.lead-post .description {
+        display: block;
+        max-width: 40ch;
+        margin-top: var(--unit-3);
+        font-size: var(--unit-3);
+        line-height: var(--unit-3-2);
+        font-weight: 500;
+    }
+
+    ol.writing-index {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        border-bottom: 1px solid;
+    }
+
+    ol.writing-index li {
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid;
+    }
+
+    ol.writing-index a {
+        padding: var(--unit-2) 0;
+    }
+
+    /* the index stays at body size so the lead keeps all the weight */
+    ol.writing-index .title {
+        font-size: var(--unit-3);
+        line-height: var(--unit-3-1);
+        font-weight: 600;
+    }
+
+    a.all-writing {
+        display: inline-block;
+        margin-top: var(--unit-3);
+        padding: var(--unit-0) var(--unit-1);
+        margin-left: calc(-1 * var(--unit-1));
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+
+    .writing-list a:focus-visible {
+        outline: 2px solid;
+        outline-offset: var(--unit-0);
+    }
+
+    /* wider screens: the index takes the right half of the photo and the
+       dates get their own column */
     @media (min-width: 755px) {
-        div.latest-published-posts {
+        #alreet .writing-list {
             width: 50%;
             margin-left: 50%;
+            padding: 0 var(--unit-5) 0 var(--unit-3);
+        }
+
+        ol.writing-index a {
+            display: grid;
+            grid-template-columns: calc(2 * var(--unit-6)) 1fr;
+            column-gap: var(--unit-3);
+            align-items: baseline;
         }
     }
-    /*start claude generate posts */
-
-    /*div#alreet div.latest-published-posts {
-        margin-top: calc(2.2 * var(--unit-6));
-        margin-left: auto;
-        margin-right: var(--unit-3);
-        width: min(360px, 40vw);
-        display: flex;
-        flex-direction: column;
-        gap: var(--unit-2);
-        padding: var(--unit-3);
-        background: rgba(255, 255, 255, 0.82);
-        backdrop-filter: blur(10px) saturate(1.4);
-        -webkit-backdrop-filter: blur(10px) saturate(1.4);
-        border-radius: var(--unit-2);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-    }
-
-    div#alreet div.latest-published-posts h2 {
-        font-size: var(--unit-2-1);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin: 0 0 var(--unit-1);
-        opacity: 0.7;
-    }
-
-    div#alreet div.latest-published-posts a.featured-post {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        padding: var(--unit-2) 0;
-        border-top: 1px solid rgba(0, 0, 0, 0.12);
-        transition:
-            transform 120ms ease,
-            opacity 120ms ease;
-    }
-
-    div#alreet div.latest-published-posts a.featured-post:hover {
-        transform: translateX(2px);
-    }
-
-    div#alreet div.latest-published-posts a.featured-post:hover .read-more {
-        text-decoration: underline;
-    }
-
-    div#alreet div.latest-published-posts a.featured-post h3 {
-        margin: 0 0 var(--unit-1);
-        font-size: var(--unit-3);
-        line-height: 1.2;
-    }
-
-    div#alreet div.latest-published-posts a.featured-post p {
-        margin: 0 0 var(--unit-1);
-        font-size: var(--unit-2);
-        line-height: 1.35;
-        opacity: 0.78;
-        display: -webkit-box;
-
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    div#alreet div.latest-published-posts a.featured-post span.read-more {
-        font-size: var(--unit-2-1);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 600;
-    }
-
-    div#alreet div.latest-published-posts a.all-posts {
-        margin-top: var(--unit-1);
-        align-self: flex-end;
-        font-size: var(--unit-2-1);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 600;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    div#alreet div.latest-published-posts a.all-posts:hover {
-        text-decoration: underline;
-    }
-
-    @media (max-width: 768px) {
-        div#alreet div.latest-published-posts {
-            margin: auto var(--unit-2) var(--unit-2);
-            width: auto;
-        }
-    }*/
-
-    /*end claude*/
 
     @media (max-width: 768px) {
         div#alreet {
@@ -188,6 +195,87 @@
         }
         div#alreet::before {
             display: none;
+        }
+    }
+}
+
+@layer content {
+    /* THE BAND
+       under the photo, on white: the most read posts, ranked, beside the
+       next twenty as the same dated index. Side by side on wide screens,
+       Most read first when stacked. */
+    div#home-band {
+        display: grid;
+        gap: var(--unit-6);
+        padding: var(--unit-5) var(--unit-3);
+    }
+    @media (min-width: 750px) {
+        div#home-band {
+            padding: var(--unit-6) var(--unit-5) var(--unit-6) var(--unit-6);
+        }
+    }
+    @media (min-width: 1100px) {
+        div#home-band {
+            grid-template-columns: 1fr 2fr;
+            align-items: start;
+        }
+        /* with no ranking to show, the earlier writing takes the width */
+        div#home-band > section:only-child {
+            grid-column: 1 / -1;
+        }
+    }
+
+    /* hairlines go under each row, so the label's 2px rule opens every
+       column and no column needs its own top line */
+    #home-band ol.writing-index {
+        border-bottom: 0;
+    }
+    #home-band ol.writing-index li {
+        border-top: 0;
+        border-bottom: 1px solid;
+    }
+
+    /* ranked: 01, 02… in a narrow column where the date would be, counted
+       the same way as the contents on a post */
+    ol.writing-index.ranked {
+        counter-reset: rank;
+    }
+    ol.writing-index.ranked li {
+        counter-increment: rank;
+    }
+    #home-band ol.writing-index.ranked a {
+        display: grid;
+        grid-template-columns: var(--unit-4) 1fr;
+        column-gap: 0;
+        align-items: baseline;
+    }
+    ol.writing-index.ranked a::before {
+        content: counter(rank, decimal-leading-zero);
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* the earlier writing splits into two columns reading downwards once
+       there's room for two date columns */
+    @media (min-width: 1400px) {
+        #earlier-writing ol.writing-index {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(var(--rows), auto);
+            column-gap: var(--unit-5);
+        }
+    }
+    @media (min-width: 1100px) {
+        div#home-band > #earlier-writing:only-child ol.writing-index {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(var(--rows), auto);
+            column-gap: var(--unit-5);
         }
     }
 }

@@ -134,46 +134,39 @@ All colours MUST be in this file and only this file.
     .post-body h4,
     .post-body h5,
     .post-body h6 {
-        text-decoration-color: var(--colour-light-3);
+        text-decoration-color: var(--c-accent-dark); /* the cyan bar from jamiecurle.ltd */
     }
 
-    /* footer structure */
+    /* footer: light type on the dark field, cyan for the labels and the
+       name, the same highlighter as the writing index on hover */
     footer {
         background-color: var(--colour-dark-2);
         color: var(--colour-light-3);
         border-top-color: var(--colour-dark-2);
     }
-
-    footer::before {
-        background: inherit;
-        border-top-color: var(--colour-dark-2);
-    }
-
     footer div.bio {
-        color: var(--colour-light-3);
+        color: var(--colour-light-1);
     }
-
-    footer div.colophon a,
-    footer nav.urgh-words a,
-    footer div.bio a {
-        color: var(--colour-dark-2);
-        background: var(--c-accent-dark-5);
+    footer nav.footer-links h2 {
+        color: var(--c-accent-dark);
+        border-bottom-color: var(--colour-light-1);
     }
-    footer nav.urgh-words h6 {
-        color: var(--colour-light-4);
+    footer nav.footer-links li {
+        border-bottom-color: var(--colour-dark-4);
     }
-
-    /* footer social icons */
-    footer nav.ooh-pictures a {
-        color: var(--colour-light-3);
+    footer nav.footer-links a {
+        color: var(--colour-light-1);
     }
-
-    footer nav.ooh-pictures a svg path {
-        fill: var(--colour-light-6);
-    }
-
     footer div.colophon {
         color: var(--colour-light-6);
+        border-top-color: var(--colour-dark-4);
+    }
+    footer div.colophon a {
+        color: var(--colour-light-3);
+        text-decoration-color: var(--c-accent-dark);
+    }
+    footer p.wordmark {
+        color: var(--c-accent-dark);
     }
     /*
     nav states
@@ -208,39 +201,89 @@ All colours MUST be in this file and only this file.
             );
         }
 
-        footer nav.urgh-words a:hover,
-        footer div.bio a:hover {
-            background: var(--c-accent-dark-5);
-            box-shadow: 0 var(--unit-0) var(--colour-light-1);
-        }
-
-        footer nav.ooh-pictures a.linkedin:hover svg path {
-            fill: var(--colour-linkedin);
-        }
-        footer nav.ooh-pictures a.github:hover svg path {
-            fill: var(--colour-light-1);
-        }
-        footer nav.ooh-pictures a.rss:hover svg path {
-            fill: var(--colour-rss);
+        footer nav.footer-links a:hover span,
+        footer div.colophon a:hover {
+            background-color: var(--c-accent-dark);
+            color: var(--colour-dark-2);
         }
     }
 }
 
 @layer content {
     /*posts*/
-    hr,
-    header.post time,
-    header.post p {
+    hr {
         border-bottom-color: var(--colour-light-3);
     }
 
-    header.post time {
-        color: var(--colour-light-6);
+    /* on post pages the site header joins the masthead as one cyan field */
+    body#post > header,
+    body#blog > header,
+    body.page > header {
+        background-color: var(--c-accent-dark);
     }
-    header.post p {
-        color: var(--colour-dark-3);
-        border-top-color: var(--colour-light-3);
+
+    /* masthead: dark type on the homepage cyan */
+    header.masthead {
+        background-color: var(--c-accent-dark);
+        color: var(--c-accent-dark);
     }
+    header.masthead .post-meta {
+        color: var(--c-accent-dark-8);
+        border-bottom-color: var(--colour-dark-2);
+    }
+    header.masthead h1.page-title {
+        color: var(--colour-dark-2);
+    }
+    header.masthead p.standfirst {
+        color: var(--colour-dark-2);
+    }
+
+    /* hanging section numbers and the contents margin */
+    .post-body h2::before {
+        color: var(--c-accent-dark-7);
+    }
+    aside.margin-nav,
+    aside.margin-nav a {
+        color: var(--colour-dark-2);
+    }
+    aside.margin-nav h2 {
+        border-bottom-color: var(--colour-dark-2);
+    }
+    aside.margin-nav li {
+        border-bottom-color: var(--colour-light-4);
+    }
+    aside.margin-nav ol.numbered a::before,
+    ol.writing-index.ranked a::before,
+    aside.margin-nav a small {
+        color: var(--c-accent-dark-7);
+    }
+    /* masthead tags: dark tabs on the cyan, turning over on hover */
+    header.masthead ul.post-tags a {
+        background-color: var(--colour-dark-2);
+        color: var(--c-accent-dark);
+    }
+    @media (hover: hover) {
+        header.masthead ul.post-tags a:hover {
+            background-color: var(--colour-light-1);
+            color: var(--colour-dark-2);
+        }
+    }
+
+    /* the section being read: a cyan highlighter, the number goes dark */
+    aside.margin-nav a[aria-current] span {
+        background-color: var(--c-accent-dark);
+        color: var(--colour-dark-2);
+    }
+    aside.margin-nav ol.numbered a[aria-current]::before {
+        color: var(--colour-dark-2);
+    }
+    @media (hover: hover) {
+        aside.margin-nav a:hover span {
+            background-color: var(--colour-dark-2);
+            color: var(--c-accent-dark-5);
+        }
+    }
+
     .post-body h1,
     .post-body h2,
     .post-body h3,
@@ -411,17 +454,56 @@ body#error-404 a {
     color: var(--colour-dark-5);
 }
 /*homepage*/
-div.latest-published-posts {
-    nav a {
-        background-color: var(--colour-dark-2);
-        color: var(--c-accent-dark-5);
+@layer content {
+    /* dark type straight onto the cyan field */
+    .writing-list,
+    .writing-list a {
+        color: var(--colour-dark-2);
+    }
+    .writing-list h2 {
+        color: var(--colour-dark-2);
+        border-bottom-color: var(--colour-dark-2);
+    }
+    .writing-list time {
+        color: var(--c-accent-dark-8);
+    }
+    a.lead-post .description {
+        color: var(--colour-dark-3);
+    }
+    /* hairlines are light grey on white, and darker on the homepage cyan */
+    ol.writing-index,
+    ol.writing-index li {
+        border-color: var(--colour-light-3);
+    }
+    #alreet ol.writing-index,
+    #alreet ol.writing-index li {
+        border-color: color-mix(in oklch, var(--colour-dark-2) 30%, transparent);
+    }
+    .writing-list a:focus-visible {
+        outline-color: var(--colour-dark-2);
+    }
 
-        time {
-            color: var(--colour-dark-6);
+    /* the old dark pill lives on as the hover highlight */
+    @media (hover: hover) {
+        .writing-list a:hover .title > span,
+        a.all-writing:hover {
+            background-color: var(--colour-dark-2);
+            color: var(--c-accent-dark-5);
         }
     }
-    h2 {
-        text-transform: uppercase;
+}
+
+@layer content {
+    /* header name: plain white type, underlines on hover instead of a pill */
+    body > header div.header-content a.wordmark {
         color: var(--colour-light-1);
+        background-color: transparent;
+    }
+    @media (hover: hover) {
+        body > header div.header-content a.wordmark:hover {
+            background-color: transparent;
+            color: var(--colour-light-1);
+            text-decoration-line: underline;
+        }
     }
 }

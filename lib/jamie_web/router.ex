@@ -56,6 +56,7 @@ defmodule JamieWeb.Router do
       ] do
       live "/posts", ContentLive.Index, :index
       live "/posts/:slug", ContentLive.Post, :post
+      live "/tags/:slug", ContentLive.Index, :tag
     end
   end
 

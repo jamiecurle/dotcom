@@ -4,18 +4,51 @@
   </div>
 <% end %>
 
-<header class="post">
-  <.pretty_date date={@post.published_on} />
+<%!-- the masthead sits on the same cyan field as the homepage --%>
+<header class="masthead">
+  <div class="post-meta">
+    <.pretty_date date={@post.published_on} />
+    <span class="reading-time">{@reading_minutes} min read</span>
+  </div>
   <h1 class="page-title">{@post.title}</h1>
-  <p>
-    {@post.description}
-  </p>
+  <p :if={@post.description} class="standfirst">{@post.description}</p>
+  <ul :if={@tags != []} class="post-tags" aria-label="Tags">
+    <li :for={tag <- @tags}>
+      <.link navigate={~p"/tags/#{tag.slug}"} id={"tag-#{tag.slug}"}>{tag.title}</.link>
+    </li>
+  </ul>
 </header>
+
 <section class="page-content">
+  <%!-- numbered contents in the margin, numbers matching the hanging
+       section numbers on each h2 in the body --%>
+  <aside :if={Enum.any?(@toc, &match?({2, _, _}, &1))} class="margin-nav">
+    <nav aria-labelledby="contents-title">
+      <h2 id="contents-title">Contents</h2>
+      <ol class="numbered">
+        <li :for={{2, text, anchor} <- @toc}>
+          <a href={"#" <> anchor}><span>{text}</span></a>
+        </li>
+      </ol>
+    </nav>
+  </aside>
+
   <article>
-    <%!-- Post body --%>
     <div class="post-body">
       {raw(@post.html)}
     </div>
   </article>
+</section>
+
+<section :if={@more_posts != []} id="more-writing" class="writing-list more-writing">
+  <h2>More writing</h2>
+  <ol class="writing-index">
+    <li :for={post <- @more_posts}>
+      <a href={~p"/posts/#{post.slug}"} id={"more-post-#{post.id}"}>
+        <.pretty_date date={post.published_on} />
+        <span class="title"><span>{post.title}</span></span>
+      </a>
+    </li>
+  </ol>
+  <a href={~p"/posts"} class="all-writing">All writing</a>
 </section>

@@ -1,19 +1,67 @@
 <div id="alreet">
-  <div class="latest-published-posts">
-    <h2>Latest writing</h2>
-    <nav class="post">
-      <a
-        :for={post <- @posts}
-        href={~p"/posts/#{post.slug}"}
-        id={"post-#{post.id}"}
-        class="featured-post"
-      >
-        <p>
-          {post.title}
+  <section
+    id="latest-writing"
+    class="writing-list"
+    aria-labelledby="latest-writing-title"
+  >
+    <h2 id="latest-writing-title">Latest writing</h2>
 
+    <%!-- the newest post leads; everything after it is a plain index --%>
+    <a :if={@lead} href={~p"/posts/#{@lead.slug}"} id={"post-#{@lead.id}"} class="lead-post">
+      <.pretty_date date={@lead.published_on} />
+      <span class="title"><span>{@lead.title}</span></span>
+      <span :if={@lead.description} class="description">{@lead.description}</span>
+    </a>
+
+    <ol :if={@rest != []} class="writing-index">
+      <li :for={post <- @rest}>
+        <a href={~p"/posts/#{post.slug}"} id={"post-#{post.id}"}>
           <.pretty_date date={post.published_on} />
-        </p>
-      </a>
-    </nav>
-  </div>
+          <span class="title"><span>{post.title}</span></span>
+        </a>
+      </li>
+    </ol>
+
+    <a :if={@earlier == []} id="all-writing" href={~p"/posts"} class="all-writing">All writing</a>
+  </section>
+</div>
+
+<%!-- under the photo, on white: what people are reading, then the next
+     twenty posts by date --%>
+<div :if={@earlier != [] or @popular != []} id="home-band">
+  <section
+    :if={@popular != []}
+    id="most-read"
+    class="writing-list"
+    aria-labelledby="most-read-title"
+  >
+    <h2 id="most-read-title">Most read</h2>
+    <%!-- ranked, so the date column holds the position instead --%>
+    <ol class="writing-index ranked">
+      <li :for={post <- @popular}>
+        <a href={~p"/posts/#{post.slug}"} id={"popular-#{post.id}"}>
+          <span class="title"><span>{post.title}</span></span>
+        </a>
+      </li>
+    </ol>
+  </section>
+
+  <section
+    :if={@earlier != []}
+    id="earlier-writing"
+    class="writing-list"
+    aria-labelledby="earlier-writing-title"
+  >
+    <h2 id="earlier-writing-title">Earlier writing</h2>
+    <%!-- the row count lets the two columns fill downwards, oldest last --%>
+    <ol class="writing-index" style={"--rows: #{div(length(@earlier) + 1, 2)}"}>
+      <li :for={post <- @earlier}>
+        <a href={~p"/posts/#{post.slug}"} id={"post-#{post.id}"}>
+          <.pretty_date date={post.published_on} />
+          <span class="title"><span>{post.title}</span></span>
+        </a>
+      </li>
+    </ol>
+    <a id="all-writing" href={~p"/posts"} class="all-writing">All writing</a>
+  </section>
 </div>

@@ -3,6 +3,8 @@ defmodule Jamie.Tags do
   Context boundary for tags
   """
 
+  import Ecto.Query, only: [from: 2]
+
   alias Jamie.Content.{
     Bookmark,
     Note,
@@ -129,6 +131,117 @@ defmodule Jamie.Tags do
         tag_id: Map.fetch!(slug_to_id, Tag.slugify(title))
       }
     end
+  end
+
+  @doc """
+  Makes `titles` the post's complete set of tags: missing tags are created,
+  new ones attached, and any the post had that aren't in the list are
+  detached (the tags themselves are kept, as bookmarks may use them).
+
+  Titles are trimmed and lowercased; blanks and duplicates are ignored.
+  Everything happens in one transaction.
+  """
+  def set_post_tags(%Post{} = post, titles) when is_list(titles) do
+    titles =
+      titles
+      |> Enum.map(&(&1 |> String.trim() |> String.downcase()))
+      |> Enum.reject(&(&1 == ""))
+      |> Enum.uniq()
+
+    Repo.transact(fn ->
+      tag_ids =
+        Enum.map(titles, fn title ->
+          {:ok, tag} = %Tag{} |> changeset_tag(%{title: title}) |> upsert_tag()
+          tag.id
+        end)
+
+      Repo.delete_all(
+        from(tp in "tags_posts", where: tp.post_id == ^post.id and tp.tag_id not in ^tag_ids)
+      )
+
+      Repo.insert_all(
+        "tags_posts",
+        Enum.map(tag_ids, &%{post_id: post.id, tag_id: &1}),
+        on_conflict: :nothing
+      )
+
+      {:ok, Repo.preload(post, :tags, force: true)}
+    end)
+  end
+
+  @doc """
+  Up to `limit` existing tag titles containing `query`, for suggesting as
+  you type. Prefix matches come first, then the rest alphabetically; titles
+  in `except` (the ones already chosen) are left out.
+  """
+  def suggest_tags(query, except \\ [], limit \\ 6) when is_binary(query) do
+    query = query |> String.trim() |> String.downcase()
+
+    if query == "" do
+      []
+    else
+      escaped = String.replace(query, ~r/[\\%_]/, "\\\\\\0")
+
+      from(t in Tag,
+        where: ilike(t.title, ^"%#{escaped}%") and t.title not in ^except,
+        order_by: [
+          asc: fragment("CASE WHEN ? ILIKE ? THEN 0 ELSE 1 END", t.title, ^"#{escaped}%"),
+          asc: t.title
+        ],
+        limit: ^limit,
+        select: t.title
+      )
+      |> Repo.all()
+    end
+  end
+
+  @doc """
+  The titles of a post's tags, alphabetically.
+  """
+  def post_tag_titles(%Post{id: nil}), do: []
+
+  def post_tag_titles(%Post{} = post) do
+    from(t in Tag,
+      join: tp in "tags_posts",
+      on: tp.tag_id == t.id,
+      where: tp.post_id == ^post.id,
+      order_by: t.title,
+      select: t.title
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  A post's tags, alphabetically.
+  """
+  def post_tags(%Post{id: nil}), do: []
+
+  def post_tags(%Post{} = post) do
+    from(t in Tag,
+      join: tp in "tags_posts",
+      on: tp.tag_id == t.id,
+      where: tp.post_id == ^post.id,
+      order_by: t.title
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a tag by slug. Raises `Ecto.NoResultsError` (a 404) when there's none.
+  """
+  def get_tag_by_slug!(slug), do: Repo.get_by!(Tag, slug: slug)
+
+  @doc """
+  A tag's published posts, newest first.
+  """
+  def published_posts(%Tag{} = tag) do
+    from(p in Post,
+      join: tp in "tags_posts",
+      on: tp.post_id == p.id,
+      where: tp.tag_id == ^tag.id and p.status == :published,
+      order_by: [desc: p.published_on]
+    )
+    |> Repo.all()
   end
 
   @doc """

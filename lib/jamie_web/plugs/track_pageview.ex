@@ -47,10 +47,13 @@ defmodule JamieWeb.Plugs.TrackPageview do
     conn
   end
 
-  # Only count 2xx responses that actually rendered HTML.
+  # Only count 2xx responses that actually rendered HTML, and never count me:
+  # previewing my own posts would skew what's "most read".
   defp trackable?(conn) do
-    conn.status in 200..299 and html_response?(conn)
+    conn.status in 200..299 and html_response?(conn) and not signed_in?(conn)
   end
+
+  defp signed_in?(conn), do: match?(%{user: %{}}, conn.assigns[:current_scope])
 
   defp html_response?(conn) do
     conn

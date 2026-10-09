@@ -218,7 +218,7 @@ form#editor-form textarea {
 }
 /* Editor "naked" inputs use an underline style. Scoped to the editor form so it
    doesn't override daisyUI inputs on other pages (login, etc.). */
-#editor-form input,
+#editor-form input:not([type="radio"]),
 #editor-form textarea {
     width: 100%;
     font-size: var(--unit-3);

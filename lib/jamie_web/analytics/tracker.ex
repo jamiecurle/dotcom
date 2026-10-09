@@ -19,6 +19,17 @@ defmodule JamieWeb.Analytics.Tracker do
   alias Jamie.Analytics
   alias Jamie.Workers.PageviewTrack
 
+  # Signed-in visits (me) aren't counted, same as the plug. This runs after
+  # `UserAuth`'s `:mount_current_scope`, so the scope is already assigned.
+  def on_mount(
+        :track_pageviews,
+        _params,
+        _session,
+        %{assigns: %{current_scope: %{user: %{}}}} = socket
+      ) do
+    {:cont, socket}
+  end
+
   def on_mount(:track_pageviews, _params, session, socket) do
     if connected?(socket) do
       socket =

@@ -2,6 +2,7 @@ defmodule JamieWeb.Plugs.TrackPageviewTest do
   use JamieWeb.ConnCase, async: true
   use Oban.Testing, repo: Jamie.Repo
 
+  alias Jamie.AccountsFixtures
   alias Jamie.Workers.PageviewTrack
   alias JamieWeb.Plugs.TrackPageview
 
@@ -90,6 +91,17 @@ defmodule JamieWeb.Plugs.TrackPageviewTest do
     |> TrackPageview.call(TrackPageview.init([]))
     |> put_resp_content_type("text/html")
     |> send_resp(404, "not found")
+
+    refute_enqueued(worker: PageviewTrack)
+  end
+
+  test "does not enqueue when I'm signed in" do
+    scope = AccountsFixtures.user_scope_fixture()
+
+    build_conn(:get, "/about")
+    |> put_req_header("user-agent", @chrome)
+    |> assign(:current_scope, scope)
+    |> run()
 
     refute_enqueued(worker: PageviewTrack)
   end

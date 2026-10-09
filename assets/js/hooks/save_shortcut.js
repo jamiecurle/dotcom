@@ -4,7 +4,8 @@ export default {
     this.handler = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "s") {
         e.preventDefault()
-        this.el.querySelector("button[type=submit]").click()
+        // the Save button sits outside the form now, so submit the form itself
+        this.el.requestSubmit()
       }
 
       if ((e.metaKey || e.ctrlKey) && e.key === "b") {

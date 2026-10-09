@@ -1,127 +1,154 @@
 @layer content {
+    /* FOOTER
+       a dark poster closing every page: the bio as a statement, the links
+       in labelled columns on hairlines (the same parts as the margin
+       contents), the colophon, then the name set as wide as the window.
+       The wordmark is cropped by the bottom edge, so the footer clips. */
     footer {
         margin-top: var(--unit-6);
-        position: relative;
-        min-height: 100dvh;
-        display: flex;
-        align-items: center;
+        padding-bottom: 0;
         border-top: 1px solid;
+        overflow: clip;
+    }
+
+    /* the footer uses the full width rather than the reading measure */
+    footer div.footer-content {
+        display: grid;
+        gap: var(--unit-5);
+        max-width: none;
+        margin-right: 0;
+        padding-top: var(--unit-5);
     }
 
     footer div.bio p {
+        max-width: 30ch;
+        margin: 0;
         font-size: var(--unit-3-2);
         line-height: var(--unit-4);
         font-weight: 600;
+        letter-spacing: -0.5px;
+    }
+
+    /* LINKS
+       each group hangs from a small tracked label over a 2px rule */
+    footer nav.footer-links {
+        display: grid;
+        gap: var(--unit-4);
+    }
+    footer nav.footer-links h2 {
+        margin: 0;
+        padding-bottom: var(--unit-1);
+        border-bottom: 2px solid;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    footer nav.footer-links ol {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    footer nav.footer-links li {
+        margin: 0;
+        padding: 0;
+        border-bottom: 1px solid;
+    }
+    footer nav.footer-links a {
+        display: block;
+        padding: var(--unit-2) 0;
+        text-decoration: none;
+        font-size: var(--unit-3);
+        line-height: var(--unit-3-1);
+        font-weight: 600;
+    }
+    /* the writing index's highlighter stroke, one bar per line */
+    footer nav.footer-links a span {
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        padding: 0 var(--unit-0);
+        margin: 0 calc(-1 * var(--unit-0));
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+    footer nav.footer-links a:focus-visible {
+        outline: 2px solid;
+        outline-offset: var(--unit-0);
+    }
+
+    /* COLOPHON
+       the small print, under a hairline */
+    footer div.colophon {
+        display: grid;
+        gap: var(--unit-3);
+        padding-top: var(--unit-3);
+        border-top: 1px solid;
+    }
+    footer div.colophon p {
+        max-width: 60ch;
+        margin: 0;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 500;
+    }
+    footer div.colophon a {
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 0.2em;
+    }
+
+    /* WORDMARK
+       the name the header starts with, set so it fills the window and
+       sits on the bottom edge, cropped through the baseline */
+    footer p.wordmark {
+        margin: var(--unit-6) 0 -0.16em -0.05em;
+        font-size: 16.5vw;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: -0.06em;
+        white-space: nowrap;
+        user-select: none;
     }
 
     @media (min-width: 750px) {
+        footer {
+            padding-left: var(--unit-6);
+            padding-right: var(--unit-4);
+        }
+        footer div.footer-content {
+            padding-top: var(--unit-6);
+            gap: var(--unit-6);
+        }
         footer div.bio p {
             font-size: var(--unit-4);
-            line-height: var(--unit-4);
-            max-width: 30ch;
+            line-height: var(--unit-4-2);
+            letter-spacing: -1px;
+        }
+        footer nav.footer-links {
+            grid-template-columns: repeat(3, 1fr);
+            column-gap: var(--unit-4);
+        }
+        footer div.colophon {
+            grid-template-columns: repeat(2, 1fr);
+            column-gap: var(--unit-4);
         }
     }
+
+    /* wide screens: the bio takes the left, the links the right */
     @media (min-width: 1250px) {
+        footer div.footer-content {
+            grid-template-columns: 5fr 7fr;
+            column-gap: var(--unit-6);
+        }
         footer div.bio p {
             font-size: var(--unit-5);
             line-height: var(--unit-5);
-            max-width: 30ch;
-        }
-    }
-
-    footer h6 {
-        text-transform: uppercase;
-    }
-
-    footer nav.urgh-words a {
-        display: inline-block;
-        text-decoration: none;
-        padding-left: var(--unit-1);
-        padding-right: var(--unit-1);
-        margin: var(--unit-1) var(--unit-2);
-    }
-
-    footer nav.urgh-words a:not(:last-child)::after {
-        content: ",";
-    }
-
-    footer nav.urgh-words a:last-child::after {
-        content: ".";
-    }
-
-    footer nav div {
-        margin-bottom: var(--unit-4);
-    }
-    footer nav.ooh-pictures {
-        margin-top: var(--unit-6);
-        margin-bottom: var(--unit-6);
-        display: flex;
-        flex-flow: row wrap;
-    }
-    footer nav.ooh-pictures a {
-        display: block;
-        flex-grow: 1;
-        height: calc(var(--unit-4) * 2);
-        width: calc(var(--unit-4) * 2);
-    }
-    footer nav.ooh-pictures a img,
-    footer nav.ooh-pictures a svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
-
-    @media (hover: hover) {
-        footer nav.urgh-words a:hover,
-        footer div.bio a:hover {
-            cursor: pointer;
-        }
-    }
-
-    footer div.colophon p {
-        font-size: var(--unit-2-1);
-        line-height: var(--unit-2-2);
-        font-weight: 500;
-
-        a {
-            padding: 0 var(--unit-1);
-            border-radius: 2px;
-            text-decoration: none;
-        }
-    }
-
-    @media (min-width: 750px) {
-        footer div.footer-content {
-            display: grid;
-            grid-template-areas:
-                "bio words"
-                "pictures pictures"
-                "colophon colophon";
-            /*grid-template-columns: 2fr 1fr 1fr;
-            grid-template-rows: auto auto;*/
-            gap: var(--unit-4);
-            align-items: start;
-            max-width: 100%;
-            padding: var(--unit-5);
-        }
-
-        footer div.bio {
-            grid-area: bio;
-        }
-        footer nav.urgh-words {
-            grid-area: words;
-        }
-        footer nav.ooh-pictures {
-            grid-area: pictures;
-            flex: auto;
+            letter-spacing: -2px;
         }
         footer div.colophon {
-            grid-area: colophon;
-        }
-
-        footer nav.ooh-pictures a {
-            height: calc(var(--unit-6) * 2);
-            width: calc(var(--unit-6) * 2);
+            grid-column: 1 / -1;
         }
     }
 }

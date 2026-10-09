@@ -219,6 +219,27 @@ defmodule Jamie.Analytics do
     grouped_counts(:path, days, limit)
   end
 
+  @doc """
+  The most read published posts in the window, most read first.
+
+  "Read" means distinct readers, not pageviews: the visitor hash rotates
+  daily, so counting distinct hashes counts each reader once per day and a
+  refresh or a noisy client only counts once. Only paths that are a
+  published post's URL count, which leaves scanner junk and drafts out.
+  """
+  def popular_posts(days, limit \\ 10) do
+    from(p in Pageview,
+      join: post in Jamie.Content.Post,
+      on: p.path == fragment("'/posts/' || ?", post.slug),
+      where: p.inserted_at >= ^since(days) and post.status == :published,
+      group_by: post.id,
+      order_by: [desc: count(p.visitor_hash, :distinct), desc: post.published_on],
+      limit: ^limit,
+      select: post
+    )
+    |> Repo.all()
+  end
+
   @doc "Top external referrer hosts by pageviews."
   def top_referrers(days, limit \\ 10) do
     from(p in Pageview,

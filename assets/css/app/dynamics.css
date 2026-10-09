@@ -1,12 +1,7 @@
 @layer layout {
     p a,
-    li a,
-    footer nav.urgh-words a {
+    li a {
         transition: box-shadow var(--duration-3) ease;
-    }
-
-    footer nav.ooh-pictures a svg path {
-        transition: fill var(--duration-2) ease;
     }
 
     body > header div.header-content a {

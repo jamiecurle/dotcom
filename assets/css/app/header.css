@@ -24,14 +24,27 @@
     div.header-content {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
         gap: var(--unit-3);
         width: 100%;
+        padding: 0 var(--unit-3);
+    }
+
+    /* the name, set as type: no logo, just the post-title tracking */
+    a.wordmark {
+        font-size: var(--unit-3);
+        line-height: var(--unit-3);
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        text-decoration: none;
+        white-space: nowrap;
+        text-underline-offset: var(--unit-0);
+        text-decoration-thickness: 2px;
     }
 
     nav.primary-nav {
         display: flex;
-        gap: var(--unit-3);
+        gap: var(--unit-2);
 
         margin-left: 0;
     }
@@ -53,11 +66,8 @@
             margin-right: 0;
         }
 
-        div.header-content {
-            justify-content: space-between;
-            padding-right: var(--unit-3);
-        }
         nav.primary-nav {
+            gap: var(--unit-3);
             margin-left: auto;
         }
     }

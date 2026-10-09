@@ -3,6 +3,7 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import SaveShortcut from "./hooks/save_shortcut";
 import SignImageUrl from "./hooks/sign_image_url";
+import TagInput from "./hooks/tag_input";
 import { hooks as colocatedHooks } from "phoenix-colocated/jamie";
 import topbar from "../vendor/topbar";
 import imageHandler from "./editor/image_handler";
@@ -13,7 +14,7 @@ const csrfToken = document
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
-  hooks: { ...colocatedHooks, SaveShortcut, SignImageUrl },
+  hooks: { ...colocatedHooks, SaveShortcut, SignImageUrl, TagInput },
 });
 
 topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" });

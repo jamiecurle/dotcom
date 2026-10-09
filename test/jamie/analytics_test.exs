@@ -3,7 +3,9 @@ defmodule Jamie.AnalyticsTest do
 
   alias Jamie.Analytics
   alias Jamie.Analytics.Pageview
+  alias Jamie.Content
   alias Jamie.Repo
+  alias Jamie.Support.ContentFixtures
 
   @chrome "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
   @iphone "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
@@ -204,6 +206,49 @@ defmodule Jamie.AnalyticsTest do
 
       assert Analytics.total_sessions(1) == 1
       assert Analytics.total_pageviews(1) == 2
+    end
+  end
+
+  describe "popular_posts/2" do
+    defp published_post(title) do
+      {:ok, post} =
+        ContentFixtures.post_attrs(title: title, status: :published)
+        |> Content.create_post()
+
+      post
+    end
+
+    defp read(path, visitor_hash, days_ago \\ 0) do
+      at = DateTime.add(DateTime.utc_now(), -days_ago, :day)
+      Repo.insert!(%Pageview{visitor_hash: visitor_hash, path: path, inserted_at: at})
+    end
+
+    test "ranks published posts by distinct readers, not pageviews" do
+      busy = published_post("Busy")
+      quiet = published_post("Quiet")
+
+      # one reader refreshing a lot
+      for _ <- 1..5, do: read("/posts/#{quiet.slug}", "a")
+      # three different readers once each
+      for v <- ~w(a b c), do: read("/posts/#{busy.slug}", v)
+
+      assert Analytics.popular_posts(30) |> Enum.map(& &1.id) == [busy.id, quiet.id]
+    end
+
+    test "leaves out drafts, junk paths and reads outside the window" do
+      post = published_post("Read")
+
+      {:ok, draft} =
+        ContentFixtures.post_attrs(title: "Draft") |> Content.create_post()
+
+      old = published_post("Old")
+
+      read("/posts/#{post.slug}", "a")
+      read("/posts/#{draft.slug}", "a")
+      read("/wp-login.php", "a")
+      read("/posts/#{old.slug}", "a", 100)
+
+      assert Analytics.popular_posts(30) |> Enum.map(& &1.id) == [post.id]
     end
   end
 end

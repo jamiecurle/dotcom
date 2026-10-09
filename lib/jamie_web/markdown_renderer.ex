@@ -48,11 +48,6 @@ defmodule JamieWeb.MarkdownRenderer do
     """
   end
 
-  @doc "HTML rendering of a static page, derived from the markdown source."
-  def static_page_html(page) when page in @static_pages do
-    page |> static_page_markdown() |> MDEx.to_html!()
-  end
-
   @doc """
   Render markdown for a request whose path has been split into
   `path_info` (as on `Plug.Conn`). Returns `{:ok, body}` or `:passthrough`.

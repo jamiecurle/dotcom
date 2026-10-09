@@ -26,6 +26,7 @@ import SaveShortcut from "./hooks/save_shortcut"
 import { hooks as colocatedHooks } from "phoenix-colocated/jamie"
 import topbar from "../vendor/topbar"
 import "./sticky_nav"
+import "./contents_spy"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {

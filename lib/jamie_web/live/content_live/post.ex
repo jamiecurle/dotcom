@@ -8,7 +8,7 @@ defmodule JamieWeb.ContentLive.Post do
 
   @impl true
   def handle_info({:post_updated, post}, socket) do
-    {:noreply, assign(socket, :post, post)}
+    {:noreply, assign_post(socket, post)}
   end
 
   @impl true
@@ -23,8 +23,8 @@ defmodule JamieWeb.ContentLive.Post do
 
         socket
         |> assign(:body_id, "post")
-        |> assign(:post, post)
-        |> assign(:toc, toc(post.markdown))
+        |> assign_post(post)
+        |> assign(:more_posts, more_posts(post))
         |> assign(:page_title, post.title)
         |> assign(:page_description, post.description)
         |> assign(:og_type, "article")
@@ -34,39 +34,22 @@ defmodule JamieWeb.ContentLive.Post do
     {:noreply, socket}
   end
 
-  # NOTE: you may come back to the TOC stuff so you decided to leave it
-  #       in - saves you having to go and do it again.
-  defp toc(markdown) do
-    {:ok, doc} = MDEx.parse_document(markdown)
-
-    doc
-    |> Enum.reduce([], fn
-      %MDEx.Heading{level: level, nodes: children}, acc ->
-        text = extract_text(children)
-        anchor = slugify(text)
-        [{level, text, anchor} | acc]
-
-      _node, acc ->
-        acc
-    end)
-    |> Enum.reverse()
+  # Everything derived from the post body, kept together so a live update
+  # (an edit saved elsewhere) refreshes the contents, reading time and tags.
+  defp assign_post(socket, post) do
+    socket
+    |> assign(:post, post)
+    |> assign(:toc, Jamie.Markdown.toc(post.markdown))
+    |> assign(:reading_minutes, Jamie.Markdown.reading_minutes(post.markdown))
+    |> assign(:tags, Jamie.Tags.post_tags(post))
   end
 
-  defp extract_text(nodes) do
-    Enum.map_join(nodes, fn
-      %MDEx.Text{literal: text} -> text
-      %MDEx.Code{literal: text} -> text
-      %{nodes: children} -> extract_text(children)
-      _ -> ""
-    end)
-  end
-
-  defp slugify(text) do
-    text
-    |> String.downcase()
-    |> String.replace(~r/[^\w\s-]/, "")
-    |> String.replace(~r/\s+/, "-")
-    |> String.trim("-")
+  # A few other recent posts for the end of the page.
+  defp more_posts(post) do
+    4
+    |> Jamie.Content.latest_published_posts()
+    |> Enum.reject(&(&1.id == post.id))
+    |> Enum.take(3)
   end
 
   defp og_image(post) do
