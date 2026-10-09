@@ -10,6 +10,7 @@ defmodule Jamie.Content do
   alias Jamie.Content.{Note, Post}
   alias Jamie.Content.PostImageHelper
   alias Jamie.Content.PostRevision
+  alias Jamie.Content.PostSuggestion
   alias Jamie.Repo
   alias Jamie.Workers.OgImageCreate
 
@@ -147,6 +148,16 @@ defmodule Jamie.Content do
   end
 
   @doc """
+  Gets a post by id, any status, or nil.
+  """
+  def get_post(id) when is_integer(id), do: Repo.get(Post, id)
+
+  @doc """
+  Gets a post by slug, any status, or nil.
+  """
+  def get_post_by_slug(slug) when is_binary(slug), do: Repo.get_by(Post, slug: slug)
+
+  @doc """
   Updates a post without optimistic locking — the current row's
   `updated_at` is read fresh from the database. Use `update_post/3` from
   user-facing edit flows where stale-write detection matters.
@@ -279,6 +290,24 @@ defmodule Jamie.Content do
   def all_posts do
     from(p in Post)
     |> order_by(desc: :id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Case-insensitive substring search over post titles, descriptions and
+  markdown, across every status. `%` and `_` in the query are matched
+  literally rather than as LIKE wildcards.
+  """
+  def search_posts(%Scope{user: user}, query) when not is_nil(user) and is_binary(query) do
+    pattern = "%" <> String.replace(query, ~r/[\\%_]/, "\\\\\\0") <> "%"
+
+    from(p in Post,
+      where:
+        ilike(p.title, ^pattern) or ilike(p.description, ^pattern) or
+          ilike(p.markdown, ^pattern),
+      order_by: [desc: p.id],
+      limit: 50
+    )
     |> Repo.all()
   end
 
@@ -437,6 +466,146 @@ defmodule Jamie.Content do
         {:error, cs} -> Repo.rollback(cs)
       end
     end)
+  end
+
+  # ----------------------------------------------------------------------
+  # Suggestions — edits proposed over MCP, applied only by a human
+  # ----------------------------------------------------------------------
+
+  @doc """
+  Files a suggested find-and-replace edit against a post's markdown.
+
+  The suggestion is rejected up front unless `old_string` appears exactly
+  once, so whoever reviews it knows precisely which text would change.
+  Nothing about the post itself changes here.
+  """
+  def suggest_post_edit(%Scope{user: user}, post_id, attrs) when not is_nil(user) do
+    post = get_post!(post_id)
+    changeset = PostSuggestion.create_changeset(%PostSuggestion{post_id: post.id}, attrs)
+
+    with %{valid?: true} <- changeset,
+         old_string = Ecto.Changeset.get_field(changeset, :old_string),
+         {:ok, _markdown} <- replace_once(post.markdown, old_string, ""),
+         {:ok, suggestion} <- Repo.insert(changeset) do
+      suggestion = %{suggestion | post: post}
+      broadcast_suggestion({:suggestion_created, suggestion})
+      {:ok, suggestion}
+    else
+      %Ecto.Changeset{} = invalid -> {:error, %{invalid | action: :insert}}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  @doc """
+  Lists suggestions, newest first, with their post preloaded. Filter with
+  `status: :pending` and/or `post_id: id`.
+  """
+  def list_suggestions(%Scope{user: user}, filters \\ []) when not is_nil(user) do
+    Enum.reduce(filters, from(s in PostSuggestion), fn
+      {:status, status}, query -> where(query, [s], s.status == ^status)
+      {:post_id, post_id}, query -> where(query, [s], s.post_id == ^post_id)
+    end)
+    |> order_by([s], desc: s.inserted_at, desc: s.id)
+    |> preload(:post)
+    |> Repo.all()
+  end
+
+  def get_suggestion!(%Scope{user: user}, id) when not is_nil(user) do
+    PostSuggestion |> Repo.get!(id) |> Repo.preload(:post)
+  end
+
+  @doc """
+  Applies a pending suggestion to its post through `update_post/2`, so the
+  edit gets a revision like any other save.
+
+  Returns `{:error, :stale}` (and marks the suggestion stale) when
+  `old_string` no longer appears exactly once in the post.
+  """
+  def accept_suggestion(%Scope{} = scope, id) do
+    suggestion = get_suggestion!(scope, id)
+
+    with :pending <- suggestion.status,
+         {:ok, markdown} <-
+           replace_once(suggestion.post.markdown, suggestion.old_string, suggestion.new_string) do
+      Repo.transact(fn -> apply_suggestion(suggestion, markdown) end)
+      |> broadcast_resolved()
+    else
+      status when is_atom(status) ->
+        {:error, :not_pending}
+
+      {:error, _not_found_or_ambiguous} ->
+        {:ok, _} =
+          suggestion |> resolve_suggestion(:stale, suggestion.post) |> broadcast_resolved()
+
+        {:error, :stale}
+    end
+  end
+
+  def reject_suggestion(%Scope{} = scope, id) do
+    suggestion = get_suggestion!(scope, id)
+
+    if suggestion.status == :pending,
+      do: suggestion |> resolve_suggestion(:rejected, suggestion.post) |> broadcast_resolved(),
+      else: {:error, :not_pending}
+  end
+
+  # Runs inside a transaction: if the post update fails (e.g. a concurrent
+  # edit), the suggestion stays pending.
+  defp apply_suggestion(suggestion, markdown) do
+    with {:ok, post} <- update_post(suggestion.post, %{markdown: markdown}) do
+      resolve_suggestion(suggestion, :accepted, post)
+    end
+  end
+
+  defp resolve_suggestion(suggestion, status, post) do
+    with {:ok, resolved} <-
+           suggestion |> PostSuggestion.resolve_changeset(status) |> Repo.update() do
+      {:ok, %{resolved | post: post}}
+    end
+  end
+
+  @doc """
+  Subscribes to suggestion changes. Messages are
+  `{:suggestion_created, %PostSuggestion{}}` and
+  `{:suggestion_resolved, %PostSuggestion{}}`, with the post preloaded.
+  """
+  def subscribe_suggestions do
+    Phoenix.PubSub.subscribe(Jamie.PubSub, "suggestions")
+  end
+
+  defp broadcast_suggestion(message) do
+    Phoenix.PubSub.broadcast(Jamie.PubSub, "suggestions", message)
+  end
+
+  # Called after any transaction has committed, so listeners never hear
+  # about a resolution that was rolled back.
+  defp broadcast_resolved({:ok, suggestion} = result) do
+    broadcast_suggestion({:suggestion_resolved, suggestion})
+    result
+  end
+
+  defp broadcast_resolved(error), do: error
+
+  @doc """
+  Replaces the single occurrence of `old` in `text` with `new`.
+
+  Returns `{:error, :not_found}` or `{:error, :ambiguous}` rather than
+  guessing when there isn't exactly one match.
+  """
+  def replace_once(text, old, new) when is_binary(old) and old != "" do
+    text = text || ""
+
+    case :binary.matches(text, old) do
+      [{pos, len}] ->
+        <<before::binary-size(^pos), _::binary-size(^len), rest::binary>> = text
+        {:ok, before <> new <> rest}
+
+      [] ->
+        {:error, :not_found}
+
+      _many ->
+        {:error, :ambiguous}
+    end
   end
 
   # ----------------------------------------------------------------------

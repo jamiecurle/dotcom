@@ -91,3 +91,6 @@ config :phoenix_live_view,
   debug_attributes: true,
   # Enable helpful, but potentially expensive runtime checks
   enable_expensive_runtime_checks: true
+
+# Only requests to this host reach /mcp (see JamieWeb.Plugs.TailnetOnly).
+config :jamie, :mcp_host, "localhost"

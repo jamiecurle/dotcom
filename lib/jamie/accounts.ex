@@ -5,7 +5,7 @@ defmodule Jamie.Accounts do
 
   import Ecto.Query, warn: false
 
-  alias Jamie.Accounts.{User, UserNotifier, UserToken}
+  alias Jamie.Accounts.{Scope, User, UserNotifier, UserToken}
   alias Jamie.Repo
 
   ## Database getters
@@ -152,6 +152,54 @@ defmodule Jamie.Accounts do
   def delete_user_session_token(token) do
     Repo.delete_all(from(UserToken, where: [token: ^token, context: "session"]))
     :ok
+  end
+
+  ## MCP tokens
+
+  @doc """
+  Creates an MCP bearer token for the scope's user.
+
+  Returns `{encoded_token, %UserToken{}}`. The encoded token cannot be
+  recovered later, so the caller must show it to the user straight away.
+  """
+  def create_mcp_token(%Scope{user: %User{} = user}) do
+    {encoded_token, user_token} = UserToken.build_mcp_token(user)
+    {encoded_token, Repo.insert!(user_token)}
+  end
+
+  @doc """
+  Lists the scope's MCP tokens, newest first.
+  """
+  def list_mcp_tokens(%Scope{user: %User{} = user}) do
+    from(t in UserToken,
+      where: t.user_id == ^user.id and t.context == "mcp",
+      order_by: [desc: t.inserted_at, desc: t.id]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Revokes one of the scope's MCP tokens. Tokens belonging to anyone else are
+  left alone.
+  """
+  def delete_mcp_token(%Scope{user: %User{} = user}, token_id) do
+    Repo.delete_all(
+      from(t in UserToken,
+        where: t.id == ^token_id and t.user_id == ^user.id and t.context == "mcp"
+      )
+    )
+
+    :ok
+  end
+
+  @doc """
+  Gets the `{user, token}` for a valid, unexpired MCP bearer token, or `nil`.
+  """
+  def get_user_by_mcp_token(token) when is_binary(token) do
+    case UserToken.verify_mcp_token_query(token) do
+      {:ok, query} -> Repo.one(query)
+      :error -> nil
+    end
   end
 
   ## Token helper

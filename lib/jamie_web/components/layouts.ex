@@ -46,6 +46,8 @@ defmodule JamieWeb.Layouts do
             <li><.link navigate={~p"/office/posts"}>Posts</.link></li>
             <li><.link navigate={~p"/office/notes"}>Notes</.link></li>
             <li><.link navigate={~p"/office/analytics"}>Analytics</.link></li>
+            <li><.link navigate={~p"/office/suggestions"}>Suggestions</.link></li>
+            <li><.link navigate={~p"/office/mcp"}>MCP</.link></li>
           </ul>
         </div>
         <div class="navbar-end gap-2">

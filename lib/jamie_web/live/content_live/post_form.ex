@@ -130,6 +130,40 @@ defmodule JamieWeb.ContentLive.PostForm do
     save_post(socket, socket.assigns.live_action, post_params)
   end
 
+  # Our own saves broadcast too; by the time the message arrives we've already
+  # assigned the saved post, so matching updated_at means there's nothing new.
+  @impl true
+  def handle_info({:post_updated, %{updated_at: updated_at}}, socket)
+      when updated_at == socket.assigns.post.updated_at do
+    {:noreply, socket}
+  end
+
+  def handle_info({:post_updated, post}, socket) do
+    if unsaved_changes?(socket.assigns.form) do
+      {:noreply,
+       put_flash(
+         socket,
+         :error,
+         "This post was changed elsewhere. Copy anything you need, then reload to see the latest version."
+       )}
+    else
+      # Navigate rather than re-assigning the form: LiveView won't overwrite a
+      # focused textarea, so a patch could leave stale markdown on screen.
+      {:noreply,
+       socket
+       |> put_flash(:info, "This post was updated elsewhere, so it has been reloaded.")
+       |> push_navigate(to: ~p"/office/posts/#{post.id}")}
+    end
+  end
+
+  # Only the fields a person types into count; the changeset also derives
+  # html, slug and og_hash, which aren't edits.
+  defp unsaved_changes?(form) do
+    form.source.changes
+    |> Map.take([:title, :description, :markdown, :status])
+    |> map_size() > 0
+  end
+
   defp save_post(socket, :new, post_params) do
     case Content.create_post(post_params) do
       {:ok, post} ->
@@ -182,6 +216,12 @@ defmodule JamieWeb.ContentLive.PostForm do
 
   defp apply_action(socket, :edit, params) do
     post = Content.get_post!(params["id"])
+
+    # Hear about saves made elsewhere — another tab, or an accepted MCP
+    # suggestion — so this editor doesn't sit on stale content.
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Jamie.PubSub, "post:#{post.id}")
+    end
 
     changeset =
       Content.change_post(post)

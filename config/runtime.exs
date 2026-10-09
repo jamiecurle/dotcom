@@ -45,6 +45,9 @@ config :ex_aws, :s3,
   path_style: true
 
 if config_env() == :prod do
+  # The Tailscale hostname /mcp answers on. Unset switches the endpoint off.
+  config :jamie, :mcp_host, System.get_env("MCP_HOST")
+
   config :jamie, Jamie.Mailer,
     adapter: Swoosh.Adapters.Postmark,
     api_key: System.get_env("POSTMARK_API_KEY", "test")

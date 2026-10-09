@@ -52,3 +52,6 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Only requests to this host reach /mcp (see JamieWeb.Plugs.TailnetOnly).
+config :jamie, :mcp_host, "stekpi.test"

@@ -26,6 +26,14 @@ defmodule JamieWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # The MCP endpoint for Claude Desktop. Deliberately not the :browser
+  # pipeline: no session, cookies or CSRF, just a bearer token, and only
+  # reachable on the Tailscale hostname.
+  pipeline :mcp do
+    plug JamieWeb.Plugs.TailnetOnly
+    plug JamieWeb.Plugs.McpAuth
+  end
+
   scope "/", JamieWeb do
     pipe_through :browser
 
@@ -49,6 +57,13 @@ defmodule JamieWeb.Router do
       live "/posts", ContentLive.Index, :index
       live "/posts/:slug", ContentLive.Post, :post
     end
+  end
+
+  scope "/mcp", JamieWeb do
+    pipe_through :mcp
+
+    post "/", McpController, :handle
+    get "/", McpController, :stream
   end
 
   # Other scopes may use custom stacks.
@@ -84,6 +99,8 @@ defmodule JamieWeb.Router do
     ] do
       live "/", OfficeLive.Dashboard, :index
       live "/analytics", AnalyticsLive.Dashboard, :index
+      live "/mcp", OfficeLive.McpTokens, :index
+      live "/suggestions", OfficeLive.Suggestions, :index
       live "/notes", ContentLive.NoteIndex, :index
       live "/notes/new", ContentLive.NoteForm, :new
       live "/notes/:id", ContentLive.NoteForm, :edit

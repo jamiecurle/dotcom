@@ -10,6 +10,9 @@ defmodule Jamie.Accounts.UserToken do
   # since someone with access to the email may take over the account.
   @magic_link_validity_in_minutes 15
   @session_validity_in_days 14
+  # MCP tokens live in Claude Desktop's environment, so they expire on their
+  # own rather than lingering forever if they're forgotten about.
+  @mcp_validity_in_days 90
 
   schema "users_tokens" do
     field :token, :binary
@@ -113,6 +116,39 @@ defmodule Jamie.Accounts.UserToken do
             join: user in assoc(token, :user),
             where: token.inserted_at > ago(^@magic_link_validity_in_minutes, "minute"),
             where: token.sent_to == user.email,
+            select: {user, token}
+
+        {:ok, query}
+
+      :error ->
+        :error
+    end
+  end
+
+  @doc """
+  Builds a bearer token for the MCP endpoint.
+
+  Like email tokens, only the sha256 hash is stored, so a database leak does
+  not leak usable tokens. The encoded token is shown to the user exactly once.
+  """
+  def build_mcp_token(user) do
+    build_hashed_token(user, "mcp", nil)
+  end
+
+  def mcp_validity_in_days, do: @mcp_validity_in_days
+
+  @doc """
+  Checks an MCP bearer token, returning a query for `{user, token}`.
+  """
+  def verify_mcp_token_query(token) do
+    case Base.url_decode64(token, padding: false) do
+      {:ok, decoded_token} ->
+        hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+
+        query =
+          from token in by_token_and_context_query(hashed_token, "mcp"),
+            join: user in assoc(token, :user),
+            where: token.inserted_at > ago(@mcp_validity_in_days, "day"),
             select: {user, token}
 
         {:ok, query}
