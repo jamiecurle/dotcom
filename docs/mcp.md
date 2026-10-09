@@ -32,29 +32,38 @@ which saves a revision like any other edit.
 ## Claude Desktop setup
 
 1. Create a token at <http://stekpi.tailebf707.ts.net:4000/office/mcp>
-   (or the public office) and store it as `JC_MCP_TOKEN` in a 1Password
-   environment of its own, so the bridge doesn't get the site's other secrets.
+   (or the public office).
 2. Add this to `~/Library/Application Support/Claude/claude_desktop_config.json`
-   under `mcpServers`, then restart Claude Desktop:
+   under `mcpServers`, paste the token into `env`, then fully quit (Cmd-Q) and
+   reopen Claude Desktop:
 
 ```json
 "jamiecurle.com": {
-  "command": "/Users/jc/.local/share/mise/installs/1password/latest/bin/op",
+  "command": "/Users/jc/.local/share/mise/shims/npx",
   "args": [
-    "run", "--environment", "<mcp-environment-id>", "--",
-    "/Users/jc/.local/share/mise/shims/npx", "-y", "mcp-remote",
+    "-y", "mcp-remote",
     "http://stekpi.tailebf707.ts.net:4000/mcp",
     "--allow-http", "--transport", "http-only",
     "--header", "Authorization:Bearer ${JC_MCP_TOKEN}"
-  ]
+  ],
+  "env": { "JC_MCP_TOKEN": "<token from /office/mcp>" }
 }
 ```
 
-Absolute paths because Claude Desktop doesn't load the shell's `PATH`.
-`--allow-http` is fine here: the hop is inside Tailscale's WireGuard tunnel.
+The token sits in plain text in that file, so keep the file to yourself. The
+token only works from inside the tailnet, can read posts (drafts included)
+and file suggestions but change nothing, and expires after 90 days. If it
+leaks, revoke it at `/office/mcp` and make a new one.
+
+The absolute `npx` path is there because Claude Desktop doesn't load the
+shell's `PATH`. `--allow-http` is fine here: the hop is inside Tailscale's
+WireGuard tunnel. `mcp-remote` fills in `${JC_MCP_TOKEN}` from `env`.
+
+For local development, point the URL at `http://localhost:4000/mcp` (not
+`127.0.0.1`, which the dev host check rejects) and use a token made in your
+dev office.
 
 ## Belt and braces
 
-Add a Cloudflare WAF custom rule blocking `http.request.uri.path wildcard
-"/mcp*"` on jamiecurle.com, so public requests are dropped at the edge before
-they reach the app at all.
+A Cloudflare WAF custom rule blocks `/mcp*` on jamiecurle.com, so public
+requests get a 403 at the edge before they reach the app at all.
