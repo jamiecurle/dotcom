@@ -17,23 +17,6 @@ defmodule JamieWeb.ContentLive.PostFormUpdatesTest do
     %{post: post, suggestion: suggestion}
   end
 
-  test "an accepted suggestion reloads an editor with no unsaved changes", %{
-    conn: conn,
-    scope: scope,
-    post: post,
-    suggestion: suggestion
-  } do
-    {:ok, view, _html} = live(conn, ~p"/office/posts/#{post.id}")
-
-    {:ok, _} = Content.accept_suggestion(scope, suggestion.id)
-
-    path = ~p"/office/posts/#{post.id}"
-    assert_redirect(view, path)
-
-    {:ok, view, _html} = live(conn, path)
-    assert has_element?(view, "#editor-form textarea", "The cat sits.")
-  end
-
   test "an editor with unsaved changes keeps them and warns", %{
     conn: conn,
     scope: scope,

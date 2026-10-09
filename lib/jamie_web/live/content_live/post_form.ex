@@ -139,29 +139,32 @@ defmodule JamieWeb.ContentLive.PostForm do
   end
 
   def handle_info({:post_updated, post}, socket) do
-    if unsaved_changes?(socket.assigns.form) do
-      {:noreply,
-       put_flash(
-         socket,
-         :error,
-         "This post was changed elsewhere. Copy anything you need, then reload to see the latest version."
-       )}
-    else
-      # Navigate rather than re-assigning the form: LiveView won't overwrite a
-      # focused textarea, so a patch could leave stale markdown on screen.
-      {:noreply,
-       socket
-       |> put_flash(:info, "This post was updated elsewhere, so it has been reloaded.")
-       |> push_navigate(to: ~p"/office/posts/#{post.id}")}
-    end
-  end
+    %{post: base, form: form} = socket.assigns
+    draft = form.params["markdown"] || base.markdown
 
-  # Only the fields a person types into count; the changeset also derives
-  # html, slug and og_hash, which aren't edits.
-  defp unsaved_changes?(form) do
-    form.source.changes
-    |> Map.take([:title, :description, :markdown, :status])
-    |> map_size() > 0
+    # Carry the outside change into whatever is in the editor, so a clean
+    # editor shows the new text and a dirty one keeps its unsaved work too.
+    case Content.rebase_draft(base.markdown, post.markdown, draft) do
+      {:ok, merged} ->
+        params = Map.put(form.params, "markdown", merged)
+
+        {:noreply,
+         socket
+         # the new post becomes the base, so the next save doesn't conflict
+         |> assign(:post, post)
+         |> assign(:form, to_form(Content.change_post(post, params)))
+         # LiveView won't patch a focused textarea, so the hook sets it
+         |> push_event("set-markdown", %{markdown: merged})
+         |> put_flash(:info, "Merged a change made elsewhere into the editor.")}
+
+      {:error, :conflict} ->
+        {:noreply,
+         put_flash(
+           socket,
+           :error,
+           "This post was changed elsewhere in the same place you're editing. Copy anything you need, then reload to see the latest version."
+         )}
+    end
   end
 
   defp save_post(socket, :new, post_params) do

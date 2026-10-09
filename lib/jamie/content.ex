@@ -586,6 +586,65 @@ defmodule Jamie.Content do
 
   defp broadcast_resolved(error), do: error
 
+  # How much unchanged text either side of a change is used to find the same
+  # spot in a draft. Enough to be unique in a post, short enough that nearby
+  # typing in the draft rarely gets in the way.
+  @rebase_context 40
+
+  @doc """
+  Carries the changes that turned `base` into `latest` over onto `draft`, so
+  an editor with unsaved work can take in a save made elsewhere (another tab,
+  an accepted suggestion) without losing either.
+
+  Each changed region becomes a find-and-replace padded with a little of the
+  surrounding text and goes through `replace_once/3`. If any region can't be
+  found exactly once in the draft — usually because the draft changed that
+  same text — it gives up with `{:error, :conflict}` rather than guess.
+  """
+  def rebase_draft(base, latest, draft) when draft == base, do: {:ok, latest}
+
+  def rebase_draft(base, latest, draft) do
+    base
+    |> :diffy.diff(latest)
+    |> :diffy.cleanup_semantic()
+    |> rebase_hunks("", [])
+    |> Enum.reduce_while({:ok, draft}, fn
+      {"", _new}, _acc ->
+        {:halt, {:error, :conflict}}
+
+      {old, new}, {:ok, text} ->
+        case replace_once(text, old, new) do
+          {:ok, merged} -> {:cont, {:ok, merged}}
+          {:error, _} -> {:halt, {:error, :conflict}}
+        end
+    end)
+  end
+
+  # Walks a diff, turning each run of deletes/inserts into an {old, new} pair
+  # with the neighbouring unchanged text as context on both sides.
+  defp rebase_hunks([], _previous, acc), do: Enum.reverse(acc)
+
+  defp rebase_hunks([{:equal, text} | rest], _previous, acc),
+    do: rebase_hunks(rest, text, acc)
+
+  defp rebase_hunks(diffs, previous, acc) do
+    {changes, rest} = Enum.split_while(diffs, fn {op, _} -> op != :equal end)
+
+    before = String.slice(previous, -@rebase_context..-1//1)
+
+    after_ =
+      case rest do
+        [{:equal, next} | _] -> String.slice(next, 0, @rebase_context)
+        [] -> ""
+      end
+
+    deleted = for {:delete, text} <- changes, into: "", do: text
+    inserted = for {:insert, text} <- changes, into: "", do: text
+
+    hunk = {before <> deleted <> after_, before <> inserted <> after_}
+    rebase_hunks(rest, previous, [hunk | acc])
+  end
+
   @doc """
   Replaces the single occurrence of `old` in `text` with `new`.
 
