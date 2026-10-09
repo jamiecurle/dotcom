@@ -62,6 +62,21 @@ defmodule Jamie.AnalyticsTest do
       end
     end
 
+    test "treats a user-agent UAParser can't name as a bot" do
+      assert %{browser: nil, device_type: "bot"} =
+               Analytics.parse_user_agent("Mozilla/5.0 zgrab/0.x")
+
+      assert %{device_type: "bot"} = Analytics.parse_user_agent("totally-unknown-thing")
+    end
+
+    test "classifies Google's AdSense crawler as bot" do
+      ua =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36 (compatible; Mediapartners-Google/2.1; +http://www.google.com/bot.html)"
+
+      assert %{device_type: "bot"} = Analytics.parse_user_agent(ua)
+      assert %{device_type: "bot"} = Analytics.parse_user_agent("Mediapartners-Google")
+    end
+
     test "treats a missing or empty user-agent as a bot" do
       assert %{browser: nil, os: nil, device_type: "bot"} = Analytics.parse_user_agent(nil)
       assert %{device_type: "bot"} = Analytics.parse_user_agent("")

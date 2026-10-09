@@ -57,15 +57,15 @@ defmodule Jamie.Analytics do
   # IP (Go-http-client, curl, python-requests, …) so they don't pollute stats.
   # Note: this can't catch scanners that spoof a real browser UA — that's a job
   # for the network edge (rate-limiting / Cloudflare), not analytics.
-  @bot_ua_pattern ~r/bot|crawl|spider|slurp|go-http-client|http[-_]?client|python[-_]?requests|curl|wget|libwww|okhttp|axios|node[-_]?fetch|scrapy|httpx|aiohttp|postman|headless|phantomjs|zgrab|masscan|nuclei|nmap|semrush|ahrefs|\bjava\b/i
+  @bot_ua_pattern ~r/bot|crawl|spider|slurp|go-http-client|http[-_]?client|python[-_]?requests|curl|wget|libwww|okhttp|axios|node[-_]?fetch|scrapy|httpx|aiohttp|postman|headless|phantomjs|zgrab|masscan|nuclei|nmap|semrush|ahrefs|mediapartners|\bjava\b/i
 
   @doc """
   Parse a user-agent string into `%{browser, os, device_type}`.
 
-  `device_type` is one of "desktop", "mobile", "tablet", "bot" or "other".
-  A missing user-agent, or one matching a known non-browser/crawler, is
-  classified as "bot" (the tracking plug skips those). Otherwise UAParser's
-  device/OS families decide desktop vs mobile vs tablet.
+  `device_type` is one of "desktop", "mobile", "tablet" or "bot".
+  A missing user-agent, one UAParser can't name, or one matching a known
+  non-browser/crawler is classified as "bot" (the tracking plug skips those).
+  Otherwise UAParser's device/OS families decide desktop vs mobile vs tablet.
   """
   def parse_user_agent(user_agent) when user_agent in [nil, ""] do
     %{browser: nil, os: nil, device_type: "bot"}
@@ -86,7 +86,9 @@ defmodule Jamie.Analytics do
   # UAParser reports spiders/crawlers with a "Spider" device family or brand.
   defp device_type(%{device: %{family: "Spider"}}), do: "bot"
   defp device_type(%{device: %{brand: "Spider"}}), do: "bot"
-  defp device_type(%{family: nil}), do: "other"
+  # A UA that UAParser can't name at all is almost always a tool or scanner,
+  # not a person, so it doesn't count either.
+  defp device_type(%{family: nil}), do: "bot"
 
   defp device_type(ua) do
     cond do
