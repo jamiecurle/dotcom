@@ -12,6 +12,11 @@ defmodule Jamie.MailingList do
   """
 
   alias Jamie.Accounts.Scope
+  alias Jamie.MailingList.{Subscriber, Suppression}
+  alias Jamie.Repo
+  alias Plug.Crypto.KeyGenerator
+
+  import Ecto.Query, only: [from: 2]
 
   # The worlds, in the order the form offers them. Each is also the tag that
   # puts a post into it. "everything" is all of them, and anything to come.
@@ -35,4 +40,49 @@ defmodule Jamie.MailingList do
 
   @doc "How often a digest can be sent."
   def frequencies, do: @frequencies
+
+  ## Subscribers
+
+  @doc """
+  The subscriber behind a manage link, or nil. Anything that isn't a
+  well-formed uuid is simply not found, rather than an error.
+  """
+  def get_subscriber(id) do
+    case Ecto.UUID.cast(id) do
+      {:ok, uuid} -> Repo.get(Subscriber, uuid)
+      :error -> nil
+    end
+  end
+
+  ## Suppressions
+
+  @doc """
+  Records that `email` must never be mailed again. Only a keyed hash of the
+  address is stored. Suppressing an address twice is fine.
+  """
+  def suppress(email, reason) do
+    Repo.insert(
+      %Suppression{email_hash: email_hash(email), reason: reason},
+      on_conflict: :nothing,
+      conflict_target: :email_hash
+    )
+  end
+
+  @doc "True when `email` is on the suppression list."
+  def suppressed?(email) do
+    Repo.exists?(from s in Suppression, where: s.email_hash == ^email_hash(email))
+  end
+
+  # An HMAC of the normalised address, keyed from the app's secret so the
+  # list can't be checked against a list of addresses by anyone holding only
+  # the database. (Rotating secret_key_base would orphan existing entries.)
+  defp email_hash(email) do
+    key =
+      KeyGenerator.generate(
+        JamieWeb.Endpoint.config(:secret_key_base),
+        "mailing list suppressions"
+      )
+
+    :crypto.mac(:hmac, :sha256, key, email |> String.trim() |> String.downcase())
+  end
 end
