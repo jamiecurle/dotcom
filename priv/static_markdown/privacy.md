@@ -1,4 +1,4 @@
-Notice version 2, last updated 10th October 2026.
+*Notice version 2, last updated 10th October 2026.*
 
 # Privacy
 
@@ -138,4 +138,10 @@ So that we're clear here's the rights you have and how you can exercise them.
 7. The right to object - you can object to anything I process using legitimate interest.
 8. The right to withdraw consent - at any time, by unsubscribing from any email. It doesn't affect anything done before you withdrew it.
 
-So that's pretty much it. Last updated on the 10th October 2026. If you want to grumble, moan or complain, you can do that through the [ICO](https://ico.org.uk/make-a-complaint/) but drop me an email first at me@jamiecurle.com and see if we can fix it between us.
+Note, these rights are based on the GDPR and obviously that may not be the prevailing privacy legislation for your context, don't worry though, just get in touch and I'll work with you to satisfy your query.
+
+If you want to grumble, moan or complain, you can do that through the [ICO](https://ico.org.uk/make-a-complaint/) but drop me an email first at me@jamiecurle.com and see if we can fix it between us.
+
+## Thanks
+
+So that's pretty much it, well done you for reading it. I'm very grateful.

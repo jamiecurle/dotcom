@@ -17,10 +17,10 @@ config :jamie, :services,
 
 # The public AT Protocol services used to find my PDS and read threads. The
 # handle and app password that allow writes are set in runtime.exs.
-# The mailing list stays hidden from everyone but me until this is true.
-# Hardcoded on purpose: it ships when the privacy notice covers it.
+# The mailing list is open to everyone (privacy notice v2 covers it, from
+# 10 October 2026). Hardcoded on purpose: switching it off is a deploy.
 config :jamie, :mailing_list,
-  enabled: false,
+  enabled: true,
   # recorded against each confirmed subscriber as what they agreed to; set
   # it to the privacy notice's version when that covers the mailing list
   privacy_notice_version: "2",

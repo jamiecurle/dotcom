@@ -67,3 +67,7 @@ config :jamie, :postmark_webhook, username: "postmark", password: "test-webhook-
 
 # Only requests to this host reach /mcp (see JamieWeb.Plugs.TailnetOnly).
 config :jamie, :mcp_host, "stekpi.test"
+
+# Tests start with the mailing list switched off, as it was before launch;
+# the ones about it being on switch it on themselves.
+config :jamie, :mailing_list, enabled: false
