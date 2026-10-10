@@ -228,6 +228,51 @@ form#editor-form textarea {
     outline: 0;
 }
 
+/* Title and description read like the top of the post they make: a bold
+   headline, then a quieter standfirst. No input box - they sit flat on the
+   page, with a hairline underneath that warms to the accent colour on focus.
+   Colours come from the daisyUI theme so dark mode follows. */
+#editor-form input.editor-title,
+#editor-form input.editor-standfirst {
+    background: transparent;
+    color: var(--color-base-content);
+    border-bottom: 1px solid var(--color-base-300);
+    padding: var(--unit-3) var(--unit-3) var(--unit-2);
+    transition:
+        border-color 150ms ease,
+        background-color 150ms ease;
+}
+
+#editor-form input.editor-title {
+    padding-top: var(--unit-4);
+    font-size: var(--unit-4);
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+#editor-form input.editor-standfirst {
+    padding-bottom: var(--unit-3);
+    font-size: 22px;
+    line-height: 1.4;
+    color: color-mix(in oklch, var(--color-base-content) 75%, transparent);
+}
+
+#editor-form input.editor-title::placeholder,
+#editor-form input.editor-standfirst::placeholder {
+    color: color-mix(in oklch, var(--color-base-content) 30%, transparent);
+}
+
+#editor-form input.editor-title:hover,
+#editor-form input.editor-standfirst:hover {
+    background: color-mix(in oklch, var(--color-base-content) 3%, transparent);
+}
+
+#editor-form input.editor-title:focus,
+#editor-form input.editor-standfirst:focus {
+    border-bottom-color: var(--color-primary);
+}
+
 .editor-split {
     display: flex;
     flex-direction: row;

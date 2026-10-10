@@ -24,6 +24,7 @@ defmodule JamieWeb.ContentLive.PostForm do
               label="Title"
               type="text-naked"
               placeholder="Post title"
+              class="editor-title"
               phx-debounce="1500"
               required
             />
@@ -63,6 +64,7 @@ defmodule JamieWeb.ContentLive.PostForm do
               field={@form[:description]}
               label="Description"
               placeholder="Brief description"
+              class="editor-standfirst"
               phx-debounce="1500"
             />
 
