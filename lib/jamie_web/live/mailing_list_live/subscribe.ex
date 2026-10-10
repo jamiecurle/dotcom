@@ -101,10 +101,12 @@ defmodule JamieWeb.MailingListLive.Subscribe do
           phx-submit="subscribe"
           class="subscribe-form"
         >
-          <div class="field">
-            <label for={@form[:email].id}>Email</label>
+          <%!-- a floating label: see .field.floating in subscribe.css --%>
+          <div class="field floating">
+            <label for={@form[:email].id}>Your email</label>
             <input
               type="email"
+              placeholder=" "
               id={@form[:email].id}
               name={@form[:email].name}
               value={@form[:email].value}

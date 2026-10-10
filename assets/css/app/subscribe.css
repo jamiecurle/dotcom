@@ -15,8 +15,7 @@ button. Colours are in light.css. */
         gap: var(--unit-5);
     }
 
-    /* every group hangs from the same label as the writing index */
-    form.subscribe-form label[for="subscriber_email"],
+    /* the groups hang from the same label as the writing index */
     form.subscribe-form legend {
         display: block;
         width: 100%;
@@ -37,6 +36,45 @@ button. Colours are in light.css. */
         min-width: 0;
     }
 
+    /* EMAIL - a floating label. At rest the label sits in the field at the
+       address's size, standing in for a placeholder; on focus, or once
+       there's an address, it lifts into the small tracked label above. The
+       input needs placeholder=" " so :placeholder-shown can tell it's empty. */
+    .field.floating {
+        position: relative;
+        padding-top: var(--unit-3);
+    }
+    .field.floating label {
+        position: absolute;
+        left: 0;
+        top: calc(var(--unit-3) + var(--unit-1));
+        font-size: var(--unit-4);
+        line-height: var(--unit-4-2);
+        font-weight: 600;
+        letter-spacing: -1px;
+        pointer-events: none;
+        transform-origin: left top;
+        transition:
+            top var(--duration-1) ease,
+            font-size var(--duration-1) ease,
+            line-height var(--duration-1) ease,
+            letter-spacing var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+    .field.floating:has(input:focus) label,
+    .field.floating:has(input:not(:placeholder-shown)) label {
+        top: 0;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .field.floating label {
+            transition: none;
+        }
+    }
+
     /* the address is the one big thing to fill in */
     form.subscribe-form input[type="email"] {
         width: 100%;
@@ -50,10 +88,16 @@ button. Colours are in light.css. */
         line-height: var(--unit-4-2);
         font-weight: 600;
         letter-spacing: -1px;
+        transition: box-shadow var(--duration-1) ease;
     }
+    /* focus thickens the rule without moving anything */
     form.subscribe-form input[type="email"]:focus {
         outline: none;
-        border-bottom-width: 2px;
+        box-shadow: 0 1px 0 0 currentColor;
+    }
+    /* the label is doing the placeholder's job */
+    form.subscribe-form input[type="email"]::placeholder {
+        color: transparent;
     }
 
     /* WORLDS - one row each on hairlines, name then a line about it */
