@@ -87,12 +87,14 @@ defmodule Jamie.Opengraph.Image do
   # Inter is bundled with the app and is the canonical OG font. On Linux
   # (production and CI) we point libvips straight at the .ttf via :font_file.
   # That option isn't supported on macOS — it only emits a noisy fontconfig
-  # error — so for local previews we omit it and let the system resolve "Inter"
-  # by name, falling back to a default face if it isn't installed.
+  # error — so for local previews we omit it and let the system resolve Inter
+  # by name, falling back to a default face if it isn't installed. The
+  # variable font installs as "Inter Variable"; plain "Inter" finds nothing
+  # and quietly falls back to Helvetica.
   defp font_opts do
     case :os.type() do
       {:unix, :darwin} ->
-        [font: "Inter"]
+        [font: "Inter Variable"]
 
       _ ->
         [font: "Inter", font_file: priv_path("fonts/InterVariable.ttf")]

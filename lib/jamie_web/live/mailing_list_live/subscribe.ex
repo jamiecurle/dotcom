@@ -21,6 +21,9 @@ defmodule JamieWeb.MailingListLive.Subscribe do
      |> assign(:body_id, "subscribe")
      |> assign(:page_title, "Subscribe")
      |> assign(:page_description, "Get new writing by email, a world at a time.")
+     # a card of its own for when the page is shared, made once with
+     # Jamie.Opengraph.Image.create/3 and kept in priv/static
+     |> assign(:og_image, JamieWeb.Endpoint.url() <> "/images/og-subscribe.png")
      |> assign(:site_key, @turnstile.site_key())
      |> assign(:sent?, false)
      |> assign(:bot_check_failed?, false)}
@@ -75,6 +78,13 @@ defmodule JamieWeb.MailingListLive.Subscribe do
 
   defp assign_form(socket, changeset), do: assign(socket, :form, to_form(changeset))
 
+  # Bluesky's compose intent, with a post already written: a plain link, so
+  # nothing loads from Bluesky until someone clicks it
+  defp share_url do
+    text = "New writing from Jamie Curle, by email: " <> url(~p"/subscribe")
+    "https://bsky.app/intent/compose?" <> URI.encode_query(%{"text" => text})
+  end
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -92,6 +102,12 @@ defmodule JamieWeb.MailingListLive.Subscribe do
           <p>
             If that address can be subscribed, an email is on its way with a link to confirm.
             Nothing is sent until you do.
+          </p>
+          <p>
+            Know someone who'd like it?
+            <a id="share-on-bluesky" href={share_url()} target="_blank" rel="noopener">
+              Share it on Bluesky
+            </a>
           </p>
         </div>
       <% else %>
