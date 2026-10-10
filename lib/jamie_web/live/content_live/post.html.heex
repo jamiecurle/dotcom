@@ -43,6 +43,37 @@
   </article>
 </section>
 
+<%!-- the conversation lives on Bluesky; it's read back here, and replying
+     happens there --%>
+<section :if={@post.bluesky_uri} id="conversation" class="writing-list conversation">
+  <h2>
+    Replies on Bluesky<span :if={is_list(@replies) and @replies != []} class="count">{reply_count(@replies)}</span>
+  </h2>
+
+  <%= case @replies do %>
+    <% :loading -> %>
+      <p id="replies-loading" class="conversation-note">Fetching replies…</p>
+    <% :unavailable -> %>
+      <p id="replies-unavailable" class="conversation-note">
+        Bluesky didn't answer just now, so the replies can't be shown.
+      </p>
+    <% [] -> %>
+      <p id="replies-empty" class="conversation-note">No replies yet.</p>
+    <% replies -> %>
+      <.replies replies={replies} />
+  <% end %>
+
+  <a
+    id="reply-on-bluesky"
+    href={Jamie.Bluesky.web_url(@post.bluesky_uri)}
+    class="all-writing"
+    target="_blank"
+    rel="noopener"
+  >
+    Reply on Bluesky
+  </a>
+</section>
+
 <section :if={@more_posts != []} id="more-writing" class="writing-list more-writing">
   <h2>More writing</h2>
   <ol class="writing-index">

@@ -14,6 +14,10 @@ defmodule Jamie.Content.Post do
           published_on: Date.t() | nil,
           edited_on: Date.t() | nil,
           og_hash: String.t() | nil,
+          bluesky_uri: String.t() | nil,
+          bluesky_cid: String.t() | nil,
+          bluesky_posted_at: DateTime.t() | nil,
+          standard_document_uri: String.t() | nil,
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -36,12 +40,27 @@ defmodule Jamie.Content.Post do
     field :edited_on, :date
     field :og_hash, :string
 
+    # set by Jamie.Workers.BlueskyPublish, never by the editor, so they are
+    # deliberately left out of fields/0 and the changeset casts
+    field :bluesky_uri, :string
+    field :bluesky_cid, :string
+    field :bluesky_posted_at, :utc_datetime_usec
+    field :standard_document_uri, :string
+
     timestamps(type: :utc_datetime_usec)
 
     many_to_many :tags, Tag, join_through: "tags_posts"
   end
 
   def statuses, do: @statuses
+
+  @bluesky_fields [:bluesky_uri, :bluesky_cid, :bluesky_posted_at, :standard_document_uri]
+
+  @doc """
+  Records where the post lives on the AT Protocol. Only the publish worker
+  calls this; an empty map of nils clears it again.
+  """
+  def bluesky_changeset(post, attrs), do: cast(post, attrs, @bluesky_fields)
 
   @doc false
   def changeset(post, attrs) do

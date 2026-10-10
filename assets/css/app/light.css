@@ -487,6 +487,16 @@ body#error-404 a {
     ol.writing-index li {
         border-color: var(--colour-light-3);
     }
+    section.conversation ol.replies > li {
+        border-color: var(--colour-light-3);
+    }
+    section.conversation ol.replies ol.replies {
+        border-left-color: var(--c-accent-dark-5);
+    }
+    section.conversation .reply-handle,
+    section.conversation .conversation-note {
+        color: var(--colour-dark-5);
+    }
     #alreet ol.writing-index,
     #alreet ol.writing-index li {
         border-color: color-mix(in oklch, var(--colour-dark-2) 30%, transparent);
@@ -497,6 +507,7 @@ body#error-404 a {
 
     /* the old dark pill lives on as the hover highlight */
     @media (hover: hover) {
+        section.conversation a.reply-byline:hover .reply-name,
         .writing-list a:hover .title > span,
         a.all-writing:hover {
             background-color: var(--colour-dark-2);

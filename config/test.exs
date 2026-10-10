@@ -4,7 +4,16 @@ config :jamie, Oban, testing: :manual
 # services that call externally are handled with fakes
 config :jamie, :services,
   http: Jamie.Support.FakeReq,
-  r2: Jamie.Support.FakeR2
+  r2: Jamie.Support.FakeR2,
+  bluesky: Jamie.Support.FakeBluesky
+
+# Bluesky is faked by host (see Jamie.Support.FakeBluesky); runtime.exs skips
+# this key under :test so a real BLUESKY_HANDLE in the shell is ignored.
+config :jamie, :bluesky,
+  handle: "jamie.test",
+  app_password: "test-app-password",
+  appview: "https://appview.bluesky.test",
+  plc: "https://plc.bluesky.test"
 
 # Pin the linkding config so tests don't pick up a real LINKDING_HOST from the
 # developer's shell. runtime.exs skips this key under :test (see the guard there).

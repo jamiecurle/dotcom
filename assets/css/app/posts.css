@@ -242,6 +242,95 @@
         border-top: 0;
     }
 
+    /* CONVERSATION
+       replies to the Bluesky announcement, set like the writing index: a
+       tracked label on a 2px rule, then hairlines. A byline in the small
+       upper voice, the reply in body type, and answers to a reply hung one
+       step in on a rule of their own. */
+    section.conversation {
+        margin-top: var(--unit-6);
+        padding: var(--unit-5) 0 0;
+    }
+    @media (min-width: 750px) {
+        section.conversation {
+            padding-right: var(--unit-4);
+        }
+    }
+    section.conversation h2 {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin: 0 0 var(--unit-3);
+    }
+    section.conversation h2 .count {
+        font-variant-numeric: tabular-nums;
+    }
+    section.conversation .conversation-note {
+        margin: 0;
+        padding: var(--unit-2) 0;
+        font-size: var(--unit-2-2);
+    }
+    section.conversation ol.replies {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    section.conversation ol.replies > li {
+        margin: 0;
+        padding: var(--unit-2) 0 0;
+        border-top: 1px solid;
+    }
+    section.conversation > ol.replies > li:first-child {
+        border-top: 0;
+    }
+    /* answers hang one step in, on a rule down their left */
+    section.conversation ol.replies ol.replies {
+        margin: 0 0 0 var(--unit-3);
+        padding-left: var(--unit-3);
+        border-left: 2px solid;
+    }
+    section.conversation ol.replies ol.replies > li:first-child {
+        border-top: 0;
+        padding-top: 0;
+    }
+    section.conversation a.reply-byline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 var(--unit-1);
+        align-items: baseline;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    section.conversation .reply-handle {
+        text-transform: none;
+        letter-spacing: 0;
+        font-weight: 500;
+    }
+    section.conversation a.reply-byline time {
+        margin-left: auto;
+        font-variant-numeric: tabular-nums;
+    }
+    section.conversation .reply-name {
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        padding: 0 var(--unit-0);
+        margin: 0 calc(-1 * var(--unit-0));
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+    section.conversation p.reply-text {
+        margin: var(--unit-0) 0 var(--unit-2);
+        max-width: 60ch;
+        font-size: var(--unit-3);
+        line-height: var(--unit-3-1);
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
     .post-body h1,
     .post-body h2,
     .post-body h3,

@@ -46,6 +46,7 @@ defmodule JamieWeb.Router do
     get "/sitemap.xml", SitemapController, :index
     get "/posts/:slug/markdown", PostMarkdownController, :show
     get "/.well-known/api-catalog", ApiCatalogController, :index
+    get "/.well-known/site.standard.publication", StandardSiteController, :publication
 
     get "/notes/:id", NoteController, :note
 

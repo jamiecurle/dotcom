@@ -21,6 +21,12 @@
       og_type={assigns[:og_type] || "website"}
       url={Phoenix.Controller.current_url(@conn)}
     />
+    <%!-- standard.site: ties this page to its document record on Bluesky --%>
+    <link
+      :if={assigns[:standard_document_uri]}
+      rel="site.standard.document"
+      href={assigns[:standard_document_uri]}
+    />
     <link rel="alternate" type="application/atom+xml" title="Jamie Curle" href={~p"/feed.xml"} />
     <link
       :if={JamieWeb.MarkdownRenderer.has_markdown?(@conn.path_info)}

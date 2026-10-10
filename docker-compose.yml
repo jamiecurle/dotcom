@@ -21,6 +21,8 @@ services:
       LINKDING_API_TOKEN: ${LINKDING_API_TOKEN}
       LINKDING_HOST: ${LINKDING_HOST}
       MCP_HOST: ${MCP_HOST:-stekpi.tailebf707.ts.net}
+      BLUESKY_HANDLE: ${BLUESKY_HANDLE:-curle.io}
+      BLUESKY_APP_PASSWORD: ${BLUESKY_APP_PASSWORD}
     healthcheck:
       test:
         ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:4000/health"]

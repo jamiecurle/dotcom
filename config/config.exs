@@ -11,7 +11,14 @@ alias Jamie.Service.R2
 # registry pattern for dependancy injection
 config :jamie, :services,
   http: Req,
-  r2: R2
+  r2: R2,
+  bluesky: Req
+
+# The public AT Protocol services used to find my PDS and read threads. The
+# handle and app password that allow writes are set in runtime.exs.
+config :jamie, :bluesky,
+  appview: "https://public.api.bsky.app",
+  plc: "https://plc.directory"
 
 config :jamie, Oban,
   engine: Oban.Engines.Basic,

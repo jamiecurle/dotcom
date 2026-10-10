@@ -35,6 +35,15 @@ if config_env() != :test do
     api_token: System.get_env("LINKDING_API_TOKEN", "linkding_api_token")
 end
 
+# Publishing to Bluesky needs both; with either unset the editor says so
+# instead of offering the button. The app password comes from Bluesky's
+# Settings -> Privacy and Security -> App Passwords.
+if config_env() != :test do
+  config :jamie, :bluesky,
+    handle: System.get_env("BLUESKY_HANDLE"),
+    app_password: System.get_env("BLUESKY_APP_PASSWORD")
+end
+
 config :ex_aws, :s3,
   access_key_id: System.get_env("CF_ACCESS_KEY_ID", "AKIAIOSFODNN7EXAMPLE"),
   secret_access_key:

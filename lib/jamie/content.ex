@@ -12,6 +12,7 @@ defmodule Jamie.Content do
   alias Jamie.Content.PostRevision
   alias Jamie.Content.PostSuggestion
   alias Jamie.Repo
+  alias Jamie.Workers.BlueskyPublish
   alias Jamie.Workers.OgImageCreate
 
   @snapshot_every 50
@@ -272,6 +273,68 @@ defmodule Jamie.Content do
       {:ok, _} -> Repo.get!(Post, post_id)
       {:error, reason} -> Repo.rollback(reason)
     end
+  end
+
+  # BLUESKY
+  # Publishing to Bluesky runs in Jamie.Workers.BlueskyPublish. Its progress
+  # goes out on the post's own topic as {:post_bluesky, post} (it landed) and
+  # {:bluesky_error, post_id, message} (it didn't, and may be retried).
+
+  @doc """
+  Queues a published post to go out on Bluesky with `text` as the words of
+  the announcement.
+  """
+  def publish_to_bluesky(%Post{} = post, text) when is_binary(text) do
+    text = String.trim(text)
+
+    cond do
+      not Jamie.Bluesky.configured?() -> {:error, :not_configured}
+      post.status != :published -> {:error, :not_published}
+      post.bluesky_uri && post.standard_document_uri -> {:error, :already_published}
+      text == "" -> {:error, :blank}
+      String.length(text) > Jamie.Bluesky.max_graphemes() -> {:error, :too_long}
+      true -> enqueue_bluesky(post, %{"action" => "publish", "text" => text})
+    end
+  end
+
+  @doc """
+  Queues the removal of a post's Bluesky post and standard.site document.
+  """
+  def remove_from_bluesky(%Post{} = post) do
+    if post.bluesky_uri || post.standard_document_uri do
+      enqueue_bluesky(post, %{"action" => "remove"})
+    else
+      {:error, :not_on_bluesky}
+    end
+  end
+
+  defp enqueue_bluesky(post, args) do
+    args
+    |> Map.put("post_id", post.id)
+    |> BlueskyPublish.new()
+    |> Oban.insert()
+  end
+
+  @doc """
+  Saves where a post lives on Bluesky. Deliberately leaves `updated_at`
+  alone: the editor uses it to spot conflicting saves, and this isn't one.
+  """
+  def put_post_bluesky(%Post{} = post, attrs) do
+    changeset = Post.bluesky_changeset(post, attrs)
+    updates = Map.to_list(changeset.changes)
+
+    if updates != [] do
+      from(p in Post, where: p.id == ^post.id) |> Repo.update_all(set: updates)
+    end
+
+    updated = Repo.get!(Post, post.id)
+    Phoenix.PubSub.broadcast(Jamie.PubSub, "post:#{post.id}", {:post_bluesky, updated})
+    {:ok, updated}
+  end
+
+  @doc false
+  def broadcast_bluesky_error(%Post{id: id}, message) do
+    Phoenix.PubSub.broadcast(Jamie.PubSub, "post:#{id}", {:bluesky_error, id, message})
   end
 
   @doc """

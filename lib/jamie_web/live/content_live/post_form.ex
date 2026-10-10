@@ -2,6 +2,7 @@ defmodule JamieWeb.ContentLive.PostForm do
   use JamieWeb, :live_view
   @moduledoc false
 
+  alias Jamie.Bluesky
   alias Jamie.Content
   alias Jamie.Tags
 
@@ -195,6 +196,19 @@ defmodule JamieWeb.ContentLive.PostForm do
                 Unsaved tags
               </span>
             </div>
+
+            <%!-- Bluesky: once a post is published (and saved as such) it can
+                 be announced on Bluesky, with the words checked first since
+                 a post there can't be edited, only deleted and redone --%>
+            <.bluesky_panel
+              :if={@live_action == :edit and @post.status == :published}
+              post={@post}
+              configured?={@bluesky_configured?}
+              composing?={@bluesky_composing?}
+              pending={@bluesky_pending}
+              error={@bluesky_error}
+              form={@bluesky_form}
+            />
           </div>
         </div>
 
@@ -221,10 +235,171 @@ defmodule JamieWeb.ContentLive.PostForm do
     """
   end
 
+  attr :post, Content.Post, required: true
+  attr :configured?, :boolean, required: true
+  attr :composing?, :boolean, required: true
+  attr :pending, :atom, default: nil
+  attr :error, :string, default: nil
+  attr :form, Phoenix.HTML.Form, required: true
+
+  defp bluesky_panel(assigns) do
+    text = assigns.form[:text].value || ""
+
+    assigns =
+      assign(assigns,
+        count: String.length(text),
+        max: Bluesky.max_graphemes(),
+        host: URI.parse(JamieWeb.Endpoint.url()).host
+      )
+
+    ~H"""
+    <section
+      id="bluesky"
+      class="rounded-box border border-base-300 bg-base-200/60 px-4 py-3 transition-colors"
+    >
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="flex items-center gap-2 text-sm font-semibold">
+          <.icon name="hero-cloud" class="size-4 text-info" /> Bluesky
+        </span>
+
+        <%= cond do %>
+          <% not @configured? -> %>
+            <span id="bluesky-not-configured" class="text-xs text-base-content/60">
+              Not set up: BLUESKY_HANDLE and BLUESKY_APP_PASSWORD are needed.
+            </span>
+          <% @pending -> %>
+            <span id="bluesky-pending" class="flex items-center gap-2 text-sm text-base-content/70">
+              <span class="loading loading-dots loading-sm"></span>
+              {if @pending == :remove, do: "Removing…", else: "Publishing…"}
+            </span>
+          <% @post.bluesky_uri -> %>
+            <span id="bluesky-published" class="badge badge-soft badge-info gap-1">
+              <.icon name="hero-check" class="size-3" />
+              Posted {Calendar.strftime(@post.bluesky_posted_at, "%-d %b %Y, %H:%M")}
+            </span>
+            <span
+              :if={is_nil(@post.standard_document_uri)}
+              id="bluesky-document-missing"
+              class="badge badge-soft badge-warning"
+            >
+              standard.site record pending
+            </span>
+            <a
+              id="bluesky-link"
+              href={Bluesky.web_url(@post.bluesky_uri)}
+              target="_blank"
+              rel="noopener"
+              class="link link-hover text-sm"
+            >
+              View on Bluesky <.icon name="hero-arrow-top-right-on-square" class="size-3" />
+            </a>
+            <button
+              id="bluesky-remove"
+              type="button"
+              phx-click="bluesky-remove"
+              data-confirm="Delete this post from Bluesky? Its replies and likes go with it."
+              class="btn btn-ghost btn-sm ml-auto text-error"
+            >
+              Remove from Bluesky
+            </button>
+          <% not @composing? -> %>
+            <button
+              id="bluesky-compose"
+              type="button"
+              phx-click="bluesky-compose"
+              class="btn btn-info btn-sm ml-auto transition-transform hover:-translate-y-px"
+            >
+              <.icon name="hero-paper-airplane" class="size-4" /> Publish to Bluesky
+            </button>
+          <% true -> %>
+        <% end %>
+      </div>
+
+      <div :if={@error} id="bluesky-error" role="alert" class="alert alert-error alert-soft mt-3">
+        <.icon name="hero-exclamation-triangle" class="size-4" />
+        <span>{@error}</span>
+      </div>
+
+      <.form
+        :if={@composing? and @configured? and is_nil(@pending) and is_nil(@post.bluesky_uri)}
+        for={@form}
+        id="bluesky-form"
+        phx-change="bluesky-change"
+        phx-submit="bluesky-publish"
+        class="mt-3 flex flex-col gap-3"
+      >
+        <.input
+          field={@form[:text]}
+          type="textarea"
+          label="What the post says"
+          rows="4"
+          phx-debounce="100"
+        />
+
+        <%!-- the link card Bluesky will draw under the text --%>
+        <div
+          id="bluesky-card"
+          class="flex overflow-hidden rounded-box border border-base-300 bg-base-100"
+        >
+          <img
+            :if={@post.og_hash}
+            src={"https://#{Application.get_env(:jamie, :images)[:host]}/opengraph/#{@post.og_hash}.png"}
+            alt=""
+            class="w-32 shrink-0 object-cover"
+          />
+          <div class="min-w-0 px-3 py-2">
+            <div class="text-xs text-base-content/60">{@host}</div>
+            <div class="truncate text-sm font-semibold">{@post.title}</div>
+            <div class="line-clamp-2 text-xs text-base-content/70">{@post.description}</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span
+            id="bluesky-count"
+            class={[
+              "text-xs tabular-nums",
+              if(@count > @max, do: "font-semibold text-error", else: "text-base-content/60")
+            ]}
+          >
+            {@count} / {@max}
+          </span>
+          <button
+            type="button"
+            id="bluesky-cancel"
+            phx-click="bluesky-cancel"
+            class="btn btn-ghost btn-sm ml-auto"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            id="bluesky-publish"
+            class="btn btn-info btn-sm"
+            disabled={@count == 0 or @count > @max}
+            phx-disable-with="Queuing…"
+          >
+            Publish
+          </button>
+        </div>
+      </.form>
+    </section>
+    """
+  end
+
   @impl true
   def mount(_params, _session, socket) do
     # writing mode is the default: just the editor until another is picked
-    {:ok, assign(socket, mode: :writing, modes: @modes)}
+    {:ok,
+     assign(socket,
+       mode: :writing,
+       modes: @modes,
+       bluesky_configured?: Bluesky.configured?(),
+       bluesky_composing?: false,
+       bluesky_pending: nil,
+       bluesky_error: nil,
+       bluesky_form: to_form(%{"text" => ""}, as: :bluesky)
+     )}
   end
 
   @impl true
@@ -270,6 +445,49 @@ defmodule JamieWeb.ContentLive.PostForm do
   @impl true
   def handle_event("save", %{"post" => post_params}, socket) do
     save_post(socket, socket.assigns.live_action, post_params)
+  end
+
+  # BLUESKY
+
+  def handle_event("bluesky-compose", _params, socket) do
+    post = socket.assigns.post
+    text = Bluesky.post_text(post.title, post.description)
+
+    {:noreply,
+     assign(socket,
+       bluesky_composing?: true,
+       bluesky_error: nil,
+       bluesky_form: to_form(%{"text" => text}, as: :bluesky)
+     )}
+  end
+
+  def handle_event("bluesky-cancel", _params, socket) do
+    {:noreply, assign(socket, bluesky_composing?: false)}
+  end
+
+  def handle_event("bluesky-change", %{"bluesky" => params}, socket) do
+    {:noreply, assign(socket, bluesky_form: to_form(params, as: :bluesky))}
+  end
+
+  def handle_event("bluesky-publish", %{"bluesky" => %{"text" => text}}, socket) do
+    case Content.publish_to_bluesky(socket.assigns.post, text) do
+      {:ok, _job} ->
+        {:noreply,
+         assign(socket, bluesky_pending: :publish, bluesky_composing?: false, bluesky_error: nil)}
+
+      {:error, reason} ->
+        {:noreply, assign(socket, bluesky_error: bluesky_message(reason))}
+    end
+  end
+
+  def handle_event("bluesky-remove", _params, socket) do
+    case Content.remove_from_bluesky(socket.assigns.post) do
+      {:ok, _job} ->
+        {:noreply, assign(socket, bluesky_pending: :remove, bluesky_error: nil)}
+
+      {:error, reason} ->
+        {:noreply, assign(socket, bluesky_error: bluesky_message(reason))}
+    end
   end
 
   # TAGS
@@ -350,6 +568,23 @@ defmodule JamieWeb.ContentLive.PostForm do
     {:noreply, socket}
   end
 
+  # The publish worker's progress. Only the bluesky fields change, so the
+  # post can be swapped in without touching the draft or its updated_at.
+  def handle_info({:post_bluesky, post}, socket) do
+    pending =
+      case socket.assigns.bluesky_pending do
+        :publish when is_binary(post.standard_document_uri) -> nil
+        :remove when is_nil(post.bluesky_uri) -> nil
+        pending -> pending
+      end
+
+    {:noreply, assign(socket, post: post, bluesky_pending: pending)}
+  end
+
+  def handle_info({:bluesky_error, _post_id, message}, socket) do
+    {:noreply, assign(socket, bluesky_pending: nil, bluesky_error: message)}
+  end
+
   def handle_info({:post_updated, post}, socket) do
     %{post: base, form: form} = socket.assigns
     draft = form.params["markdown"] || base.markdown
@@ -378,6 +613,14 @@ defmodule JamieWeb.ContentLive.PostForm do
          )}
     end
   end
+
+  defp bluesky_message(:not_configured), do: "Bluesky isn't set up on this server."
+  defp bluesky_message(:not_published), do: "Save the post as published first."
+  defp bluesky_message(:already_published), do: "This post is already on Bluesky."
+  defp bluesky_message(:not_on_bluesky), do: "This post isn't on Bluesky."
+  defp bluesky_message(:blank), do: "The post needs some words."
+  defp bluesky_message(:too_long), do: "Bluesky posts are 300 characters at most."
+  defp bluesky_message(_), do: "Couldn't queue that for Bluesky."
 
   # the colour the chosen status button takes
   defp status_class(:published), do: "btn-success"
