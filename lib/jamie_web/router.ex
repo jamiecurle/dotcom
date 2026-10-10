@@ -61,6 +61,21 @@ defmodule JamieWeb.Router do
     end
   end
 
+  # The mailing list, hidden behind JamieWeb.MailingListGate until it's
+  # switched on in config.exs (signed in, I can always see it).
+  scope "/", JamieWeb do
+    pipe_through :browser
+
+    live_session :mailing_list,
+      on_mount: [
+        {JamieWeb.UserAuth, :mount_current_scope},
+        JamieWeb.MailingListGate,
+        {JamieWeb.Analytics.Tracker, :track_pageviews}
+      ] do
+      live "/subscribe", MailingListLive.Subscribe, :new
+    end
+  end
+
   scope "/mcp", JamieWeb do
     pipe_through :mcp
 

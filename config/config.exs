@@ -16,6 +16,10 @@ config :jamie, :services,
 
 # The public AT Protocol services used to find my PDS and read threads. The
 # handle and app password that allow writes are set in runtime.exs.
+# The mailing list stays hidden from everyone but me until this is true.
+# Hardcoded on purpose: it ships when the privacy notice covers it.
+config :jamie, :mailing_list, enabled: false
+
 config :jamie, :bluesky,
   appview: "https://public.api.bsky.app",
   plc: "https://plc.directory"
