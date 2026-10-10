@@ -9,14 +9,22 @@ const SCRIPT = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=exp
 
 let loading = null
 
+// Cloudflare's API, once its script has run. Not just `window.turnstile`:
+// browsers expose elements by id as globals, so the hook's own
+// <div id="turnstile"> *is* window.turnstile until the script replaces it.
+function api() {
+  const turnstile = window.turnstile
+  return turnstile && typeof turnstile.render === "function" ? turnstile : null
+}
+
 function loadTurnstile() {
-  if (window.turnstile) return Promise.resolve(window.turnstile)
+  if (api()) return Promise.resolve(api())
 
   loading ||= new Promise((resolve, reject) => {
     const script = document.createElement("script")
     script.src = SCRIPT
     script.async = true
-    script.onload = () => resolve(window.turnstile)
+    script.onload = () => resolve(api())
     script.onerror = reject
     document.head.appendChild(script)
   })
@@ -35,11 +43,11 @@ export default {
     })
 
     this.handleEvent("turnstile:reset", () => {
-      if (window.turnstile && this.widget !== undefined) window.turnstile.reset(this.widget)
+      if (api() && this.widget !== undefined) api().reset(this.widget)
     })
   },
 
   destroyed() {
-    if (window.turnstile && this.widget !== undefined) window.turnstile.remove(this.widget)
+    if (api() && this.widget !== undefined) api().remove(this.widget)
   },
 }
