@@ -147,9 +147,18 @@ defmodule JamieWeb.OfficeLive.Suggestions do
                   {suggestion.reason}
                 </p>
               </div>
-              <span class="badge badge-ghost badge-sm shrink-0">
-                {Calendar.strftime(suggestion.inserted_at, "%Y-%m-%d %H:%M")}
-              </span>
+              <div class="flex shrink-0 items-center gap-2">
+                <%!-- Claude refers to suggestions by id, so show it to match --%>
+                <span
+                  id={"suggestion-id-#{suggestion.id}"}
+                  class="badge badge-neutral badge-sm font-mono tabular-nums"
+                >
+                  #{suggestion.id}
+                </span>
+                <span class="badge badge-ghost badge-sm">
+                  {Calendar.strftime(suggestion.inserted_at, "%Y-%m-%d %H:%M")}
+                </span>
+              </div>
             </div>
 
             <%= case in_context(suggestion) do %>

@@ -29,9 +29,13 @@ defmodule JamieWeb.ContentLive.PostRepliesTest do
 
   test "replies are fetched once the page is live and nested", %{conn: conn, post: post} do
     post = on_bluesky(post)
-    {:ok, view, _html} = live(conn, ~p"/posts/#{post.slug}")
 
-    assert has_element?(view, "#replies-loading")
+    # the static render only promises them; checking that on the live view
+    # races the fetch, which can land before the assertion
+    html = conn |> get(~p"/posts/#{post.slug}") |> html_response(200)
+    assert html |> LazyHTML.from_document() |> LazyHTML.query("#replies-loading") |> Enum.any?()
+
+    {:ok, view, _html} = live(conn, ~p"/posts/#{post.slug}")
     render_async(view)
 
     assert has_element?(view, "#conversation h2 .count", "2")

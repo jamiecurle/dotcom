@@ -26,6 +26,14 @@ defmodule JamieWeb.OfficeLive.SuggestionsTest do
       %{post: post, suggestion: suggestion}
     end
 
+    test "each suggestion shows its id, as Claude refers to it", %{
+      conn: conn,
+      suggestion: suggestion
+    } do
+      {:ok, view, _html} = live(conn, ~p"/office/suggestions")
+      assert has_element?(view, "#suggestion-id-#{suggestion.id}", "##{suggestion.id}")
+    end
+
     test "accepting applies the edit", %{conn: conn, post: post, suggestion: suggestion} do
       {:ok, view, _html} = live(conn, ~p"/office/suggestions")
       assert has_element?(view, "#suggestions-#{suggestion.id} del", "cat sat")
