@@ -2,6 +2,7 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import SaveShortcut from "./hooks/save_shortcut";
+import FlashDismiss from "./hooks/flash_dismiss";
 import SignImageUrl from "./hooks/sign_image_url";
 import TagInput from "./hooks/tag_input";
 import { hooks as colocatedHooks } from "phoenix-colocated/jamie";
@@ -14,7 +15,7 @@ const csrfToken = document
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
-  hooks: { ...colocatedHooks, SaveShortcut, SignImageUrl, TagInput },
+  hooks: { ...colocatedHooks, SaveShortcut, SignImageUrl, TagInput, FlashDismiss },
 });
 
 topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" });

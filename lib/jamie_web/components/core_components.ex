@@ -35,7 +35,10 @@ defmodule JamieWeb.CoreComponents do
   alias Phoenix.LiveView.JS
 
   @doc """
-  Renders flash notices.
+  Renders flash notices, bottom right.
+
+  Info notices count themselves down and close after a couple of seconds (see
+  the FlashDismiss hook and toasts.css); errors stay until clicked.
 
   ## Examples
 
@@ -58,8 +61,9 @@ defmodule JamieWeb.CoreComponents do
       :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
+      phx-hook={if(@kind == :info, do: "FlashDismiss")}
       role="alert"
-      class="toast toast-top toast-end z-50"
+      class="toast toast-bottom toast-end z-50"
       {@rest}
     >
       <div class={[
@@ -74,7 +78,12 @@ defmodule JamieWeb.CoreComponents do
           <p>{msg}</p>
         </div>
         <div class="flex-1" />
-        <button type="button" class="group self-start cursor-pointer" aria-label={gettext("close")}>
+        <button
+          type="button"
+          class="toast-close group self-start cursor-pointer"
+          aria-label={gettext("close")}
+        >
+          <span :if={@kind == :info} class="toast-countdown" aria-hidden="true"></span>
           <.icon name="hero-x-mark" class="size-5 opacity-40 group-hover:opacity-70" />
         </button>
       </div>

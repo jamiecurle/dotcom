@@ -38,6 +38,10 @@
         top: 0;
     }
 
+    .toast-bottom {
+        bottom: 0;
+    }
+
     .toast-end {
         right: 0;
         align-items: flex-end;
@@ -134,6 +138,81 @@
     @media (hover: hover) {
         .alert .group:hover .group-hover\:opacity-70 {
             opacity: 0.7;
+        }
+    }
+}
+
+/*
+  The countdown on info toasts: a filled circle that empties clockwise, like a
+  clock hand sweeping round, over --toast-life. When it runs out the
+  FlashDismiss hook (assets/js/hooks/flash_dismiss.js) closes the toast, so
+  the timing, the pause on hover and the reduced-motion handling all live here.
+
+  The circle sits in the close button, stacked over the x. Hovering the toast
+  freezes the countdown and swaps the circle for the x, so it can still be
+  closed early. Colour is the toast's own text colour, so it follows the theme.
+*/
+@property --toast-sweep {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 360deg;
+}
+
+@layer content {
+    .toast {
+        --toast-life: 2s;
+    }
+
+    .toast-close {
+        display: grid;
+        place-items: center;
+    }
+
+    /* circle and x share one grid cell */
+    .toast-close > * {
+        grid-area: 1 / 1;
+    }
+
+    .toast-countdown {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        /* the empty wedge grows clockwise from twelve o'clock */
+        background: conic-gradient(
+            transparent calc(360deg - var(--toast-sweep)),
+            currentColor 0
+        );
+        opacity: 0.5;
+        transition: opacity var(--duration-1) ease;
+        animation: toast-countdown var(--toast-life) linear forwards;
+    }
+
+    .toast-close:has(.toast-countdown) .hero-x-mark {
+        opacity: 0;
+    }
+
+    .toast:hover .toast-countdown {
+        animation-play-state: paused;
+        opacity: 0;
+    }
+
+    .toast:hover .toast-close:has(.toast-countdown) .hero-x-mark {
+        opacity: 0.7;
+    }
+
+    /* no sweep: the circle stays full, then the toast goes at the same time */
+    @media (prefers-reduced-motion: reduce) {
+        .toast-countdown {
+            animation-timing-function: steps(1, end);
+        }
+    }
+
+    @keyframes toast-countdown {
+        from {
+            --toast-sweep: 360deg;
+        }
+        to {
+            --toast-sweep: 0deg;
         }
     }
 }

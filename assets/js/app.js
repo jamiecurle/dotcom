@@ -23,6 +23,7 @@ import "phoenix_html"
 import { Socket } from "phoenix"
 import { LiveSocket } from "phoenix_live_view"
 import SaveShortcut from "./hooks/save_shortcut"
+import FlashDismiss from "./hooks/flash_dismiss"
 import { hooks as colocatedHooks } from "phoenix-colocated/jamie"
 import topbar from "../vendor/topbar"
 import "./sticky_nav"
@@ -33,7 +34,7 @@ const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   disconnectedTimeout: 1000,
   params: { _csrf_token: csrfToken },
-  hooks: { ...colocatedHooks, SaveShortcut },
+  hooks: { ...colocatedHooks, SaveShortcut, FlashDismiss },
 })
 
 // Show progress bar on live navigation and form submits
