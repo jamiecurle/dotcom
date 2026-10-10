@@ -21,7 +21,15 @@ defmodule JamieWeb.Plugs.TrackPageview do
   # Dynamic routes that go through the browser pipeline but aren't real
   # pageviews. (Static assets are served by Plug.Static before the router,
   # so they never reach this plug.)
-  @skip_prefixes [~r"/office/*", ~r"/dev/*", ~r"/health/*", ~r"/front-door/*", ~r"^/+$"]
+  @skip_prefixes [
+    ~r"/office/*",
+    ~r"/dev/*",
+    ~r"/health/*",
+    ~r"/front-door/*",
+    ~r"^/+$",
+    # below /subscribe the url carries a secret (token or subscriber id)
+    ~r"^/subscribe/."
+  ]
 
   @impl true
   def init(opts), do: opts

@@ -12,13 +12,23 @@ alias Jamie.Service.R2
 config :jamie, :services,
   http: Req,
   r2: R2,
-  bluesky: Req
+  bluesky: Req,
+  turnstile: Jamie.Turnstile
 
 # The public AT Protocol services used to find my PDS and read threads. The
 # handle and app password that allow writes are set in runtime.exs.
 # The mailing list stays hidden from everyone but me until this is true.
 # Hardcoded on purpose: it ships when the privacy notice covers it.
-config :jamie, :mailing_list, enabled: false
+config :jamie, :mailing_list,
+  enabled: false,
+  # recorded against each confirmed subscriber as what they agreed to; set
+  # it to the privacy notice's version when that covers the mailing list
+  privacy_notice_version: "unreleased"
+
+# Cloudflare's always-pass test keys; runtime.exs swaps in real ones
+config :jamie, :turnstile,
+  site_key: "1x00000000000000000000AA",
+  secret_key: "1x0000000000000000000000000000000AA"
 
 config :jamie, :bluesky,
   appview: "https://public.api.bsky.app",
@@ -40,7 +50,9 @@ config :jamie, Oban,
        {"*/15 * * * *", Jamie.Workers.SyncBookmarks, queue: :bookmarks},
        # remove post images that were edited out - hourly. Dry run (logs only)
        # until the logs have been checked; flip to "delete" => true after that
-       {"0 * * * *", Jamie.Workers.PostImageCleanup, args: %{"delete" => false}}
+       {"0 * * * *", Jamie.Workers.PostImageCleanup, args: %{"delete" => false}},
+       # mailing list sign-ups never confirmed - daily
+       {"30 3 * * *", Jamie.Workers.PurgeUnconfirmedSubscribers}
      ]}
   ]
 
@@ -123,6 +135,9 @@ config :logger, :default_formatter,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# confirmation tokens ride in mailing list urls; keep them out of debug logs
+config :phoenix, :filter_parameters, ["password", "token"]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

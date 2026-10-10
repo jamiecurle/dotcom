@@ -38,6 +38,12 @@ end
 # Publishing to Bluesky needs both; with either unset the editor says so
 # instead of offering the button. The app password comes from Bluesky's
 # Settings -> Privacy and Security -> App Passwords.
+if config_env() == :prod and System.get_env("TURNSTILE_SITE_KEY") do
+  config :jamie, :turnstile,
+    site_key: System.get_env("TURNSTILE_SITE_KEY"),
+    secret_key: System.get_env("TURNSTILE_SECRET_KEY")
+end
+
 if config_env() != :test do
   config :jamie, :bluesky,
     handle: System.get_env("BLUESKY_HANDLE"),

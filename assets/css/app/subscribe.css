@@ -1,0 +1,181 @@
+/* start subscribe.css
+
+The mailing list sign-up, set like the rest of the site: tracked upper
+labels on 2px rules, the worlds as an index on hairlines, a big plain
+button. Colours are in light.css. */
+
+@layer content {
+    section.subscribe {
+        max-width: 42rem;
+    }
+
+    form.subscribe-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--unit-5);
+    }
+
+    /* every group hangs from the same label as the writing index */
+    form.subscribe-form label[for="subscriber_email"],
+    form.subscribe-form legend {
+        display: block;
+        width: 100%;
+        margin: 0 0 var(--unit-2);
+        padding-bottom: var(--unit-1);
+        border-bottom: 2px solid;
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    form.subscribe-form fieldset {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+    }
+
+    /* the address is the one big thing to fill in */
+    form.subscribe-form input[type="email"] {
+        width: 100%;
+        padding: var(--unit-1) 0;
+        border: 0;
+        border-bottom: 1px solid;
+        border-radius: 0;
+        background: transparent;
+        font: inherit;
+        font-size: var(--unit-4);
+        line-height: var(--unit-4-2);
+        font-weight: 600;
+        letter-spacing: -1px;
+    }
+    form.subscribe-form input[type="email"]:focus {
+        outline: none;
+        border-bottom-width: 2px;
+    }
+
+    /* WORLDS - one row each on hairlines, name then a line about it */
+    ol.worlds {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    ol.worlds li {
+        border-top: 1px solid;
+    }
+    ol.worlds li:first-child {
+        border-top: 0;
+    }
+    label.world {
+        display: grid;
+        grid-template-columns: var(--unit-4) 1fr;
+        column-gap: var(--unit-1);
+        align-items: baseline;
+        padding: var(--unit-2) 0;
+        cursor: pointer;
+    }
+    @media (min-width: 750px) {
+        label.world {
+            grid-template-columns: var(--unit-4) calc(4 * var(--unit-4)) 1fr;
+        }
+    }
+    label.world .name {
+        font-size: var(--unit-3);
+        line-height: var(--unit-3-1);
+        font-weight: 600;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+        padding: 0 var(--unit-0);
+        margin: 0 calc(-1 * var(--unit-0));
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+    label.world .blurb {
+        grid-column: 2;
+        font-size: var(--unit-2-2);
+    }
+    @media (min-width: 750px) {
+        label.world .blurb {
+            grid-column: 3;
+        }
+    }
+    label.world input,
+    .frequencies input {
+        width: var(--unit-3);
+        height: var(--unit-3);
+        margin: 0;
+        accent-color: currentColor;
+    }
+    /* with everything ticked the worlds are already covered */
+    label.world:has(input:disabled) {
+        cursor: default;
+    }
+
+    /* FREQUENCY - three equal blocks; the chosen one fills in */
+    .frequencies {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--unit-1);
+    }
+    .frequencies label {
+        position: relative;
+        display: block;
+        padding: var(--unit-2);
+        border: 2px solid;
+        font-size: var(--unit-2-2);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+    /* the radio itself stays for keyboards and screen readers, unseen */
+    .frequencies input {
+        position: absolute;
+        opacity: 0;
+    }
+
+    form.subscribe-form button,
+    section.subscribe button {
+        align-self: flex-start;
+        padding: var(--unit-2) var(--unit-4);
+        border: 0;
+        font: inherit;
+        font-size: var(--unit-3);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease,
+            transform var(--duration-1) ease;
+    }
+    form.subscribe-form button:hover,
+    section.subscribe button:hover {
+        transform: translateY(-1px);
+    }
+
+    form.subscribe-form .error {
+        margin: var(--unit-1) 0 0;
+        font-size: var(--unit-2-2);
+        font-weight: 600;
+    }
+
+    form.subscribe-form .small-print {
+        margin: 0;
+        max-width: 60ch;
+        font-size: var(--unit-2-2);
+    }
+
+    .subscribe-sent h2 {
+        margin-top: 0;
+    }
+    .subscribe-sent p {
+        max-width: 60ch;
+    }
+}

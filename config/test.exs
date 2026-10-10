@@ -5,7 +5,8 @@ config :jamie, Oban, testing: :manual
 config :jamie, :services,
   http: Jamie.Support.FakeReq,
   r2: Jamie.Support.FakeR2,
-  bluesky: Jamie.Support.FakeBluesky
+  bluesky: Jamie.Support.FakeBluesky,
+  turnstile: Jamie.Support.FakeTurnstile
 
 # Bluesky is faked by host (see Jamie.Support.FakeBluesky); runtime.exs skips
 # this key under :test so a real BLUESKY_HANDLE in the shell is ignored.

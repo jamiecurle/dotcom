@@ -530,3 +530,55 @@ body#error-404 a {
         }
     }
 }
+
+/* subscribe */
+@layer content {
+    form.subscribe-form label[for="subscriber_email"],
+    form.subscribe-form legend {
+        color: var(--colour-dark-2);
+        border-bottom-color: var(--colour-dark-2);
+    }
+    form.subscribe-form input[type="email"] {
+        color: var(--colour-dark-2);
+        border-bottom-color: var(--colour-dark-2);
+    }
+    ol.worlds li {
+        border-color: var(--colour-light-3);
+    }
+    label.world .blurb,
+    form.subscribe-form .small-print {
+        color: var(--colour-dark-5);
+    }
+    label.world:has(input:checked) .name {
+        background-color: var(--c-accent-dark-5);
+        color: var(--colour-dark-2);
+    }
+    label.world:has(input:disabled) {
+        color: var(--colour-dark-6);
+    }
+    .frequencies label {
+        border-color: var(--colour-dark-2);
+        color: var(--colour-dark-2);
+    }
+    .frequencies label:has(input:checked) {
+        background-color: var(--colour-dark-2);
+        color: var(--c-accent-dark-5);
+    }
+    .frequencies label:has(input:focus-visible) {
+        outline: 2px solid var(--c-accent-dark-6);
+        outline-offset: 2px;
+    }
+    form.subscribe-form button,
+    section.subscribe button {
+        background-color: var(--colour-dark-2);
+        color: var(--c-accent-dark-5);
+    }
+    form.subscribe-form button:hover,
+    section.subscribe button:hover {
+        background-color: var(--c-accent-dark-5);
+        color: var(--colour-dark-2);
+    }
+    form.subscribe-form .error {
+        color: var(--c-accent-light-8);
+    }
+}

@@ -74,6 +74,14 @@ defmodule JamieWeb.Router do
       ] do
       live "/subscribe", MailingListLive.Subscribe, :new
     end
+
+    # Pages whose urls carry a secret (a confirmation token, later a
+    # subscriber's id): no analytics, and kept out of the request log too
+    # (see JamieWeb.Endpoint.log_level/1).
+    live_session :mailing_list_private,
+      on_mount: [{JamieWeb.UserAuth, :mount_current_scope}, JamieWeb.MailingListGate] do
+      live "/subscribe/confirm/:token", MailingListLive.Confirm, :show
+    end
   end
 
   scope "/mcp", JamieWeb do

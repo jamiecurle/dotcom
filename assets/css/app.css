@@ -40,6 +40,9 @@ stuff to make it "look nice" */
 /* home specific rules */
 @import "./app/home.css";
 
+/* mailing list sign-up */
+@import "./app/subscribe.css";
+
 /* 404 page */
 @import "./app/404.css";
 

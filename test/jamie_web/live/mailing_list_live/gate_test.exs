@@ -13,17 +13,17 @@ defmodule JamieWeb.MailingListLive.GateTest do
       %{conn: conn} = register_and_log_in_user(%{conn: conn})
       {:ok, view, _html} = live(conn, ~p"/subscribe")
 
-      assert has_element?(view, "#world-treeworld")
+      assert has_element?(view, "#subscriber-world-treeworld")
     end
   end
 
   test "switched on, everyone can see it", %{conn: conn} do
     config = Application.get_env(:jamie, :mailing_list)
-    Application.put_env(:jamie, :mailing_list, enabled: true)
+    Application.put_env(:jamie, :mailing_list, Keyword.put(config, :enabled, true))
     on_exit(fn -> Application.put_env(:jamie, :mailing_list, config) end)
 
     {:ok, view, _html} = live(conn, ~p"/subscribe")
-    assert has_element?(view, "#worlds")
+    assert has_element?(view, "#subscribe-form")
   end
 
   test "visible?/1 is me always, everyone else only when it's on" do

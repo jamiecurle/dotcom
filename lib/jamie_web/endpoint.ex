@@ -49,7 +49,8 @@ defmodule JamieWeb.Endpoint do
     cookie_key: "request_logger"
 
   plug Plug.RequestId
-  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
+  # log_level/1 keeps urls that carry secrets out of the request log
+  plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint], log: {__MODULE__, :log_level, []}
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
@@ -60,4 +61,12 @@ defmodule JamieWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug JamieWeb.Router
+
+  @doc """
+  How loudly to log a request. Below /subscribe the path carries a secret
+  (a confirmation token or a subscriber's id, which is their manage link),
+  so those requests aren't logged at all.
+  """
+  def log_level(%Plug.Conn{path_info: ["subscribe", _ | _]}), do: false
+  def log_level(_conn), do: :info
 end

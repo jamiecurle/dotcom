@@ -12,6 +12,7 @@ defmodule Jamie.MailingList.Subscriber do
   alias Jamie.MailingList
 
   @statuses [:pending, :confirmed, :suspended]
+  @frequencies [:daily, :weekly, :monthly]
 
   @primary_key {:id, :binary_id, autogenerate: true}
 
@@ -19,7 +20,7 @@ defmodule Jamie.MailingList.Subscriber do
     field :email, :string
     field :everything, :boolean, default: false
     field :worlds, {:array, :string}, default: []
-    field :frequency, Ecto.Enum, values: MailingList.frequencies()
+    field :frequency, Ecto.Enum, values: @frequencies
     field :status, Ecto.Enum, values: @statuses, default: :pending
 
     field :confirm_token_hash, :binary, redact: true
@@ -32,6 +33,9 @@ defmodule Jamie.MailingList.Subscriber do
 
     timestamps(type: :utc_datetime_usec)
   end
+
+  @doc "How often a digest can be sent."
+  def frequencies, do: @frequencies
 
   @doc """
   What a subscriber chooses for themselves, on sign-up or when managing
