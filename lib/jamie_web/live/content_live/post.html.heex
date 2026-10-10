@@ -1,11 +1,14 @@
-<%= if @current_scope do %>
-  <div class="edit">
-    <a href={~p"/office/posts/#{@post.id}"}>Edit</a>
-  </div>
-<% end %>
-
 <%!-- the masthead sits on the same cyan field as the homepage --%>
 <header class="masthead">
+  <%!-- only for me: a quiet way into the editor, above the title --%>
+  <a
+    :if={@current_scope && @current_scope.user}
+    href={~p"/office/posts/#{@post.id}"}
+    id="edit-post"
+    class="edit-post"
+  >
+    Edit
+  </a>
   <div class="post-meta">
     <.pretty_date date={@post.published_on} />
     <span class="reading-time">{@reading_minutes} min read</span>

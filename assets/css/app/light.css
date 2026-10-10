@@ -257,6 +257,19 @@ All colours MUST be in this file and only this file.
     aside.margin-nav a small {
         color: var(--c-accent-dark-7);
     }
+    /* the edit button: plain white with dark type, going dark on hover */
+    header.masthead a.edit-post {
+        background-color: var(--colour-light-1);
+        border-color: var(--colour-dark-2);
+        color: var(--colour-dark-2);
+    }
+    @media (hover: hover) {
+        header.masthead a.edit-post:hover {
+            background-color: var(--colour-dark-2);
+            color: var(--colour-light-1);
+        }
+    }
+
     /* masthead tags: dark tabs on the cyan, turning over on hover */
     header.masthead ul.post-tags a {
         background-color: var(--colour-dark-2);

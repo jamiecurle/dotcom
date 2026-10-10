@@ -297,24 +297,23 @@
         padding-left: var(--unit-1);
     }
 
-    div.edit {
-        position: absolute;
-        top: 50vh;
-        right: calc(2 * var(--unit-6) * -1);
-        a {
-            &:hover {
-                background-color: var(--colour-dark-2);
-                color: var(--colour-light-1);
-            }
-            background-color: var(--c-accent-light);
-            color: var(--colour-light-1);
-            transition: background-color 0.3s;
-            text-decoration: none;
-            text-transform: uppercase;
-            font-weight: 800;
-            padding: var(--unit-3);
-            border-radius: var(--unit-2);
-        }
+    /* the edit link, only when signed in: a small plain button sitting
+       above the date line, set in the same small, upper, tracked voice */
+    header.masthead a.edit-post {
+        display: inline-block;
+        margin-bottom: var(--unit-3);
+        padding: var(--unit-0) var(--unit-2);
+        border: 1px solid;
+        border-radius: var(--unit-0);
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
     }
 
     /* ARCHIVE
