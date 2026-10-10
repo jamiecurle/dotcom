@@ -23,6 +23,15 @@
     </ol>
 
     <a :if={@earlier == []} id="all-writing" href={~p"/posts"} class="all-writing">All writing</a>
+    <%!-- a quiet way onto the mailing list, in the same small voice --%>
+    <a
+      :if={Jamie.MailingList.visible?(assigns[:current_scope])}
+      id="home-subscribe"
+      href={~p"/subscribe"}
+      class="all-writing"
+    >
+      Get new writing by email
+    </a>
   </section>
 </div>
 
