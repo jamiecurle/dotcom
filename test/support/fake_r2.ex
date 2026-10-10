@@ -9,13 +9,19 @@ defmodule Jamie.Support.FakeR2 do
 
   State lives in the process dictionary, so it's isolated per test and
   needs no setup/teardown. It does NOT cross process boundaries.
+
+  Upload times are kept alongside, in their own entry, so the contents store
+  keeps its simple %{key => binary} shape. `backdate/2` lets a test pretend an
+  object was uploaded a while ago.
   """
 
   @store :fake_r2_store
+  @modified :fake_r2_modified
 
   def put_file(contents, filename) do
     files = Process.get(@store, %{})
     Process.put(@store, Map.put(files, filename, contents))
+    touch(filename)
     {:ok, %{status_code: 200}}
   end
 
@@ -39,12 +45,22 @@ defmodule Jamie.Support.FakeR2 do
     |> Enum.sort()
   end
 
+  def list_objects_modified(prefix) do
+    modified = Process.get(@modified, %{})
+
+    Process.get(@store, %{})
+    |> Enum.filter(fn {key, _} -> String.starts_with?(key, prefix) end)
+    |> Enum.map(fn {key, _contents} -> {key, Map.fetch!(modified, key)} end)
+    |> Enum.sort()
+  end
+
   def copy_file(source_key, destination_key) do
     files = Process.get(@store, %{})
 
     case files do
       %{^source_key => contents} ->
         Process.put(@store, Map.put(files, destination_key, contents))
+        touch(destination_key)
         {:ok, %{status_code: 200}}
 
       _ ->
@@ -55,6 +71,16 @@ defmodule Jamie.Support.FakeR2 do
   def delete_files(keys) do
     files = Process.get(@store, %{})
     Process.put(@store, Map.drop(files, keys))
+    Process.put(@modified, Map.drop(Process.get(@modified, %{}), keys))
     {:ok, %{status_code: 200}}
   end
+
+  @doc """
+  Test helper: set when `key` was last uploaded.
+  """
+  def backdate(key, %DateTime{} = modified) do
+    Process.put(@modified, Map.put(Process.get(@modified, %{}), key, modified))
+  end
+
+  defp touch(key), do: backdate(key, DateTime.utc_now())
 end

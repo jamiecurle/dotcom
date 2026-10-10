@@ -26,7 +26,10 @@ config :jamie, Oban,
     {Oban.Plugins.Cron,
      crontab: [
        # bookmarks sync - every fifteen minutes
-       {"*/15 * * * *", Jamie.Workers.SyncBookmarks, queue: :bookmarks}
+       {"*/15 * * * *", Jamie.Workers.SyncBookmarks, queue: :bookmarks},
+       # remove post images that were edited out - hourly. Dry run (logs only)
+       # until the logs have been checked; flip to "delete" => true after that
+       {"0 * * * *", Jamie.Workers.PostImageCleanup, args: %{"delete" => false}}
      ]}
   ]
 

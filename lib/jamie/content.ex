@@ -38,6 +38,27 @@ defmodule Jamie.Content do
   end
 
   @doc """
+  Returns a MapSet of the UUIDs of every post image still referenced by
+  something that could put it on the site: a post, a note, or a pending
+  suggestion that might yet be accepted.
+
+  Old revisions are deliberately not checked - an image that was edited out
+  stays referenced in history forever, so counting it would mean never
+  deleting anything. Restoring an old revision can bring back a broken image.
+  """
+  def referenced_post_image_ids do
+    post_markdown = Repo.all(from p in Post, select: p.markdown)
+    note_markdown = Repo.all(from n in Note, select: n.markdown)
+
+    pending_suggestions =
+      Repo.all(from s in PostSuggestion, where: s.status == :pending, select: s.new_string)
+
+    (post_markdown ++ note_markdown ++ pending_suggestions)
+    |> Enum.flat_map(&PostImageHelper.post_image_ids/1)
+    |> MapSet.new()
+  end
+
+  @doc """
   update note
   """
   def update_note(%Note{} = note, attrs) do
