@@ -1,6 +1,8 @@
 defmodule JamieWeb.ContentLive.Index do
   use JamieWeb, :live_view
 
+  alias Jamie.Content.{Note, Post}
+
   @months ~w(January February March April May June July August September October November December)
 
   @impl true
@@ -16,32 +18,34 @@ defmodule JamieWeb.ContentLive.Index do
 
   defp assign_listing(socket, :index, _params) do
     socket
-    |> assign_posts(Jamie.Content.published_posts())
+    |> assign_entries(Jamie.Content.published_posts())
     |> assign(:page_title, "Archive")
     |> assign(:page_description, "Writing on software, woodland, and the workshop.")
   end
 
-  # A tag's page is the archive cut down to that tag. A tag with nothing
-  # published under it is a 404, the same as a tag that doesn't exist.
+  # A tag's page is the archive cut down to that tag, posts and notes mixed
+  # together. A tag with nothing published under it is a 404, the same as a
+  # tag that doesn't exist.
   defp assign_listing(socket, :tag, %{"slug" => slug}) do
     tag = Jamie.Tags.get_tag_by_slug!(slug)
 
-    case Jamie.Tags.published_posts(tag) do
+    case Jamie.Tags.published_content(tag) do
       [] ->
         raise Ecto.NoResultsError, queryable: Jamie.Tags.Tag
 
-      posts ->
+      entries ->
         socket
-        |> assign_posts(posts)
+        |> assign_entries(entries)
         |> assign(:page_title, tag.title)
         |> assign(:page_description, "Writing tagged #{tag.title}.")
     end
   end
 
-  defp assign_posts(socket, posts) do
+  # entries are Post and Note structs, newest first
+  defp assign_entries(socket, entries) do
     socket
-    |> assign(:archive, archive(posts))
-    |> assign(:post_count, length(posts))
+    |> assign(:archive, archive(entries))
+    |> assign(:count, count(entries))
   end
 
   # The archive borrows its parts from the other two pages: the cyan
@@ -52,7 +56,7 @@ defmodule JamieWeb.ContentLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <header class="masthead">
         <div class="post-meta">
-          <span>{@post_count} posts</span>
+          <span>{@count}</span>
           <span :if={@archive != []}>Since {@archive |> List.last() |> elem(0)}</span>
         </div>
         <h1 class="page-title">{@page_title}</h1>
@@ -64,31 +68,34 @@ defmodule JamieWeb.ContentLive.Index do
           <nav aria-labelledby="years-title">
             <h2 id="years-title">Years</h2>
             <ol>
-              <li :for={{year, posts} <- @archive}>
-                <a href={"#year-#{year}"}><span>{year}</span><small>{length(posts)}</small></a>
+              <li :for={{year, entries} <- @archive}>
+                <a href={"#year-#{year}"}><span>{year}</span><small>{length(entries)}</small></a>
               </li>
             </ol>
           </nav>
         </aside>
 
         <section
-          :for={{year, posts} <- @archive}
+          :for={{year, entries} <- @archive}
           id={"year-#{year}"}
           class="writing-list archive-year"
         >
           <h2>
             <span class="year">{year}</span>
-            <span class="count">{length(posts)} posts</span>
+            <span class="count">{count(entries)}</span>
           </h2>
           <ol class="writing-index">
-            <li :for={post <- posts}>
-              <.link href={~p"/posts/#{post.slug}"} id={"post-#{post.id}"}>
-                <time datetime={Date.to_iso8601(post.published_on)}>
-                  {post.published_on.day}{format(post.published_on.day)} {month_name(
-                    post.published_on.month
+            <li :for={entry <- entries}>
+              <.link href={path(entry)} id={dom_id(entry)}>
+                <time datetime={Date.to_iso8601(entry.published_on)}>
+                  {entry.published_on.day}{format(entry.published_on.day)} {month_name(
+                    entry.published_on.month
                   )}
                 </time>
-                <span class="title"><span>{post.title}</span></span>
+                <span class="title">
+                  <span>{entry.title}</span>
+                  <small :if={match?(%Note{}, entry)} class="kind">Note</small>
+                </span>
               </.link>
             </li>
           </ol>
@@ -105,9 +112,30 @@ defmodule JamieWeb.ContentLive.Index do
   def format(number) when rem(number, 10) == 3, do: "rd"
   def format(_number), do: "th"
 
-  # newest year first; posts already arrive newest first
-  defp archive(posts) do
-    posts
+  defp path(%Post{slug: slug}), do: ~p"/posts/#{slug}"
+  defp path(%Note{id: id}), do: ~p"/notes/#{id}"
+
+  defp dom_id(%Post{id: id}), do: "post-#{id}"
+  defp dom_id(%Note{id: id}), do: "note-#{id}"
+
+  # "12 posts", or "12 posts, 3 notes" once notes are in the mix
+  defp count(entries) do
+    notes = Enum.count(entries, &match?(%Note{}, &1))
+    posts = length(entries) - notes
+
+    case {posts, notes} do
+      {_, 0} -> plural(posts, "post")
+      {0, _} -> plural(notes, "note")
+      _ -> plural(posts, "post") <> ", " <> plural(notes, "note")
+    end
+  end
+
+  defp plural(1, noun), do: "1 #{noun}"
+  defp plural(n, noun), do: "#{n} #{noun}s"
+
+  # newest year first; entries already arrive newest first
+  defp archive(entries) do
+    entries
     |> Enum.group_by(& &1.published_on.year)
     |> Enum.sort_by(fn {year, _} -> year end, :desc)
   end

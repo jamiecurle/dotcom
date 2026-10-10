@@ -245,6 +245,33 @@ defmodule Jamie.Tags do
   end
 
   @doc """
+  A tag's published notes, newest first.
+  """
+  def published_notes(%Tag{} = tag) do
+    from(n in Note,
+      join: tn in "tags_notes",
+      on: tn.note_id == n.id,
+      # a note only gets a published_on when it's saved as published; skip any
+      # that slipped through without one rather than crash the sort
+      where: tn.tag_id == ^tag.id and n.status == :published and not is_nil(n.published_on),
+      order_by: [desc: n.published_on]
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Everything published under a tag - posts and notes - newest first.
+
+  Returns the `Post` and `Note` structs themselves, mixed together; both have
+  the `id`, `title` and `published_on` a listing needs, and the struct tells
+  the caller which kind each one is.
+  """
+  def published_content(%Tag{} = tag) do
+    (published_posts(tag) ++ published_notes(tag))
+    |> Enum.sort_by(& &1.published_on, {:desc, Date})
+  end
+
+  @doc """
   Gets a tag by title
   """
   def tag_by_title(title) do

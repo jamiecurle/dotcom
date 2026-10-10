@@ -150,6 +150,17 @@
         font-weight: 600;
     }
 
+    /* on a tag page, notes sit among the posts with a small label after the
+       title, set like the "all writing" link */
+    ol.writing-index .kind {
+        margin-left: var(--unit-1);
+        font-size: var(--unit-2-1);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+    }
+
     a.all-writing {
         display: inline-block;
         margin-top: var(--unit-3);
