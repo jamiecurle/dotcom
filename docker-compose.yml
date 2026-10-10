@@ -25,6 +25,9 @@ services:
       BLUESKY_APP_PASSWORD: ${BLUESKY_APP_PASSWORD}
       POSTMARK_WEBHOOK_USERNAME: ${POSTMARK_WEBHOOK_USERNAME}
       POSTMARK_WEBHOOK_PASSWORD: ${POSTMARK_WEBHOOK_PASSWORD}
+      # the subscribe form's bot check; blank falls back to always-pass test keys
+      TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY}
     healthcheck:
       test:
         ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:4000/health"]
