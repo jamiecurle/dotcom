@@ -72,7 +72,7 @@ defmodule JamieWeb.ContentLive.PostForm do
               field={@form[:markdown]}
               type="textarea-naked"
               label="Content (Markdown)"
-              class="textarea w-full flex-1 font-mono min-h-96"
+              class="editor-body min-h-96"
               placeholder="Write your post in markdown..."
               phx-hook="SignImageUrl"
               phx-debounce="1500"
