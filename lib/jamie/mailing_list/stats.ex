@@ -11,7 +11,7 @@ defmodule Jamie.MailingList.Stats do
   import Ecto.Query, only: [from: 2]
 
   alias Jamie.MailingList
-  alias Jamie.MailingList.{EmailEvent, Subscriber, Suppression}
+  alias Jamie.MailingList.{DigestSend, EmailEvent, Subscriber, Suppression}
   alias Jamie.Repo
 
   @permanent ["HardBounce", "BadEmailAddress"]
@@ -132,6 +132,60 @@ defmodule Jamie.MailingList.Stats do
   def subscriber_events(%Subscriber{email: email}) do
     hash = MailingList.email_hash(email)
     Repo.all(from e in EmailEvent, where: e.email_hash == ^hash, order_by: [desc: e.occurred_at])
+  end
+
+  @doc """
+  How each digest send went, newest first: one row per period (e.g.
+  "weekly:2026-10-16") with how many went, what Postmark reported back
+  for them, and the bounce and complaint rates. Events are matched to
+  sends by Postmark's message id, so mail that isn't a digest (the
+  confirmations) isn't counted here. Sends outlive their subscriber, so
+  the counts hold after people unsubscribe.
+  """
+  def sends(limit) do
+    periods =
+      from(d in DigestSend,
+        group_by: d.period,
+        order_by: [desc: max(d.sent_at)],
+        limit: ^limit,
+        select: {d.period, count(), max(d.sent_at)}
+      )
+      |> Repo.all()
+
+    names = Enum.map(periods, &elem(&1, 0))
+
+    events =
+      from(e in EmailEvent,
+        join: d in DigestSend,
+        on: d.message_id == e.message_id,
+        where: d.period in ^names,
+        group_by: [d.period, e.record_type, e.type],
+        select: {d.period, e.record_type, e.type, count()}
+      )
+      |> Repo.all()
+      |> Enum.group_by(&elem(&1, 0))
+
+    for {period, sent, sent_at} <- periods do
+      counts =
+        events
+        |> Map.get(period, [])
+        |> Enum.reduce(empty_counts(), fn {_period, record_type, type, n}, acc ->
+          Map.update!(acc, kind(record_type, type), &(&1 + n))
+        end)
+
+      bounce_rate = rate(counts.hard_bounces + counts.soft_bounces, sent)
+      complaint_rate = rate(counts.complaints, sent)
+
+      Map.merge(counts, %{
+        period: period,
+        sent: sent,
+        sent_at: sent_at,
+        bounce_rate: bounce_rate,
+        bounce_health: health(bounce_rate, @bounce_limits),
+        complaint_rate: complaint_rate,
+        complaint_health: health(complaint_rate, @complaint_limits)
+      })
+    end
   end
 
   @doc "Which group an event falls in on the dashboard."

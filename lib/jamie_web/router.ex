@@ -154,6 +154,9 @@ defmodule JamieWeb.Router do
     pipe_through [:browser, :require_authenticated_user, :office]
     oban_dashboard("/oban")
 
+    # the mailing list's emails, raw, to open in a browser tab
+    get "/mailing-list/emails/:email", MailingListEmailController, :show
+
     live_session :require_authenticated_user, [
       # live_session :foo,
       on_mount: [{JamieWeb.UserAuth, :require_authenticated}]
@@ -163,6 +166,7 @@ defmodule JamieWeb.Router do
       live "/mcp", OfficeLive.McpTokens, :index
       live "/suggestions", OfficeLive.Suggestions, :index
       live "/mailing-list", OfficeLive.MailingList, :index
+      live "/mailing-list/preview", OfficeLive.MailingListPreview, :index
       live "/notes", ContentLive.NoteIndex, :index
       live "/notes/new", ContentLive.NoteForm, :new
       live "/notes/:id", ContentLive.NoteForm, :edit

@@ -38,6 +38,7 @@ defmodule JamieWeb.OfficeLive.MailingList do
       summary: Stats.summary(@days),
       subscribers: Stats.subscribers(),
       daily: Stats.daily(@days),
+      sends: Stats.sends(20),
       events: Stats.recent_events(50),
       people: Stats.list_subscribers(200)
     )
@@ -55,6 +56,13 @@ defmodule JamieWeb.OfficeLive.MailingList do
         >
           {if @enabled?, do: "Live", else: "Hidden from visitors"}
         </span>
+        <.link
+          navigate={~p"/office/mailing-list/preview"}
+          id="preview-emails-link"
+          class="btn btn-ghost btn-sm ml-auto"
+        >
+          <.icon name="hero-envelope" class="size-4" /> Preview emails
+        </.link>
       </header>
 
       <%!-- the two numbers that decide whether mail keeps arriving --%>
@@ -166,6 +174,51 @@ defmodule JamieWeb.OfficeLive.MailingList do
             {@selected.status} · {@selected.frequency} · {worlds(@selected)} · {@selected.soft_bounce_count} soft bounces in a row
           </p>
           <.event_table id="timeline-events" events={@timeline} show_subscriber={false} />
+        </div>
+      </div>
+
+      <%!-- each digest period: what went, what came back, matched by message id --%>
+      <div class="card mb-6 bg-base-100 shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title">Digests</h2>
+          <div class="overflow-x-auto">
+            <table id="digest-sends" class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Sent</th>
+                  <th>Delivered</th>
+                  <th>Bounced</th>
+                  <th>Complaints</th>
+                  <th>Bounce rate</th>
+                  <th>Complaint rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :for={send <- @sends} id={"digest-send-#{String.replace(send.period, ":", "-")}"}>
+                  <td class="whitespace-nowrap">
+                    {send.period}
+                    <span class="text-xs text-base-content/60">
+                      {Calendar.strftime(send.sent_at, "%-d %b %H:%M")}
+                    </span>
+                  </td>
+                  <td class="font-mono">{send.sent}</td>
+                  <td class="font-mono">{send.delivered}</td>
+                  <td class="font-mono">{send.hard_bounces} hard · {send.soft_bounces} soft</td>
+                  <td class="font-mono">{send.complaints}</td>
+                  <td class={["font-mono", health_text(send.bounce_health)]}>
+                    {percent(send.bounce_rate)}
+                  </td>
+                  <td class={["font-mono", health_text(send.complaint_health)]}>
+                    {percent(send.complaint_rate)}
+                  </td>
+                </tr>
+                <tr :if={@sends == []}>
+                  <td colspan="7" class="text-base-content/60">No digests sent yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
