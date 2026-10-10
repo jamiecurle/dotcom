@@ -75,7 +75,7 @@ defmodule JamieWeb.OfficeLive.MailingListPreviewTest do
       assert_received {:email, %{subject: "[Test] " <> _} = email}
       assert email.to == [{"", user.email}]
       assert email.subject == "[Test] Coppicing hazel"
-      refute Map.has_key?(email.provider_options, :message_stream)
+      assert email.provider_options.message_stream == "broadcast"
     end
 
     test "is linked from the mailing list page", %{conn: conn} do

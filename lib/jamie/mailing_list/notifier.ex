@@ -114,16 +114,16 @@ defmodule Jamie.MailingList.Notifier do
   @doc """
   A digest sent to `address` to see how it lands in a real inbox, since
   the schedule sends nothing while the mailing list is switched off. It
-  goes through the transactional stream (the broadcast stream is for real
-  subscribers), the subject says it's a test, and nothing is recorded. Its
-  manage link belongs to nobody, so it leads to the not-found page.
+  goes exactly the way a real digest does, through the broadcast stream
+  (these are marketing emails), so it exercises that stream too; the
+  subject says it's a test, and nothing is recorded. Its manage link
+  belongs to nobody, so it leads to the not-found page.
   """
   def deliver_test_digest(address, posts, frequency, url_fun) do
     nobody = %{id: Ecto.UUID.generate(), email: address}
     email = digest_email(nobody, posts, frequency, url_fun)
 
-    # without a stream Postmark uses the default, transactional one
-    %{email | provider_options: Map.delete(email.provider_options, :message_stream)}
+    email
     |> subject("[Test] " <> email.subject)
     |> deliver()
   end
