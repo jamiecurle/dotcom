@@ -101,16 +101,27 @@ defmodule Jamie.Support.FakeBluesky do
   end
 
   defp answer("app.bsky.feed.getPostThread", uri, _opts) do
-    %{"thread" => thread(URI.decode_query(uri.query)["uri"])}
+    %{"thread" => thread(URI.decode_query(uri.query)["uri"]), "threadgate" => threadgate()}
   end
 
   defp header(opts, name) do
     Enum.find_value(opts[:headers] || [], fn {key, value} -> key == name && value end)
   end
 
+  @carol "at://did:plc:carol/app.bsky.feed.post/3kcarol"
+
+  @doc "The threadgate on the thread: I hid Carol's reply on Bluesky."
+  def threadgate do
+    %{
+      "uri" => "at://#{@did}/app.bsky.feed.threadgate/3kpost",
+      "record" => %{"$type" => "app.bsky.feed.threadgate", "hiddenReplies" => [@carol]}
+    }
+  end
+
   @doc """
   A thread like the AppView returns: the post, one reply with its own
-  reply, and a reply that has since been deleted.
+  reply, a reply that has since been deleted, one I hid on Bluesky and one
+  labelled as spam.
   """
   def thread(uri) do
     %{
@@ -140,7 +151,22 @@ defmodule Jamie.Support.FakeBluesky do
             }
           ]
         },
-        %{"$type" => "app.bsky.feed.defs#notFoundPost", "uri" => "at://gone", "notFound" => true}
+        %{"$type" => "app.bsky.feed.defs#notFoundPost", "uri" => "at://gone", "notFound" => true},
+        # hidden on Bluesky through the threadgate
+        %{
+          "$type" => "app.bsky.feed.defs#threadViewPost",
+          "post" => post_view(@carol, "carol.test", "Carol", "Off topic"),
+          "replies" => []
+        },
+        # labelled spam by Bluesky's moderation
+        %{
+          "$type" => "app.bsky.feed.defs#threadViewPost",
+          "post" =>
+            "at://did:plc:spam/app.bsky.feed.post/3kspam"
+            |> post_view("spam.test", "Spammer", "Buy now")
+            |> Map.put("labels", [%{"val" => "spam", "src" => "did:plc:moderation"}]),
+          "replies" => []
+        }
       ]
     }
   end

@@ -171,9 +171,13 @@ defmodule Jamie.BlueskyTest do
     end
   end
 
-  describe "replies/1" do
-    test "keeps viewable replies as a tree, oldest first" do
-      thread = FakeBluesky.thread("at://p")
+  describe "replies/2" do
+    setup do
+      {:ok, thread} = Bluesky.get_thread("at://p")
+      %{thread: thread}
+    end
+
+    test "keeps viewable replies as a tree, oldest first", %{thread: thread} do
       # an older reply arriving later in the list should sort first
       older =
         thread["replies"]
@@ -186,11 +190,46 @@ defmodule Jamie.BlueskyTest do
 
       replies = Bluesky.replies(%{thread | "replies" => thread["replies"] ++ [older]})
 
-      assert [%{name: "bob.test"} = bob, alice] =
-               Enum.map(replies, &Map.take(&1, [:name, :replies]))
+      # bob has no display name, so his handle stands in; the deleted reply
+      # is gone altogether
+      assert [%{name: "bob.test"} | _] = replies
+      assert Enum.map(replies, & &1.name) |> Enum.sort() == ~w(Alice Carol Spammer bob.test)
 
-      assert bob.replies == []
-      assert %{name: "Alice", replies: [%{name: "Jamie", text: "Thanks Alice"}]} = alice
+      alice = Enum.find(replies, &(&1.name == "Alice"))
+      assert [%{name: "Jamie", text: "Thanks Alice"}] = alice.replies
+    end
+
+    test "says why a reply is hidden", %{thread: thread} do
+      alice = "at://did:plc:alice/app.bsky.feed.post/3kalice"
+      hidden = thread |> Bluesky.replies([alice]) |> Map.new(&{&1.name, &1.hidden})
+
+      assert hidden == %{"Alice" => :blog, "Carol" => :bluesky, "Spammer" => :label}
+    end
+
+    test "a retracted label doesn't hide anything", %{thread: thread} do
+      [_alice, _gone, _carol, spam] = thread["replies"]
+
+      retracted =
+        put_in(spam, ["post", "labels"], [%{"val" => "spam", "neg" => true}])
+
+      assert [%{hidden: nil}] = Bluesky.replies(%{"replies" => [retracted]})
+    end
+
+    test "a label on the author hides their reply", %{thread: thread} do
+      [alice | _] = thread["replies"]
+      labelled = put_in(alice, ["post", "author", "labels"], [%{"val" => "!hide"}])
+
+      assert [%{hidden: :label}] = Bluesky.replies(%{"replies" => [labelled]})
+    end
+
+    test "visible/1 drops hidden replies along with their answers", %{thread: thread} do
+      alice = "at://did:plc:alice/app.bsky.feed.post/3kalice"
+
+      assert [%{name: "Alice", replies: [%{name: "Jamie"}]}] =
+               thread |> Bluesky.replies() |> Bluesky.visible()
+
+      # hiding Alice takes Jamie's answer to her with it
+      assert thread |> Bluesky.replies([alice]) |> Bluesky.visible() == []
     end
 
     test "a thread with no replies has none" do
@@ -203,8 +242,10 @@ defmodule Jamie.BlueskyTest do
              "https://bsky.app/profile/did:plc:abc/post/3kxyz"
   end
 
-  test "get_thread/1 reads from the public AppView" do
-    assert {:ok, %{"post" => %{"uri" => "at://p"}, "replies" => [_, _]}} =
+  test "get_thread/1 reads from the public AppView, threadgate and all" do
+    assert {:ok, %{"post" => %{"uri" => "at://p", "threadgate" => threadgate}}} =
              Bluesky.get_thread("at://p")
+
+    assert threadgate == FakeBluesky.threadgate()
   end
 end

@@ -172,29 +172,70 @@ defmodule Jamie.Bluesky do
   """
   def get_thread(uri) do
     case get(config()[:appview], "app.bsky.feed.getPostThread", uri: uri, depth: 6) do
-      {:ok, %{"thread" => thread}} -> {:ok, thread}
-      other -> unexpected(other)
+      # the threadgate (who may reply, which replies I've hidden) comes back
+      # beside the thread; keep it on the root post, where the post view
+      # puts it too, so the thread carries everything replies/2 needs
+      {:ok, %{"thread" => %{"post" => post} = thread} = body} ->
+        {:ok, %{thread | "post" => Map.put_new(post, "threadgate", body["threadgate"])}}
+
+      {:ok, %{"thread" => thread}} ->
+        {:ok, thread}
+
+      other ->
+        unexpected(other)
     end
   end
+
+  # Labels Bluesky's moderation (or anyone with authority over the account)
+  # puts on posts and people that its own app hides or warns about. A
+  # personal blog has no reason to show any of them.
+  @hiding_labels ~w(!hide !takedown !suspend !warn porn sexual nudity graphic-media gore
+                    spam scam impersonation threat intolerant rude)
 
   @doc """
   The replies in a thread from `get_thread/1` as a plain tree, oldest
   first at each level, ready for a template:
 
-      [%{uri:, url:, handle:, name:, text:, created_at:, replies: [...]}]
+      [%{uri:, url:, handle:, name:, text:, created_at:, hidden:, replies: [...]}]
 
-  Deleted, blocked and otherwise unviewable replies are left out.
+  `hidden` says why a reply shouldn't be shown, or is nil when it should:
+
+    * `:bluesky` - I hid it on Bluesky ("Hide reply for everyone"), which is
+      recorded in the post's threadgate
+    * `:label` - it, or its author, carries one of `@hiding_labels`
+    * `:blog` - I hid it on the blog only; `blog_hidden` lists those uris
+
+  Deleted, blocked and otherwise unviewable replies are left out entirely.
+  `visible/1` then prunes the hidden ones for readers.
   """
-  def replies(%{"replies" => replies}) when is_list(replies) do
+  def replies(thread, blog_hidden \\ []) do
+    hidden = %{
+      bluesky:
+        MapSet.new(get_in(thread, ["post", "threadgate", "record", "hiddenReplies"]) || []),
+      blog: MapSet.new(blog_hidden)
+    }
+
+    tree(thread, hidden)
+  end
+
+  @doc """
+  Drops hidden replies, and with them everything said in answer to them,
+  as Bluesky does.
+  """
+  def visible(replies) do
+    for %{hidden: nil} = reply <- replies, do: %{reply | replies: visible(reply.replies)}
+  end
+
+  defp tree(%{"replies" => replies}, hidden) when is_list(replies) do
     replies
     |> Enum.filter(&(&1["$type"] == "app.bsky.feed.defs#threadViewPost"))
-    |> Enum.map(&reply/1)
+    |> Enum.map(&reply(&1, hidden))
     |> Enum.sort_by(& &1.created_at, DateTime)
   end
 
-  def replies(_thread), do: []
+  defp tree(_thread, _hidden), do: []
 
-  defp reply(%{"post" => post} = view) do
+  defp reply(%{"post" => post} = view, hidden) do
     author = post["author"]
 
     created_at =
@@ -210,9 +251,26 @@ defmodule Jamie.Bluesky do
       name: present_or(author["displayName"], author["handle"]),
       text: post["record"]["text"] || "",
       created_at: created_at,
-      replies: replies(view)
+      hidden: hidden_because(post, hidden),
+      replies: tree(view, hidden)
     }
   end
+
+  defp hidden_because(post, hidden) do
+    cond do
+      post["uri"] in hidden.bluesky -> :bluesky
+      labelled?(post) or labelled?(post["author"]) -> :label
+      post["uri"] in hidden.blog -> :blog
+      true -> nil
+    end
+  end
+
+  # a label with "neg" set retracts an earlier one, so it doesn't count
+  defp labelled?(%{"labels" => labels}) when is_list(labels) do
+    Enum.any?(labels, &(&1["val"] in @hiding_labels and &1["neg"] != true))
+  end
+
+  defp labelled?(_), do: false
 
   defp present_or(value, fallback), do: if(present?(value), do: value, else: fallback)
 

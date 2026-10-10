@@ -332,6 +332,19 @@ defmodule Jamie.Content do
     {:ok, updated}
   end
 
+  @doc """
+  Hides a Bluesky reply on the blog, or shows it again if it was hidden.
+  Bluesky itself is untouched.
+  """
+  def toggle_bluesky_reply(%Post{} = post, uri) when is_binary(uri) do
+    hidden =
+      if uri in post.bluesky_hidden_replies,
+        do: List.delete(post.bluesky_hidden_replies, uri),
+        else: [uri | post.bluesky_hidden_replies]
+
+    put_post_bluesky(post, %{bluesky_hidden_replies: hidden})
+  end
+
   @doc false
   def broadcast_bluesky_error(%Post{id: id}, message) do
     Phoenix.PubSub.broadcast(Jamie.PubSub, "post:#{id}", {:bluesky_error, id, message})

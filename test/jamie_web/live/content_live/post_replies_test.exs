@@ -53,6 +53,26 @@ defmodule JamieWeb.ContentLive.PostRepliesTest do
            )
   end
 
+  test "replies hidden on Bluesky, labelled, or hidden on the blog stay off the page", %{
+    conn: conn,
+    post: post
+  } do
+    post = on_bluesky(post)
+    {:ok, view, _html} = live(conn, ~p"/posts/#{post.slug}")
+    render_async(view)
+
+    refute has_element?(view, "#reply-did-plc-carol-3kcarol")
+    refute has_element?(view, "#reply-did-plc-spam-3kspam")
+    assert has_element?(view, "#reply-did-plc-alice-3kalice")
+
+    # hiding Alice on the blog takes her and the answer to her off the page
+    {:ok, _} = Content.toggle_bluesky_reply(post, "at://did:plc:alice/app.bsky.feed.post/3kalice")
+    render_async(view)
+
+    refute has_element?(view, "#reply-did-plc-alice-3kalice")
+    assert has_element?(view, "#replies-empty")
+  end
+
   test "the conversation appears when the post goes out", %{conn: conn, post: post} do
     {:ok, view, _html} = live(conn, ~p"/posts/#{post.slug}")
     refute has_element?(view, "#conversation")

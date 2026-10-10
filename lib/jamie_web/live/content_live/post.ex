@@ -67,7 +67,12 @@ defmodule JamieWeb.ContentLive.Post do
 
   @impl true
   def handle_async(:replies, {:ok, {:ok, thread}}, socket) do
-    {:noreply, assign(socket, :replies, Bluesky.replies(thread))}
+    replies =
+      thread
+      |> Bluesky.replies(socket.assigns.post.bluesky_hidden_replies)
+      |> Bluesky.visible()
+
+    {:noreply, assign(socket, :replies, replies)}
   end
 
   # Bluesky being away shouldn't spoil the post; the link to reply stays

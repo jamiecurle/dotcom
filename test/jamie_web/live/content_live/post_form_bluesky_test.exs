@@ -101,6 +101,50 @@ defmodule JamieWeb.ContentLive.PostFormBlueskyTest do
     assert has_element?(view, "#bluesky-pending", "Removing")
   end
 
+  describe "moderating replies" do
+    setup %{post: post} do
+      {:ok, post} =
+        Content.put_post_bluesky(post, %{
+          bluesky_uri: "at://did:plc:jamietest/app.bsky.feed.post/3kabc",
+          bluesky_cid: "bafy",
+          bluesky_posted_at: DateTime.utc_now(),
+          standard_document_uri: "at://did:plc:jamietest/site.standard.document/3kdoc"
+        })
+
+      %{post: post}
+    end
+
+    test "lists every reply and why any are hidden", %{conn: conn, post: post} do
+      {:ok, view, _html} = live(conn, ~p"/office/posts/#{post.id}")
+      render_async(view)
+
+      assert has_element?(view, "#bluesky-reply-did-plc-alice-3kalice", "Lovely post!")
+      assert has_element?(view, "#bluesky-reply-did-plc-jamietest-3kreply", "Thanks Alice")
+      assert has_element?(view, "#bluesky-reply-did-plc-carol-3kcarol", "Hidden on Bluesky")
+      assert has_element?(view, "#bluesky-reply-did-plc-spam-3kspam", "Labelled by Bluesky")
+      # only my own choices can be undone here
+      refute has_element?(view, "#bluesky-toggle-did-plc-carol-3kcarol")
+      refute has_element?(view, "#bluesky-toggle-did-plc-spam-3kspam")
+    end
+
+    test "hiding and showing a reply on the blog", %{conn: conn, post: post} do
+      alice = "at://did:plc:alice/app.bsky.feed.post/3kalice"
+      {:ok, view, _html} = live(conn, ~p"/office/posts/#{post.id}")
+      render_async(view)
+
+      view |> element("#bluesky-toggle-did-plc-alice-3kalice") |> render_click()
+
+      assert Content.get_post!(post.id).bluesky_hidden_replies == [alice]
+      assert has_element?(view, "#bluesky-reply-did-plc-alice-3kalice", "Hidden on blog")
+      assert has_element?(view, "#bluesky-toggle-did-plc-alice-3kalice", "Show on blog")
+
+      view |> element("#bluesky-toggle-did-plc-alice-3kalice") |> render_click()
+
+      assert Content.get_post!(post.id).bluesky_hidden_replies == []
+      assert has_element?(view, "#bluesky-toggle-did-plc-alice-3kalice", "Hide on blog")
+    end
+  end
+
   test "says so when it isn't set up", %{conn: conn, post: post} do
     config = Application.get_env(:jamie, :bluesky)
     Application.put_env(:jamie, :bluesky, Keyword.put(config, :app_password, nil))

@@ -208,6 +208,7 @@ defmodule JamieWeb.ContentLive.PostForm do
               pending={@bluesky_pending}
               error={@bluesky_error}
               form={@bluesky_form}
+              thread={@bluesky_thread}
             />
           </div>
         </div>
@@ -241,6 +242,7 @@ defmodule JamieWeb.ContentLive.PostForm do
   attr :pending, :atom, default: nil
   attr :error, :string, default: nil
   attr :form, Phoenix.HTML.Form, required: true
+  attr :thread, :any, default: nil
 
   defp bluesky_panel(assigns) do
     text = assigns.form[:text].value || ""
@@ -318,6 +320,62 @@ defmodule JamieWeb.ContentLive.PostForm do
       <div :if={@error} id="bluesky-error" role="alert" class="alert alert-error alert-soft mt-3">
         <.icon name="hero-exclamation-triangle" class="size-4" />
         <span>{@error}</span>
+      </div>
+
+      <%!-- the conversation, for moderating what the blog shows; Bluesky
+           itself is untouched by anything here --%>
+      <div :if={@post.bluesky_uri} id="bluesky-replies" class="mt-3">
+        <%= case @thread do %>
+          <% nil -> %>
+          <% :loading -> %>
+            <span class="loading loading-dots loading-sm"></span>
+          <% :unavailable -> %>
+            <p class="text-xs text-base-content/60">Couldn't fetch the replies from Bluesky.</p>
+          <% thread -> %>
+            <% replies = flatten(Bluesky.replies(thread, @post.bluesky_hidden_replies)) %>
+            <p :if={replies == []} id="bluesky-no-replies" class="text-xs text-base-content/60">
+              No replies yet.
+            </p>
+            <ul :if={replies != []} class="flex flex-col divide-y divide-base-300">
+              <li
+                :for={{reply, depth} <- replies}
+                id={"bluesky-reply-#{reply_key(reply.uri)}"}
+                class={["flex items-start gap-3 py-2", reply.hidden && "opacity-60"]}
+                style={"padding-left: #{depth * 1.25}rem"}
+              >
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-baseline gap-x-2 text-xs">
+                    <span class="font-semibold">{reply.name}</span>
+                    <span class="text-base-content/60">@{reply.handle}</span>
+                    <span
+                      :if={reply.hidden}
+                      class={[
+                        "badge badge-xs badge-soft",
+                        if(reply.hidden == :label, do: "badge-error", else: "badge-warning")
+                      ]}
+                    >
+                      {hidden_label(reply.hidden)}
+                    </span>
+                  </div>
+                  <p class="line-clamp-2 text-sm">{reply.text}</p>
+                </div>
+                <button
+                  :if={reply.hidden in [nil, :blog]}
+                  id={"bluesky-toggle-#{reply_key(reply.uri)}"}
+                  type="button"
+                  phx-click="bluesky-toggle-reply"
+                  phx-value-uri={reply.uri}
+                  class="btn btn-ghost btn-xs shrink-0"
+                >
+                  <.icon
+                    name={if reply.hidden, do: "hero-eye", else: "hero-eye-slash"}
+                    class="size-3"
+                  />
+                  {if reply.hidden, do: "Show on blog", else: "Hide on blog"}
+                </button>
+              </li>
+            </ul>
+        <% end %>
       </div>
 
       <.form
@@ -398,6 +456,7 @@ defmodule JamieWeb.ContentLive.PostForm do
        bluesky_composing?: false,
        bluesky_pending: nil,
        bluesky_error: nil,
+       bluesky_thread: nil,
        bluesky_form: to_form(%{"text" => ""}, as: :bluesky)
      )}
   end
@@ -490,6 +549,12 @@ defmodule JamieWeb.ContentLive.PostForm do
     end
   end
 
+  def handle_event("bluesky-toggle-reply", %{"uri" => uri}, socket) do
+    # the broadcast that follows brings the updated post back to this view
+    {:ok, _post} = Content.toggle_bluesky_reply(socket.assigns.post, uri)
+    {:noreply, socket}
+  end
+
   # TAGS
   # The chips are held in @tags until Save Post; @saved_tags is what's in the
   # database, so the footer can say when they differ.
@@ -571,6 +636,8 @@ defmodule JamieWeb.ContentLive.PostForm do
   # The publish worker's progress. Only the bluesky fields change, so the
   # post can be swapped in without touching the draft or its updated_at.
   def handle_info({:post_bluesky, post}, socket) do
+    uri_changed? = post.bluesky_uri != socket.assigns.post.bluesky_uri
+
     pending =
       case socket.assigns.bluesky_pending do
         :publish when is_binary(post.standard_document_uri) -> nil
@@ -578,7 +645,12 @@ defmodule JamieWeb.ContentLive.PostForm do
         pending -> pending
       end
 
-    {:noreply, assign(socket, post: post, bluesky_pending: pending)}
+    socket = assign(socket, post: post, bluesky_pending: pending)
+
+    # published or removed from here: follow the new thread, or none
+    socket = if uri_changed?, do: fetch_bluesky_thread(socket), else: socket
+
+    {:noreply, socket}
   end
 
   def handle_info({:bluesky_error, _post_id, message}, socket) do
@@ -613,6 +685,20 @@ defmodule JamieWeb.ContentLive.PostForm do
          )}
     end
   end
+
+  # the reply tree as rows, each with how deep it sits
+  defp flatten(replies, depth \\ 0) do
+    Enum.flat_map(replies, fn reply -> [{reply, depth} | flatten(reply.replies, depth + 1)] end)
+  end
+
+  defp reply_key(uri) do
+    {:ok, %{repo: repo, rkey: rkey}} = Bluesky.parse_uri(uri)
+    String.replace(repo, ":", "-") <> "-" <> rkey
+  end
+
+  defp hidden_label(:bluesky), do: "Hidden on Bluesky"
+  defp hidden_label(:label), do: "Labelled by Bluesky"
+  defp hidden_label(:blog), do: "Hidden on blog"
 
   defp bluesky_message(:not_configured), do: "Bluesky isn't set up on this server."
   defp bluesky_message(:not_published), do: "Save the post as published first."
@@ -708,5 +794,30 @@ defmodule JamieWeb.ContentLive.PostForm do
     |> assign(:post, post)
     |> assign(:form, to_form(changeset))
     |> assign_tags(post)
+    |> fetch_bluesky_thread()
+  end
+
+  # The replies to moderate, fetched once the editor is live. Toggling one
+  # only changes which uris the post hides, so the thread isn't refetched.
+  defp fetch_bluesky_thread(%{assigns: %{post: %{bluesky_uri: uri}}} = socket)
+       when is_binary(uri) do
+    if connected?(socket) do
+      socket
+      |> assign(:bluesky_thread, :loading)
+      |> start_async(:bluesky_thread, fn -> Bluesky.get_thread(uri) end)
+    else
+      socket
+    end
+  end
+
+  defp fetch_bluesky_thread(socket), do: assign(socket, :bluesky_thread, nil)
+
+  @impl true
+  def handle_async(:bluesky_thread, {:ok, {:ok, thread}}, socket) do
+    {:noreply, assign(socket, :bluesky_thread, thread)}
+  end
+
+  def handle_async(:bluesky_thread, _failed, socket) do
+    {:noreply, assign(socket, :bluesky_thread, :unavailable)}
   end
 end

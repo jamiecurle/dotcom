@@ -18,6 +18,7 @@ defmodule Jamie.Content.Post do
           bluesky_cid: String.t() | nil,
           bluesky_posted_at: DateTime.t() | nil,
           standard_document_uri: String.t() | nil,
+          bluesky_hidden_replies: [String.t()],
           inserted_at: DateTime.t() | nil,
           updated_at: DateTime.t() | nil
         }
@@ -46,6 +47,7 @@ defmodule Jamie.Content.Post do
     field :bluesky_cid, :string
     field :bluesky_posted_at, :utc_datetime_usec
     field :standard_document_uri, :string
+    field :bluesky_hidden_replies, {:array, :string}, default: []
 
     timestamps(type: :utc_datetime_usec)
 
@@ -54,7 +56,13 @@ defmodule Jamie.Content.Post do
 
   def statuses, do: @statuses
 
-  @bluesky_fields [:bluesky_uri, :bluesky_cid, :bluesky_posted_at, :standard_document_uri]
+  @bluesky_fields [
+    :bluesky_uri,
+    :bluesky_cid,
+    :bluesky_posted_at,
+    :standard_document_uri,
+    :bluesky_hidden_replies
+  ]
 
   @doc """
   Records where the post lives on the AT Protocol. Only the publish worker
