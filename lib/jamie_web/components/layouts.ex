@@ -51,6 +51,7 @@ defmodule JamieWeb.Layouts do
             <li><.link navigate={~p"/office/notes"}>Notes</.link></li>
             <li><.link navigate={~p"/office/analytics"}>Analytics</.link></li>
             <li><.link navigate={~p"/office/suggestions"}>Suggestions</.link></li>
+            <li><.link navigate={~p"/office/mailing-list"}>Mailing list</.link></li>
             <li><.link navigate={~p"/office/mcp"}>MCP</.link></li>
           </ul>
         </div>

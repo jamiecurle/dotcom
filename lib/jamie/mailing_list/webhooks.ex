@@ -41,7 +41,7 @@ defmodule Jamie.MailingList.Webhooks do
     email = payload["Email"] || payload["Recipient"]
     subscriber = email && Repo.get_by(Subscriber, email: email)
 
-    Repo.transaction(fn ->
+    fn ->
       case insert_event(payload, record_type, email, subscriber) do
         {:ok, %EmailEvent{id: nil}} ->
           :duplicate
@@ -53,10 +53,20 @@ defmodule Jamie.MailingList.Webhooks do
         {:error, changeset} ->
           Repo.rollback(changeset)
       end
-    end)
+    end
+    |> Repo.transaction()
+    |> tap(&broadcast/1)
   end
 
   def handle(_payload), do: {:error, :unrecognised}
+
+  @doc "Hear about each event as it's handled, as `{:email_event, event}`."
+  def subscribe, do: Phoenix.PubSub.subscribe(Jamie.PubSub, "email_events")
+
+  defp broadcast({:ok, %EmailEvent{} = event}),
+    do: Phoenix.PubSub.broadcast(Jamie.PubSub, "email_events", {:email_event, event})
+
+  defp broadcast(_result), do: :ok
 
   defp insert_event(payload, record_type, email, subscriber) do
     Repo.insert(

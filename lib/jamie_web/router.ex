@@ -145,6 +145,7 @@ defmodule JamieWeb.Router do
       live "/analytics", AnalyticsLive.Dashboard, :index
       live "/mcp", OfficeLive.McpTokens, :index
       live "/suggestions", OfficeLive.Suggestions, :index
+      live "/mailing-list", OfficeLive.MailingList, :index
       live "/notes", ContentLive.NoteIndex, :index
       live "/notes/new", ContentLive.NoteForm, :new
       live "/notes/:id", ContentLive.NoteForm, :edit
