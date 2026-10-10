@@ -219,7 +219,8 @@ defmodule JamieWeb.ContentLive.PostForm do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, mode: :preview, modes: @modes)}
+    # writing mode is the default: just the editor until another is picked
+    {:ok, assign(socket, mode: :writing, modes: @modes)}
   end
 
   @impl true

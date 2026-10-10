@@ -25,8 +25,18 @@ defmodule JamieWeb.ContentLive.PostFormModesTest do
   end
 
   describe "the editor's modes" do
-    test "opens in preview mode", %{conn: conn, post: post} do
+    test "opens in writing mode", %{conn: conn, post: post} do
       {:ok, view, _html} = live(conn, ~p"/office/posts/#{post.id}")
+
+      assert has_element?(view, "#editor-mode-writing[aria-pressed='true']")
+      refute has_element?(view, "#post-preview")
+      refute has_element?(view, "#post-suggestions")
+    end
+
+    test "preview mode puts the live post beside the editor", %{conn: conn, post: post} do
+      {:ok, view, _html} = live(conn, ~p"/office/posts/#{post.id}")
+
+      view |> element("#editor-mode-preview") |> render_click()
 
       assert has_element?(view, "#editor-mode-preview[aria-pressed='true']")
       assert has_element?(view, "#post-preview")
