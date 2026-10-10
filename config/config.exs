@@ -23,7 +23,12 @@ config :jamie, :mailing_list,
   enabled: false,
   # recorded against each confirmed subscriber as what they agreed to; set
   # it to the privacy notice's version when that covers the mailing list
-  privacy_notice_version: "unreleased"
+  privacy_notice_version: "unreleased",
+  # who the mailing list's emails come from; move to an @jamiecurle.com
+  # address once that domain is verified in Postmark
+  from: {"Jamie Curle", "jamie@curle.io"},
+  # Postmark's stream for digests, kept apart from transactional mail
+  broadcast_stream: "broadcast"
 
 # Cloudflare's always-pass test keys; runtime.exs swaps in real ones
 config :jamie, :turnstile,
@@ -34,26 +39,39 @@ config :jamie, :bluesky,
   appview: "https://public.api.bsky.app",
   plc: "https://plc.directory"
 
+# a real time zone database, for London times (digests go at 8am, BST or not)
+config :elixir, :time_zone_database, Tz.TimeZoneDatabase
+
 config :jamie, Oban,
   engine: Oban.Engines.Basic,
   notifier: Oban.Notifiers.Postgres,
   queues: [
     default: 10,
     bookmarks: 1,
-    r2: 15
+    r2: 15,
+    # digests; a few at a time keeps Postmark's rate limits happy
+    mail: 5
   ],
   repo: Jamie.Repo,
   plugins: [
-    {Oban.Plugins.Cron,
-     crontab: [
-       # bookmarks sync - every fifteen minutes
-       {"*/15 * * * *", Jamie.Workers.SyncBookmarks, queue: :bookmarks},
-       # remove post images that were edited out - hourly. Dry run (logs only)
-       # until the logs have been checked; flip to "delete" => true after that
-       {"0 * * * *", Jamie.Workers.PostImageCleanup, args: %{"delete" => false}},
-       # mailing list: unconfirmed sign-ups and old email events - daily
-       {"30 3 * * *", Jamie.Workers.MailingListHousekeeping}
-     ]}
+    {
+      Oban.Plugins.Cron,
+      # every schedule below is London time
+      timezone: "Europe/London",
+      crontab: [
+        # bookmarks sync - every fifteen minutes
+        {"*/15 * * * *", Jamie.Workers.SyncBookmarks, queue: :bookmarks},
+        # remove post images that were edited out - hourly. Dry run (logs only)
+        # until the logs have been checked; flip to "delete" => true after that
+        {"0 * * * *", Jamie.Workers.PostImageCleanup, args: %{"delete" => false}},
+        # mailing list: unconfirmed sign-ups and old email events - daily
+        {"30 3 * * *", Jamie.Workers.MailingListHousekeeping},
+        # mailing list digests, all at 8am: daily, Fridays, and the 28th
+        {"0 8 * * *", Jamie.Workers.DigestSchedule, args: %{"frequency" => "daily"}},
+        {"0 8 * * 5", Jamie.Workers.DigestSchedule, args: %{"frequency" => "weekly"}},
+        {"0 8 28 * *", Jamie.Workers.DigestSchedule, args: %{"frequency" => "monthly"}}
+      ]
+    }
   ]
 
 config :jamie, :scopes,

@@ -61,6 +61,8 @@ defmodule Jamie.MixProject do
        compile: false,
        depth: 1},
       {:mdex, "~> 0.11"},
+      # time zones, so digests go out at 8am London time all year
+      {:tz, "~> 0.28"},
       {:swoosh, "~> 1.16"},
       {:req, "~> 0.5"},
       {:telemetry_metrics, "~> 1.0"},

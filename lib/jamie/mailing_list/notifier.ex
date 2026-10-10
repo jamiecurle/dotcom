@@ -9,8 +9,6 @@ defmodule Jamie.MailingList.Notifier do
 
   alias Jamie.Mailer
 
-  @from {"Jamie Curle", "jamie@curle.io"}
-
   def deliver_confirmation(subscriber, confirm_url) do
     deliver(subscriber.email, "Confirm your subscription", """
     Hello,
@@ -41,11 +39,93 @@ defmodule Jamie.MailingList.Notifier do
     """)
   end
 
+  @doc """
+  A digest: the posts, each with its title, description and link, and the
+  ways out. Goes through Postmark's broadcast stream with open and link
+  tracking off, and carries the RFC 8058 headers that let Gmail, Yahoo and
+  others offer a one-click unsubscribe. Returns `{:ok, message_id}`.
+  """
+  def deliver_digest(subscriber, posts, frequency, url_fun) do
+    manage = url_fun.({:manage, subscriber.id})
+    one_click = url_fun.({:one_click, subscriber.id})
+
+    posts =
+      Enum.map(
+        posts,
+        &%{title: &1.title, description: &1.description, url: url_fun.({:post, &1.slug})}
+      )
+
+    email =
+      new()
+      |> to(subscriber.email)
+      |> from(config()[:from])
+      |> subject(digest_subject(posts, frequency))
+      |> text_body(digest_text(posts, manage))
+      |> html_body(digest_html(posts, manage))
+      |> header("List-Unsubscribe", "<#{one_click}>")
+      |> header("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+      |> put_provider_option(:message_stream, config()[:broadcast_stream])
+      |> put_provider_option(:track_opens, false)
+      |> put_provider_option(:track_links, "None")
+
+    with {:ok, meta} <- Mailer.deliver(email) do
+      {:ok, meta[:id]}
+    end
+  end
+
+  defp digest_subject([post], _frequency), do: post.title
+
+  defp digest_subject(posts, frequency),
+    do: "#{length(posts)} new posts from jamiecurle.com, #{frequency_word(frequency)}"
+
+  defp frequency_word(:daily), do: "today"
+  defp frequency_word(:weekly), do: "this week"
+  defp frequency_word(:monthly), do: "this month"
+
+  defp digest_text(posts, manage) do
+    items =
+      Enum.map_join(posts, "\n\n", fn post ->
+        "#{post.title}\n#{post.description}\n#{post.url}"
+      end)
+
+    """
+    #{items}
+
+    --
+    Change what you get, or unsubscribe: #{manage}
+    """
+  end
+
+  # Deliberately plain for now; HEEM-350 gives it the site's look.
+  defp digest_html(posts, manage) do
+    items =
+      Enum.map_join(posts, "\n", fn post ->
+        """
+        <h2 style="font-size:20px;margin:24px 0 4px"><a href="#{escape(post.url)}" style="color:#1e1e1e">#{escape(post.title)}</a></h2>
+        <p style="margin:0;color:#484e4e">#{escape(post.description)}</p>
+        """
+      end)
+
+    """
+    <div style="font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;color:#1e1e1e">
+    #{items}
+    <p style="margin-top:40px;font-size:13px;color:#797f7f"><a href="#{escape(manage)}" style="color:#797f7f">Change what you get, or unsubscribe</a></p>
+    </div>
+    """
+  end
+
+  defp escape(nil), do: ""
+
+  defp escape(text),
+    do: text |> Phoenix.HTML.html_escape() |> Phoenix.HTML.safe_to_string()
+
+  defp config, do: Application.get_env(:jamie, :mailing_list)
+
   defp deliver(recipient, subject, body) do
     email =
       new()
       |> to(recipient)
-      |> from(@from)
+      |> from(config()[:from])
       |> subject(subject)
       |> text_body(body)
 

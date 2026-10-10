@@ -22,6 +22,11 @@ defmodule JamieWeb.Router do
     plug :put_root_layout, html: {JamieWeb.Layouts, :office_root}
   end
 
+  # one-click unsubscribe: mail providers POST with no session or CSRF token
+  pipeline :one_click do
+    plug :secret_url_headers
+  end
+
   # for pages whose url is itself a secret
   pipeline :secret_url do
     plug :secret_url_headers
@@ -93,6 +98,18 @@ defmodule JamieWeb.Router do
       live "/subscribe/confirm/:token", MailingListLive.Confirm, :show
       live "/subscribe/:id", MailingListLive.Manage, :edit
     end
+  end
+
+  scope "/", JamieWeb do
+    pipe_through :one_click
+
+    post "/subscribe/:id/unsubscribe", OneClickUnsubscribeController, :create
+  end
+
+  scope "/", JamieWeb do
+    pipe_through [:browser, :secret_url]
+
+    get "/subscribe/:id/unsubscribe", OneClickUnsubscribeController, :show
   end
 
   # Postmark's delivery, bounce, complaint and suppression webhooks.

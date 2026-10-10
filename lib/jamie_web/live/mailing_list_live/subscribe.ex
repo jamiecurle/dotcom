@@ -39,7 +39,7 @@ defmodule JamieWeb.MailingListLive.Subscribe do
 
   def handle_event("subscribe", %{"subscriber" => params} = all, socket) do
     with :ok <- @turnstile.verify(all["cf-turnstile-response"]),
-         :ok <- MailingList.subscribe(params, &url_for/1) do
+         :ok <- MailingList.subscribe(params, &JamieWeb.MailingListUrls.url_for/1) do
       {:noreply, assign(socket, sent?: true)}
     else
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -54,9 +54,6 @@ defmodule JamieWeb.MailingListLive.Subscribe do
   defp reset_bot_check(socket), do: push_event(socket, "turnstile:reset", %{})
 
   defp assign_form(socket, changeset), do: assign(socket, :form, to_form(changeset))
-
-  defp url_for({:confirm, token}), do: url(~p"/subscribe/confirm/#{token}")
-  defp url_for({:manage, id}), do: url(~p"/subscribe/#{id}")
 
   @impl true
   def render(assigns) do
