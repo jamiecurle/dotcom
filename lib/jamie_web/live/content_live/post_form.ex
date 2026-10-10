@@ -188,6 +188,18 @@ defmodule JamieWeb.ContentLive.PostForm do
                   <.icon name={icon} class="size-4" /> {label}
                 </button>
               </div>
+              <%!-- the post on its own, as readers see it, in a new tab; the
+                   preview flag drops the edit button so it's just the post --%>
+              <a
+                :if={@live_action == :edit}
+                id="open-post"
+                href={~p"/posts/#{@post.slug}?#{[preview: true]}"}
+                target="_blank"
+                rel="noopener"
+                class="btn btn-ghost btn-sm"
+              >
+                <.icon name="hero-arrow-top-right-on-square" class="size-4" /> Open
+              </a>
               <span
                 :if={@tags != @saved_tags}
                 id="tags-unsaved"
