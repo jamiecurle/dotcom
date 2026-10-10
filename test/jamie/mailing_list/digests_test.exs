@@ -1,5 +1,7 @@
 defmodule Jamie.MailingList.DigestsTest do
-  use Jamie.DataCase, async: true
+  # not async: one test switches the mailing list on for everyone, which
+  # races any async test that reads the gate (seen in CI on #149)
+  use Jamie.DataCase, async: false
   use Oban.Testing, repo: Jamie.Repo
 
   import Swoosh.TestAssertions
