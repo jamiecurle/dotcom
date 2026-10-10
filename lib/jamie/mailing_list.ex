@@ -197,6 +197,36 @@ defmodule Jamie.MailingList do
     count
   end
 
+  ## Managing a subscription
+
+  @doc """
+  The subscriber a manage link belongs to, if it can be managed: confirmed
+  (or suspended for bouncing). A pending sign-up has nothing to manage yet,
+  so it's treated like any unknown id.
+  """
+  def get_manageable(id) do
+    case get_subscriber(id) do
+      %Subscriber{status: status} = subscriber when status in [:confirmed, :suspended] ->
+        subscriber
+
+      _ ->
+        nil
+    end
+  end
+
+  @doc "Changes which worlds and how often."
+  def update_preferences(%Subscriber{} = subscriber, attrs) do
+    subscriber
+    |> Subscriber.preferences_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Unsubscribes by deleting the subscriber outright. Their manage link stops
+  working, and nothing about them is kept.
+  """
+  def unsubscribe(%Subscriber{} = subscriber), do: Repo.delete(subscriber)
+
   ## Suppressions
 
   @doc """

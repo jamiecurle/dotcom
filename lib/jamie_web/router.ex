@@ -22,6 +22,11 @@ defmodule JamieWeb.Router do
     plug :put_root_layout, html: {JamieWeb.Layouts, :office_root}
   end
 
+  # for pages whose url is itself a secret
+  pipeline :secret_url do
+    plug :secret_url_headers
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -74,13 +79,19 @@ defmodule JamieWeb.Router do
       ] do
       live "/subscribe", MailingListLive.Subscribe, :new
     end
+  end
 
-    # Pages whose urls carry a secret (a confirmation token, later a
-    # subscriber's id): no analytics, and kept out of the request log too
-    # (see JamieWeb.Endpoint.log_level/1).
+  # Pages whose urls carry a secret: a confirmation token, or a subscriber's
+  # id, which is their manage link. No analytics, kept out of the request log
+  # (JamieWeb.Endpoint.log_level/1), never sent on as a referrer, and never
+  # indexed.
+  scope "/", JamieWeb do
+    pipe_through [:browser, :secret_url]
+
     live_session :mailing_list_private,
       on_mount: [{JamieWeb.UserAuth, :mount_current_scope}, JamieWeb.MailingListGate] do
       live "/subscribe/confirm/:token", MailingListLive.Confirm, :show
+      live "/subscribe/:id", MailingListLive.Manage, :edit
     end
   end
 
@@ -147,5 +158,12 @@ defmodule JamieWeb.Router do
 
     post "/front-door/log-in", UserSessionController, :create
     delete "/front-door/log-out", UserSessionController, :delete
+  end
+
+  # never pass a secret url on as a referrer, and never index it
+  defp secret_url_headers(conn, _opts) do
+    conn
+    |> put_resp_header("referrer-policy", "no-referrer")
+    |> put_resp_header("x-robots-tag", "noindex, nofollow")
   end
 end

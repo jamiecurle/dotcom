@@ -223,3 +223,64 @@ button. Colours are in light.css. */
         max-width: 60ch;
     }
 }
+
+/* MANAGE - save sits beside a quiet "saved"; leaving is set apart below */
+@layer content {
+    form.subscribe-form .actions {
+        display: flex;
+        align-items: center;
+        gap: var(--unit-3);
+    }
+    form.subscribe-form .saved {
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        animation: saved-in var(--duration-2) ease;
+    }
+    @keyframes saved-in {
+        from {
+            opacity: 0;
+            transform: translateY(var(--unit-0));
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        form.subscribe-form .saved {
+            animation: none;
+        }
+    }
+
+    section.subscribe .notice {
+        margin: 0 0 var(--unit-4);
+        padding: var(--unit-2) var(--unit-3);
+        font-size: var(--unit-2-2);
+        font-weight: 600;
+    }
+
+    .unsubscribe {
+        margin-top: var(--unit-6);
+        padding-top: var(--unit-2);
+        border-top: 2px solid;
+    }
+    .unsubscribe h2 {
+        margin: 0 0 var(--unit-1);
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .unsubscribe p {
+        margin: 0 0 var(--unit-3);
+        font-size: var(--unit-2-2);
+    }
+    /* an outline rather than the filled button: leaving is never the
+       thing the page pushes you towards */
+    section.subscribe .unsubscribe button {
+        padding: var(--unit-1) var(--unit-3);
+        border: 2px solid;
+        background: transparent;
+        font-size: var(--unit-2-2);
+    }
+}

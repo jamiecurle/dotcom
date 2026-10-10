@@ -45,7 +45,7 @@ defmodule Jamie.MailingList.Subscriber do
     subscriber
     |> cast(attrs, [:everything, :worlds, :frequency])
     |> validate_required([:frequency])
-    |> update_change(:worlds, &Enum.uniq/1)
+    |> update_change(:worlds, &(&1 |> Enum.reject(fn world -> world == "" end) |> Enum.uniq()))
     |> validate_subset(:worlds, MailingList.worlds())
     |> validate_something_chosen()
   end

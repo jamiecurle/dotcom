@@ -10,17 +10,9 @@ defmodule JamieWeb.MailingListLive.Subscribe do
   alias Jamie.MailingList.Subscriber
   alias Jamie.Service
 
-  @turnstile Service.get!(:turnstile)
+  import JamieWeb.MailingListComponents
 
-  # what the form says about each world
-  @blurbs %{
-    "treeworld" => "Woodland, trees and the land",
-    "techworld" => "Software, the web and tools",
-    "makerworld" => "The workshop and making things",
-    "privacyworld" => "Privacy, data and the law",
-    "foodworld" => "Cooking and eating",
-    "miscworld" => "Everything else"
-  }
+  @turnstile Service.get!(:turnstile)
 
   @impl true
   def mount(_params, _session, socket) do
@@ -29,8 +21,6 @@ defmodule JamieWeb.MailingListLive.Subscribe do
      |> assign(:body_id, "subscribe")
      |> assign(:page_title, "Subscribe")
      |> assign(:page_description, "Get new writing by email, a world at a time.")
-     |> assign(:worlds, Enum.map(MailingList.worlds(), &{&1, @blurbs[&1]}))
-     |> assign(:frequencies, Subscriber.frequencies())
      |> assign(:site_key, @turnstile.site_key())
      |> assign(:sent?, false)
      |> assign(:bot_check_failed?, false)
@@ -65,14 +55,8 @@ defmodule JamieWeb.MailingListLive.Subscribe do
 
   defp assign_form(socket, changeset), do: assign(socket, :form, to_form(changeset))
 
-  # The manage page arrives in the next step, so its url is built by hand
-  # rather than with ~p, which would warn about a route that isn't there.
   defp url_for({:confirm, token}), do: url(~p"/subscribe/confirm/#{token}")
-  defp url_for({:manage, id}), do: JamieWeb.Endpoint.url() <> "/subscribe/" <> id
-
-  defp checked?(form, world), do: world in (form[:worlds].value || [])
-
-  defp everything?(form), do: form[:everything].value in [true, "true"]
+  defp url_for({:manage, id}), do: url(~p"/subscribe/#{id}")
 
   @impl true
   def render(assigns) do
@@ -117,56 +101,7 @@ defmodule JamieWeb.MailingListLive.Subscribe do
             <p :for={msg <- errors(@form[:email])} class="error">{msg}</p>
           </div>
 
-          <fieldset id="subscribe-worlds">
-            <legend>Worlds</legend>
-            <ol class="worlds">
-              <li>
-                <input type="hidden" name={@form[:everything].name} value="false" />
-                <label class="world everything" for="subscriber-everything">
-                  <input
-                    type="checkbox"
-                    id="subscriber-everything"
-                    name={@form[:everything].name}
-                    value="true"
-                    checked={everything?(@form)}
-                  />
-                  <span class="name">Everything</span>
-                  <span class="blurb">All of it, and any world to come</span>
-                </label>
-              </li>
-              <li :for={{world, blurb} <- @worlds}>
-                <label class="world" for={"subscriber-world-#{world}"}>
-                  <input
-                    type="checkbox"
-                    id={"subscriber-world-#{world}"}
-                    name={@form[:worlds].name <> "[]"}
-                    value={world}
-                    checked={checked?(@form, world)}
-                    disabled={everything?(@form)}
-                  />
-                  <span class="name">{world}</span>
-                  <span class="blurb">{blurb}</span>
-                </label>
-              </li>
-            </ol>
-            <p :for={msg <- errors(@form[:worlds])} class="error">{msg}</p>
-          </fieldset>
-
-          <fieldset id="subscribe-frequency">
-            <legend>How often</legend>
-            <div class="frequencies">
-              <label :for={frequency <- @frequencies} for={"subscriber-frequency-#{frequency}"}>
-                <input
-                  type="radio"
-                  id={"subscriber-frequency-#{frequency}"}
-                  name={@form[:frequency].name}
-                  value={frequency}
-                  checked={to_string(@form[:frequency].value) == to_string(frequency)}
-                />
-                <span>{frequency_label(frequency)}</span>
-              </label>
-            </div>
-          </fieldset>
+          <.preferences form={@form} />
 
           <%!-- Turnstile draws itself in here and adds its token to the form --%>
           <div
@@ -192,17 +127,5 @@ defmodule JamieWeb.MailingListLive.Subscribe do
       <% end %>
     </section>
     """
-  end
-
-  defp frequency_label(:daily), do: "Daily, 8am"
-  defp frequency_label(:weekly), do: "Weekly, Fridays"
-  defp frequency_label(:monthly), do: "Monthly, the 28th"
-
-  # once the field has been touched, as <.input> does, or after a submit
-  # (an empty set of checkboxes sends nothing, so never counts as touched)
-  defp errors(field) do
-    if Phoenix.Component.used_input?(field) or field.form.source.action == :insert,
-      do: Enum.map(field.errors, &JamieWeb.CoreComponents.translate_error/1),
-      else: []
   end
 end

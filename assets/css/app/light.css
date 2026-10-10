@@ -589,3 +589,29 @@ body#error-404 a {
         color: var(--c-accent-light-8);
     }
 }
+
+/* subscribe: managing */
+@layer content {
+    form.subscribe-form .saved {
+        color: var(--c-accent-dark-7);
+    }
+    section.subscribe .notice {
+        background-color: var(--colour-light-2);
+        color: var(--colour-dark-2);
+    }
+    .unsubscribe {
+        border-top-color: var(--colour-dark-2);
+    }
+    .unsubscribe p {
+        color: var(--colour-dark-5);
+    }
+    section.subscribe .unsubscribe button {
+        background-color: transparent;
+        border-color: var(--colour-dark-2);
+        color: var(--colour-dark-2);
+    }
+    section.subscribe .unsubscribe button:hover {
+        background-color: var(--colour-dark-2);
+        color: var(--colour-light-1);
+    }
+}
