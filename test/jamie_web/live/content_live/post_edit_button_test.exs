@@ -33,5 +33,11 @@ defmodule JamieWeb.ContentLive.PostEditButtonTest do
                "header.masthead > a#edit-post[href='/office/posts/#{post.id}']"
              )
     end
+
+    test "the editor's preview pane leaves it out", %{conn: conn, post: post} do
+      {:ok, view, _html} = live(conn, ~p"/posts/#{post.slug}?preview=true")
+
+      refute has_element?(view, "#edit-post")
+    end
   end
 end

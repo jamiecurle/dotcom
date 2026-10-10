@@ -303,7 +303,6 @@
         display: inline-block;
         margin-bottom: var(--unit-3);
         padding: var(--unit-0) var(--unit-2);
-        border: 1px solid;
         border-radius: var(--unit-0);
         font-size: var(--unit-2-1);
         line-height: var(--unit-3);

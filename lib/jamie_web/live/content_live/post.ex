@@ -12,7 +12,10 @@ defmodule JamieWeb.ContentLive.Post do
   end
 
   @impl true
-  def handle_params(%{"slug" => slug}, _url, socket) do
+  # `?preview=true` is how the post editor's preview pane loads the page; the
+  # edit button is hidden there, since it would only open the editor again
+  # inside its own preview.
+  def handle_params(%{"slug" => slug} = params, _url, socket) do
     socket =
       with post <- Jamie.Content.get_post_by_slug!(slug, socket.assigns.current_scope),
            og_image <- og_image(post) do
@@ -23,6 +26,7 @@ defmodule JamieWeb.ContentLive.Post do
 
         socket
         |> assign(:body_id, "post")
+        |> assign(:preview?, params["preview"] == "true")
         |> assign_post(post)
         |> assign(:more_posts, more_posts(post))
         |> assign(:page_title, post.title)

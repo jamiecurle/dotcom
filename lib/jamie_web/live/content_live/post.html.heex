@@ -2,7 +2,7 @@
 <header class="masthead">
   <%!-- only for me: a quiet way into the editor, above the title --%>
   <a
-    :if={@current_scope && @current_scope.user}
+    :if={@current_scope && @current_scope.user && !@preview?}
     href={~p"/office/posts/#{@post.id}"}
     id="edit-post"
     class="edit-post"

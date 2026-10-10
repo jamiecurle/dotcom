@@ -199,7 +199,11 @@ defmodule JamieWeb.ContentLive.PostForm do
         </div>
 
         <div :if={@live_action == :edit and @mode == :preview} class="preview-pane">
-          <iframe id="post-preview" src={~p"/posts/#{@post.slug}"} title="Post preview" />
+          <iframe
+            id="post-preview"
+            src={~p"/posts/#{@post.slug}?#{[preview: true]}"}
+            title="Post preview"
+          />
         </div>
 
         <%!-- the suggestions page narrowed to this post, without the office
