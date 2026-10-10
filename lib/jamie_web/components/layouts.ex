@@ -29,12 +29,16 @@ defmodule JamieWeb.Layouts do
     default: false,
     doc: "when true the content fills the viewport (no centered container) — used by the editors"
 
+  attr :bare, :boolean,
+    default: false,
+    doc: "when true there is no navbar - for pages embedded in the editor's side pane"
+
   slot :inner_block, required: true
 
   def office(assigns) do
     ~H"""
     <div class="flex min-h-dvh flex-col bg-base-200 text-base-content">
-      <div class="navbar border-b border-base-300 bg-base-100">
+      <div :if={!@bare} class="navbar border-b border-base-300 bg-base-100">
         <div class="navbar-start">
           <.link navigate={~p"/office"} class="btn btn-ghost px-2 text-lg font-semibold">
             Office
@@ -65,7 +69,10 @@ defmodule JamieWeb.Layouts do
       <main :if={@full_bleed} class="flex min-h-0 flex-1 p-4">
         {render_slot(@inner_block)}
       </main>
-      <main :if={!@full_bleed} class="mx-auto w-full max-w-5xl px-4 py-8">
+      <main
+        :if={!@full_bleed}
+        class={["mx-auto w-full max-w-5xl px-4", if(@bare, do: "py-4", else: "py-8")]}
+      >
         {render_slot(@inner_block)}
       </main>
     </div>

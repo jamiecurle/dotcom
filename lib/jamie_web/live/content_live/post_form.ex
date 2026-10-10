@@ -5,6 +5,15 @@ defmodule JamieWeb.ContentLive.PostForm do
   alias Jamie.Content
   alias Jamie.Tags
 
+  # The editor's modes, in the order the switch shows them. A mode name from
+  # the client is looked up here rather than turned into an atom.
+  @modes [
+    {:preview, "Preview", "hero-eye"},
+    {:editing, "Editing", "hero-chat-bubble-left-right"},
+    {:writing, "Writing", "hero-pencil"}
+  ]
+  @mode_names Map.new(@modes, fn {mode, _label, _icon} -> {to_string(mode), mode} end)
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -153,18 +162,31 @@ defmodule JamieWeb.ContentLive.PostForm do
               >
                 Save Post
               </button>
-              <button
+              <%!-- what sits beside the editor: the live post (preview mode),
+                   Claude's suggestions for this post (editing mode), or
+                   nothing at all (writing mode) --%>
+              <div
                 :if={@live_action == :edit}
-                type="button"
-                class="btn btn-ghost btn-sm"
-                phx-click="toggle-preview"
+                id="editor-mode"
+                class="join"
+                role="group"
+                aria-label="Editor mode"
               >
-                <.icon
-                  name={if @show_preview, do: "hero-eye-slash", else: "hero-eye"}
-                  class="size-4"
-                />
-                {if @show_preview, do: "Hide preview", else: "Show preview"}
-              </button>
+                <button
+                  :for={{mode, label, icon} <- @modes}
+                  type="button"
+                  id={"editor-mode-#{mode}"}
+                  phx-click="set-mode"
+                  phx-value-mode={mode}
+                  aria-pressed={to_string(@mode == mode)}
+                  class={[
+                    "join-item btn btn-sm",
+                    if(@mode == mode, do: "btn-active", else: "btn-ghost")
+                  ]}
+                >
+                  <.icon name={icon} class="size-4" /> {label}
+                </button>
+              </div>
               <span
                 :if={@tags != @saved_tags}
                 id="tags-unsaved"
@@ -176,8 +198,19 @@ defmodule JamieWeb.ContentLive.PostForm do
           </div>
         </div>
 
-        <div :if={@live_action == :edit and @show_preview} class="preview-pane">
+        <div :if={@live_action == :edit and @mode == :preview} class="preview-pane">
           <iframe id="post-preview" src={~p"/posts/#{@post.slug}"} title="Post preview" />
+        </div>
+
+        <%!-- the suggestions page narrowed to this post, without the office
+             navbar; accepting one saves the post, and this editor hears that
+             over PubSub like any other save --%>
+        <div :if={@live_action == :edit and @mode == :editing} class="preview-pane">
+          <iframe
+            id="post-suggestions"
+            src={~p"/office/suggestions?#{[post_id: @post.id, embed: true]}"}
+            title="Suggestions for this post"
+          />
         </div>
       </div>
     </Layouts.office>
@@ -186,7 +219,7 @@ defmodule JamieWeb.ContentLive.PostForm do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :show_preview, true)}
+    {:ok, assign(socket, mode: :preview, modes: @modes)}
   end
 
   @impl true
@@ -195,8 +228,8 @@ defmodule JamieWeb.ContentLive.PostForm do
   end
 
   @impl true
-  def handle_event("toggle-preview", _params, socket) do
-    {:noreply, update(socket, :show_preview, &(!&1))}
+  def handle_event("set-mode", %{"mode" => mode}, socket) do
+    {:noreply, assign(socket, :mode, Map.get(@mode_names, mode, socket.assigns.mode))}
   end
 
   def handle_event("sign-image-url", %{"name" => name}, socket) do

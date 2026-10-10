@@ -11,14 +11,32 @@ defmodule JamieWeb.OfficeLive.Suggestions do
   # how much of the surrounding post to show either side of the change
   @context_chars 160
 
+  # `?post_id=` narrows the queue to one post, and `?embed=true` drops the
+  # office navbar - together they make the editing-mode side pane of the post
+  # editor, which shows this page in an iframe beside the draft.
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     # New suggestions are pushed here as Claude files them, and ones resolved
     # in another tab drop out, so two tabs can never act on the same one.
     if connected?(socket), do: Content.subscribe_suggestions()
 
-    suggestions = Content.list_suggestions(socket.assigns.current_scope, status: :pending)
-    {:ok, stream(socket, :suggestions, suggestions)}
+    post_id = parse_id(params["post_id"])
+    filters = if post_id, do: [status: :pending, post_id: post_id], else: [status: :pending]
+    suggestions = Content.list_suggestions(socket.assigns.current_scope, filters)
+
+    {:ok,
+     socket
+     |> assign(post_id: post_id, embed: params["embed"] == "true")
+     |> stream(:suggestions, suggestions)}
+  end
+
+  defp parse_id(nil), do: nil
+
+  defp parse_id(id) do
+    case Integer.parse(id) do
+      {id, ""} -> id
+      _ -> nil
+    end
   end
 
   @impl true
@@ -60,7 +78,12 @@ defmodule JamieWeb.OfficeLive.Suggestions do
 
   @impl true
   def handle_info({:suggestion_created, suggestion}, socket) do
-    {:noreply, stream_insert(socket, :suggestions, suggestion, at: 0)}
+    # a pane narrowed to one post ignores suggestions for any other
+    if socket.assigns.post_id in [nil, suggestion.post_id] do
+      {:noreply, stream_insert(socket, :suggestions, suggestion, at: 0)}
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_info({:suggestion_resolved, suggestion}, socket) do
@@ -83,9 +106,11 @@ defmodule JamieWeb.OfficeLive.Suggestions do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.office flash={@flash} current_scope={@current_scope}>
-      <header class="mb-6">
-        <h1 class="text-2xl font-semibold">Suggestions</h1>
+    <Layouts.office flash={@flash} current_scope={@current_scope} bare={@embed}>
+      <header class={if(@embed, do: "mb-4", else: "mb-6")}>
+        <h1 class={if(@embed, do: "text-lg font-semibold", else: "text-2xl font-semibold")}>
+          Suggestions
+        </h1>
         <p class="text-sm text-base-content/70">
           Edits proposed by Claude. Nothing changes until you accept it.
         </p>
@@ -110,7 +135,9 @@ defmodule JamieWeb.OfficeLive.Suggestions do
           <div class="card-body gap-3">
             <div class="flex items-start justify-between gap-4">
               <div>
+                <%!-- narrowed to one post, its title would only repeat the editor --%>
                 <.link
+                  :if={is_nil(@post_id)}
                   navigate={~p"/office/posts/#{suggestion.post.id}"}
                   class="card-title link-hover"
                 >
