@@ -63,5 +63,7 @@ config :phoenix, :plug_init_mode, :runtime
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
+config :jamie, :postmark_webhook, username: "postmark", password: "test-webhook-password"
+
 # Only requests to this host reach /mcp (see JamieWeb.Plugs.TailnetOnly).
 config :jamie, :mcp_host, "stekpi.test"

@@ -38,6 +38,13 @@ end
 # Publishing to Bluesky needs both; with either unset the editor says so
 # instead of offering the button. The app password comes from Bluesky's
 # Settings -> Privacy and Security -> App Passwords.
+# Basic auth for /webhooks/postmark. Unset, the endpoint refuses everything.
+if config_env() != :test do
+  config :jamie, :postmark_webhook,
+    username: System.get_env("POSTMARK_WEBHOOK_USERNAME"),
+    password: System.get_env("POSTMARK_WEBHOOK_PASSWORD")
+end
+
 if config_env() == :prod and System.get_env("TURNSTILE_SITE_KEY") do
   config :jamie, :turnstile,
     site_key: System.get_env("TURNSTILE_SITE_KEY"),

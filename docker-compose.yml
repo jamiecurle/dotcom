@@ -23,6 +23,8 @@ services:
       MCP_HOST: ${MCP_HOST:-stekpi.tailebf707.ts.net}
       BLUESKY_HANDLE: ${BLUESKY_HANDLE:-curle.io}
       BLUESKY_APP_PASSWORD: ${BLUESKY_APP_PASSWORD}
+      POSTMARK_WEBHOOK_USERNAME: ${POSTMARK_WEBHOOK_USERNAME}
+      POSTMARK_WEBHOOK_PASSWORD: ${POSTMARK_WEBHOOK_PASSWORD}
     healthcheck:
       test:
         ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:4000/health"]

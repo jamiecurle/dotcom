@@ -51,8 +51,8 @@ config :jamie, Oban,
        # remove post images that were edited out - hourly. Dry run (logs only)
        # until the logs have been checked; flip to "delete" => true after that
        {"0 * * * *", Jamie.Workers.PostImageCleanup, args: %{"delete" => false}},
-       # mailing list sign-ups never confirmed - daily
-       {"30 3 * * *", Jamie.Workers.PurgeUnconfirmedSubscribers}
+       # mailing list: unconfirmed sign-ups and old email events - daily
+       {"30 3 * * *", Jamie.Workers.MailingListHousekeeping}
      ]}
   ]
 

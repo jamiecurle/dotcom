@@ -95,6 +95,14 @@ defmodule JamieWeb.Router do
     end
   end
 
+  # Postmark's delivery, bounce, complaint and suppression webhooks.
+  # JSON only, no session or CSRF; basic auth is checked in the controller.
+  scope "/webhooks", JamieWeb do
+    pipe_through :api
+
+    post "/postmark", PostmarkWebhookController, :create
+  end
+
   scope "/mcp", JamieWeb do
     pipe_through :mcp
 

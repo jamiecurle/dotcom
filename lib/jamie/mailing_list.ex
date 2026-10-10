@@ -12,7 +12,7 @@ defmodule Jamie.MailingList do
   """
 
   alias Jamie.Accounts.Scope
-  alias Jamie.MailingList.{Notifier, Subscriber, Suppression}
+  alias Jamie.MailingList.{EmailEvent, Notifier, Subscriber, Suppression}
   alias Jamie.Repo
   alias Plug.Crypto.KeyGenerator
 
@@ -227,6 +227,22 @@ defmodule Jamie.MailingList do
   """
   def unsubscribe(%Subscriber{} = subscriber), do: Repo.delete(subscriber)
 
+  # long enough to see a year of deliverability, no longer
+  @email_event_retention_days 400
+
+  @doc false
+  def email_event_retention_days, do: @email_event_retention_days
+
+  @doc "Deletes Postmark events past their retention. Returns how many."
+  def purge_old_email_events do
+    cutoff = DateTime.add(DateTime.utc_now(), -@email_event_retention_days, :day)
+
+    {count, _} =
+      Repo.delete_all(from e in EmailEvent, where: e.inserted_at < ^cutoff)
+
+    count
+  end
+
   ## Suppressions
 
   @doc """
@@ -249,7 +265,9 @@ defmodule Jamie.MailingList do
   # An HMAC of the normalised address, keyed from the app's secret so the
   # list can't be checked against a list of addresses by anyone holding only
   # the database. (Rotating secret_key_base would orphan existing entries.)
-  defp email_hash(email) do
+  @doc false
+  # also how email events are tied to an address without keeping it
+  def email_hash(email) do
     key =
       KeyGenerator.generate(
         JamieWeb.Endpoint.config(:secret_key_base),
