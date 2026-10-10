@@ -61,6 +61,12 @@
         padding: var(--unit-1) var(--unit-2);
         letter-spacing: 0.05em;
     }
+
+    /* four links don't fit beside the name on a phone, so Subscribe waits
+       for the wider header; the footer carries it below that */
+    nav.primary-nav a[data-nav="subscribe"] {
+        display: none;
+    }
     @media (min-width: 750px) {
         body > header {
             margin-right: 0;
@@ -69,6 +75,10 @@
         nav.primary-nav {
             gap: var(--unit-3);
             margin-left: auto;
+        }
+
+        nav.primary-nav a[data-nav="subscribe"] {
+            display: inline;
         }
     }
 }

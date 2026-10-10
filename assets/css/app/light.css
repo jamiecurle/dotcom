@@ -180,6 +180,9 @@ All colours MUST be in this file and only this file.
     body#blog a[data-nav="blog"] {
         background-color: var(--colour-dark-1);
     }
+    body#subscribe a[data-nav="subscribe"] {
+        background-color: var(--colour-dark-1);
+    }
 
     /* hover states */
     @media (hover: hover) {
