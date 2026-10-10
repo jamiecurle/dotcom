@@ -482,7 +482,8 @@ body#error-404 a {
     .writing-list time {
         color: var(--c-accent-dark-8);
     }
-    a.lead-post .description {
+    a.lead-post .description,
+    section.subscribe-invite .description {
         color: var(--colour-dark-3);
     }
     /* hairlines are light grey on white, and darker on the homepage cyan */
@@ -512,6 +513,7 @@ body#error-404 a {
     @media (hover: hover) {
         section.conversation a.reply-byline:hover .reply-name,
         .writing-list a:hover .title > span,
+        section.subscribe-invite a:hover .cta,
         a.all-writing:hover {
             background-color: var(--colour-dark-2);
             color: var(--c-accent-dark-5);

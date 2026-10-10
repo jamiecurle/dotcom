@@ -23,9 +23,29 @@ defmodule JamieWeb.MailingListLive.Subscribe do
      |> assign(:page_description, "Get new writing by email, a world at a time.")
      |> assign(:site_key, @turnstile.site_key())
      |> assign(:sent?, false)
-     |> assign(:bot_check_failed?, false)
-     |> assign_form(Subscriber.signup_changeset(%Subscriber{}, %{"frequency" => "weekly"}))}
+     |> assign(:bot_check_failed?, false)}
   end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    attrs = Map.merge(%{"frequency" => "weekly"}, preticked(params["worlds"]))
+    {:noreply, assign_form(socket, Subscriber.signup_changeset(%Subscriber{}, attrs))}
+  end
+
+  # `?worlds=treeworld,techworld` ticks those worlds, and `?worlds=everything`
+  # ticks everything; the invite at the end of each post links here that way.
+  # Names that aren't worlds are dropped, and with none left nothing is ticked.
+  defp preticked(worlds) when is_binary(worlds) do
+    names = String.split(worlds, ",", trim: true)
+
+    if "everything" in names do
+      %{"everything" => "true"}
+    else
+      %{"worlds" => Enum.filter(MailingList.worlds(), &(&1 in names))}
+    end
+  end
+
+  defp preticked(_worlds), do: %{}
 
   @impl true
   def handle_event("validate", %{"subscriber" => params}, socket) do

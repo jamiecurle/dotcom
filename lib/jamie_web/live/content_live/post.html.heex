@@ -43,6 +43,24 @@
   </article>
 </section>
 
+<%!-- straight after the post, while it's still fresh: an invite to get
+     more from the same worlds by email. One link, set like the homepage's
+     lead post; never in the editor's preview. --%>
+<section
+  :if={Jamie.MailingList.visible?(@current_scope) and !@preview?}
+  id="subscribe-invite"
+  class="writing-list subscribe-invite"
+>
+  <h2>By email</h2>
+  <a href={invite_path(@invite_worlds)} id="subscribe-invite-link">
+    <span class="title"><span>Get new writing like this by email</span></span>
+    <span class="description">
+      {invite_from(@invite_worlds)}, daily, weekly or monthly. Change what you get, or leave, whenever you like.
+    </span>
+    <span class="cta">Subscribe</span>
+  </a>
+</section>
+
 <%!-- the conversation lives on Bluesky; it's read back here, and replying
      happens there --%>
 <section :if={@post.bluesky_uri} id="conversation" class="writing-list conversation">

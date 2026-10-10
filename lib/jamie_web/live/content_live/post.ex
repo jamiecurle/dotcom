@@ -83,11 +83,36 @@ defmodule JamieWeb.ContentLive.Post do
   # Everything derived from the post body, kept together so a live update
   # (an edit saved elsewhere) refreshes the contents, reading time and tags.
   defp assign_post(socket, post) do
+    tags = Jamie.Tags.post_tags(post)
+
     socket
     |> assign(:post, post)
     |> assign(:toc, Jamie.Markdown.toc(post.markdown))
     |> assign(:reading_minutes, Jamie.Markdown.reading_minutes(post.markdown))
-    |> assign(:tags, Jamie.Tags.post_tags(post))
+    |> assign(:tags, tags)
+    |> assign(:invite_worlds, invite_worlds(tags))
+  end
+
+  # The worlds this post is in, for the invite to subscribe at its end: its
+  # tags that are worlds, in the order the sign-up form lists them.
+  defp invite_worlds(tags) do
+    slugs = Enum.map(tags, & &1.slug)
+    Enum.filter(Jamie.MailingList.worlds(), &(&1 in slugs))
+  end
+
+  # the invite's link pre-ticks the post's worlds; a post in none of them
+  # invites to everything instead
+  defp invite_path([]), do: ~p"/subscribe?worlds=everything"
+  defp invite_path(worlds), do: ~p"/subscribe?worlds=#{Enum.join(worlds, ",")}"
+
+  defp invite_from([]), do: "Everything I write"
+  defp invite_from(worlds), do: "From " <> join_and(worlds)
+
+  # "treeworld", "treeworld and techworld", "a, b and c"
+  defp join_and([world]), do: world
+
+  defp join_and(worlds) do
+    Enum.join(Enum.drop(worlds, -1), ", ") <> " and " <> List.last(worlds)
   end
 
   attr :replies, :list, required: true

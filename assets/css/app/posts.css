@@ -242,6 +242,52 @@
         border-top: 0;
     }
 
+    /* SUBSCRIBE INVITE
+       straight after the post: one link, set like the homepage's lead post,
+       a big statement with the detail under it and a small upper call */
+    section.subscribe-invite {
+        margin-top: var(--unit-6);
+        padding: var(--unit-5) 0 0;
+    }
+    @media (min-width: 750px) {
+        section.subscribe-invite {
+            padding-right: var(--unit-4);
+        }
+    }
+    section.subscribe-invite h2 {
+        margin: 0 0 var(--unit-3);
+    }
+    section.subscribe-invite .title {
+        display: block;
+        max-width: 20ch;
+        font-size: var(--unit-5);
+        line-height: calc(var(--unit-5) - var(--unit-1));
+        letter-spacing: -1px;
+        font-weight: 700;
+    }
+    section.subscribe-invite .description {
+        display: block;
+        max-width: 40ch;
+        margin-top: var(--unit-3);
+        font-size: var(--unit-3);
+        line-height: var(--unit-3-2);
+        font-weight: 500;
+    }
+    section.subscribe-invite .cta {
+        display: inline-block;
+        margin-top: var(--unit-3);
+        padding: var(--unit-0) var(--unit-1);
+        margin-left: calc(-1 * var(--unit-1));
+        font-size: var(--unit-2-1);
+        line-height: var(--unit-3);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        transition:
+            background-color var(--duration-1) ease,
+            color var(--duration-1) ease;
+    }
+
     /* CONVERSATION
        replies to the Bluesky announcement, set like the writing index: a
        tracked label on a 2px rule, then hairlines. A byline in the small
