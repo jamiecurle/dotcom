@@ -24,9 +24,9 @@ config :jamie, :mailing_list,
   # recorded against each confirmed subscriber as what they agreed to; set
   # it to the privacy notice's version when that covers the mailing list
   privacy_notice_version: "unreleased",
-  # who the mailing list's emails come from; move to an @jamiecurle.com
-  # address once that domain is verified in Postmark
-  from: {"Jamie Curle", "jamie@curle.io"},
+  # who the mailing list's emails come from (jamiecurle.com is a verified
+  # Postmark sender); replies land in Jamie's normal inbox
+  from: {"Jamie Curle", "me@jamiecurle.com"},
   # Postmark's stream for digests, kept apart from transactional mail
   broadcast_stream: "broadcast"
 
