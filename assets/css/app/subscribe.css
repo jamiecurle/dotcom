@@ -210,6 +210,23 @@ button. Colours are in light.css. */
         font-weight: 600;
     }
 
+    /* CONSENT - the box on the left like the worlds, the words beside it */
+    .consent label {
+        display: grid;
+        grid-template-columns: var(--unit-4) 1fr;
+        column-gap: var(--unit-1);
+        align-items: baseline;
+        max-width: 60ch;
+        font-size: var(--unit-2-2);
+        cursor: pointer;
+    }
+    .consent input[type="checkbox"] {
+        width: var(--unit-3);
+        height: var(--unit-3);
+        margin: 0;
+        accent-color: currentColor;
+    }
+
     form.subscribe-form .small-print {
         margin: 0;
         max-width: 60ch;

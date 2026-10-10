@@ -100,6 +100,28 @@ defmodule JamieWeb.MailingListLive.Subscribe do
 
           <.preferences form={@form} />
 
+          <%!-- consent: must be ticked; when, and to which notice, is recorded --%>
+          <div class="consent">
+            <input type="hidden" name={@form[:consent].name} value="false" />
+            <label for="subscriber-consent">
+              <input
+                type="checkbox"
+                id="subscriber-consent"
+                name={@form[:consent].name}
+                value="true"
+                checked={@form[:consent].value in [true, "true"]}
+              />
+              <span>
+                I've read the
+                <a href={~p"/privacy"} target="_blank" rel="noopener" id="consent-privacy-link">
+                  privacy notice
+                </a>
+                and agree to my email address being used to send me these digests.
+              </span>
+            </label>
+            <p :for={msg <- errors(@form[:consent])} id="consent-error" class="error">{msg}</p>
+          </div>
+
           <%!-- Turnstile draws itself in here and adds its token to the form --%>
           <div
             id="turnstile"
@@ -117,8 +139,7 @@ defmodule JamieWeb.MailingListLive.Subscribe do
           </button>
 
           <p class="small-print">
-            Just your email address, kept only to send you these. Every email has a link to
-            change what you get or leave. See the <.link navigate={~p"/privacy"}>privacy notice</.link>.
+            Every email has a link to change what you get, or leave.
           </p>
         </.form>
       <% end %>

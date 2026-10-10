@@ -173,6 +173,9 @@ defmodule JamieWeb.OfficeLive.MailingList do
           <p class="text-sm text-base-content/70">
             {@selected.status} · {@selected.frequency} · {worlds(@selected)} · {@selected.soft_bounce_count} soft bounces in a row
           </p>
+          <p id="consent-record" class="text-sm text-base-content/70">
+            {consent(@selected)}
+          </p>
           <.event_table id="timeline-events" events={@timeline} show_subscriber={false} />
         </div>
       </div>
@@ -345,6 +348,11 @@ defmodule JamieWeb.OfficeLive.MailingList do
       _ -> "badge-ghost"
     end
   end
+
+  defp consent(%{consented_at: nil}), do: "No consent recorded"
+
+  defp consent(%{consented_at: at, consent_notice_version: version}),
+    do: "Consented #{Calendar.strftime(at, "%-d %b %Y %H:%M")} UTC · privacy notice #{version}"
 
   defp worlds(%{everything: true}), do: "everything"
   defp worlds(%{worlds: worlds}), do: Enum.join(worlds, ", ")

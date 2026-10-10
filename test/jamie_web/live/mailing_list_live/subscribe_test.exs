@@ -29,7 +29,8 @@ defmodule JamieWeb.MailingListLive.SubscribeTest do
       "email" => "reader@example.com",
       "everything" => "false",
       "worlds" => ["treeworld", "foodworld"],
-      "frequency" => "monthly"
+      "frequency" => "monthly",
+      "consent" => "true"
     },
     "cf-turnstile-response" => "pass"
   }

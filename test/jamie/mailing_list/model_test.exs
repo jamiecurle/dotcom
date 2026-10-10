@@ -7,7 +7,10 @@ defmodule Jamie.MailingList.ModelTest do
   defp signup(attrs) do
     %Subscriber{}
     |> Subscriber.signup_changeset(
-      Map.merge(%{"email" => "reader@example.com", "frequency" => "weekly"}, attrs)
+      Map.merge(
+        %{"email" => "reader@example.com", "frequency" => "weekly", "consent" => "true"},
+        attrs
+      )
     )
   end
 

@@ -23,7 +23,7 @@ config :jamie, :mailing_list,
   enabled: false,
   # recorded against each confirmed subscriber as what they agreed to; set
   # it to the privacy notice's version when that covers the mailing list
-  privacy_notice_version: "unreleased",
+  privacy_notice_version: "2",
   # who the mailing list's emails come from (jamiecurle.com is a verified
   # Postmark sender); replies land in Jamie's normal inbox
   from: {"Jamie Curle", "me@jamiecurle.com"},

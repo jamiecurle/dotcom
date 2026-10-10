@@ -6,7 +6,12 @@ defmodule Jamie.MailingList.SubscribeTest do
   alias Jamie.MailingList
   alias Jamie.MailingList.Subscriber
 
-  @attrs %{"email" => "reader@example.com", "worlds" => ["treeworld"], "frequency" => "weekly"}
+  @attrs %{
+    "email" => "reader@example.com",
+    "worlds" => ["treeworld"],
+    "frequency" => "weekly",
+    "consent" => "true"
+  }
 
   # stands in for the LiveView's url builder, and tells the test the token
   defp urls do
@@ -120,7 +125,7 @@ defmodule Jamie.MailingList.SubscribeTest do
 
       assert confirmed.status == :confirmed
       assert confirmed.confirmed_at
-      assert confirmed.consent_notice_version == "unreleased"
+      assert confirmed.consent_notice_version == "2"
       assert confirmed.confirm_token_hash == nil
       assert MailingList.get_pending_by_token(token) == nil
     end

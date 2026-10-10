@@ -96,6 +96,7 @@ defmodule Jamie.MailingList do
     changeset
     |> Ecto.Changeset.put_change(:confirm_token_hash, hash)
     |> Ecto.Changeset.put_change(:confirm_sent_at, DateTime.utc_now())
+    |> put_consent()
     |> Repo.insert()
     |> case do
       {:ok, subscriber} ->
@@ -121,11 +122,14 @@ defmodule Jamie.MailingList do
           |> Subscriber.preferences_changeset(attrs)
           |> Ecto.Changeset.put_change(:confirm_token_hash, hash)
           |> Ecto.Changeset.put_change(:confirm_sent_at, DateTime.utc_now())
+          |> put_consent()
           |> Repo.update()
 
         Notifier.deliver_confirmation(subscriber, url_fun.({:confirm, token}))
         :ok
 
+      # Already confirmed: their consent record stays as it was. The form
+      # is unauthenticated, so anyone could submit their address.
       true ->
         {:ok, subscriber} =
           subscriber
@@ -136,6 +140,17 @@ defmodule Jamie.MailingList do
         :ok
     end
   end
+
+  # They ticked the box (signup_changeset insists), so record when, and
+  # which privacy notice it was for. Set here, never cast from the form.
+  defp put_consent(changeset) do
+    changeset
+    |> Ecto.Changeset.put_change(:consented_at, DateTime.utc_now())
+    |> Ecto.Changeset.put_change(:consent_notice_version, privacy_notice_version())
+  end
+
+  defp privacy_notice_version,
+    do: Application.get_env(:jamie, :mailing_list)[:privacy_notice_version]
 
   defp recently_mailed?(%Subscriber{confirm_sent_at: nil}), do: false
 
@@ -168,17 +183,20 @@ defmodule Jamie.MailingList do
   end
 
   @doc """
-  Confirms a subscription: the second half of double opt-in. Records which
-  privacy notice they agreed to and spends the token.
+  Confirms a subscription: the second half of double opt-in. Spends the
+  token. Consent was recorded when they ticked the box at sign-up; a
+  sign-up from before the box existed records it now instead.
   """
   def confirm(%Subscriber{status: :pending} = subscriber) do
     subscriber
     |> Ecto.Changeset.change(
       status: :confirmed,
       confirmed_at: DateTime.utc_now(),
-      consent_notice_version: Application.get_env(:jamie, :mailing_list)[:privacy_notice_version],
       confirm_token_hash: nil
     )
+    |> then(fn changeset ->
+      if subscriber.consented_at, do: changeset, else: put_consent(changeset)
+    end)
     |> Repo.update()
   end
 

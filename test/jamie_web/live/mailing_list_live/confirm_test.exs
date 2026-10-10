@@ -12,7 +12,12 @@ defmodule JamieWeb.MailingListLive.ConfirmTest do
 
     :ok =
       MailingList.subscribe(
-        %{"email" => "reader@example.com", "everything" => "true", "frequency" => "daily"},
+        %{
+          "email" => "reader@example.com",
+          "everything" => "true",
+          "frequency" => "daily",
+          "consent" => "true"
+        },
         fn {:confirm, token} -> send(me, {:token, token}) && "url" end
       )
 

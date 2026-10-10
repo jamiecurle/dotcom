@@ -26,7 +26,13 @@ defmodule Jamie.MailingList.Subscriber do
     field :confirm_token_hash, :binary, redact: true
     field :confirm_sent_at, :utc_datetime_usec
     field :confirmed_at, :utc_datetime_usec
+
+    # the privacy notice they ticked the box for, and when; set by the
+    # system at sign-up, never cast from the form
+    field :consented_at, :utc_datetime_usec
     field :consent_notice_version, :string
+    # the box itself, only ever on the form
+    field :consent, :boolean, virtual: true
 
     field :last_sent_at, :utc_datetime_usec
     field :soft_bounce_count, :integer, default: 0
@@ -51,11 +57,13 @@ defmodule Jamie.MailingList.Subscriber do
   end
 
   @doc """
-  A new sign-up: the email plus their preferences.
+  A new sign-up: the email, their preferences, and the box saying they've
+  read the privacy notice and agree to it, which must be ticked.
   """
   def signup_changeset(subscriber, attrs) do
     subscriber
-    |> cast(attrs, [:email])
+    |> cast(attrs, [:email, :consent])
+    |> validate_acceptance(:consent, message: "please agree to the privacy notice to subscribe")
     |> update_change(:email, &String.trim/1)
     |> validate_required([:email])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+\.[^@,;\s]+$/,
