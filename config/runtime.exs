@@ -45,10 +45,17 @@ if config_env() != :test do
     password: System.get_env("POSTMARK_WEBHOOK_PASSWORD")
 end
 
-if config_env() == :prod and System.get_env("TURNSTILE_SITE_KEY") do
+# Real Turnstile keys only when both are present *and* non-empty: the
+# deploy can set them to "" before they exist, and blank keys fail every
+# check (the widget can't render, so no token is ever posted). Without
+# them config.exs's always-pass test keys stay in place.
+turnstile_site_key = System.get_env("TURNSTILE_SITE_KEY", "")
+turnstile_secret_key = System.get_env("TURNSTILE_SECRET_KEY", "")
+
+if config_env() == :prod and turnstile_site_key != "" and turnstile_secret_key != "" do
   config :jamie, :turnstile,
-    site_key: System.get_env("TURNSTILE_SITE_KEY"),
-    secret_key: System.get_env("TURNSTILE_SECRET_KEY")
+    site_key: turnstile_site_key,
+    secret_key: turnstile_secret_key
 end
 
 if config_env() != :test do
